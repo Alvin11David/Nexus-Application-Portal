@@ -108,6 +108,7 @@ const Index = () => {
         <FloatingApplyButton onClick={openApplication} />
       )}
     </div>
+    </LoadingWrapper>
   );
 };
 
