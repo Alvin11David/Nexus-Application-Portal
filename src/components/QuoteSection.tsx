@@ -6,7 +6,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const QuoteSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const quoteRef = useRef<HTMLBlockquoteElement>(null);
+  const quoteRef = useRef<HTMLQuoteElement>(null);
   const attrRef = useRef<HTMLParagraphElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
 
