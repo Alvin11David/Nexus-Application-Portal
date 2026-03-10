@@ -65,6 +65,7 @@ const Index = () => {
   }, []);
 
   return (
+    <LoadingWrapper>
     <div className="relative min-h-screen bg-background">
       {/* Compressed content bar when application is open */}
       <div
