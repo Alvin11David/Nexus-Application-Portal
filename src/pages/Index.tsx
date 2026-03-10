@@ -89,6 +89,7 @@ const Index = () => {
             <HeroSection />
             <AcademicsSection />
             <ResearchSection />
+            <FacultySection />
             <QuoteSection />
             <ApplicationCTA onApply={openApplication} />
           </>
