@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import LoadingWrapper from "@/components/LoadingScreen";
 import HeroSection from "@/components/HeroSection";
 import AcademicsSection from "@/components/AcademicsSection";
 import ResearchSection from "@/components/ResearchSection";
+import FacultySection from "@/components/FacultySection";
 import QuoteSection from "@/components/QuoteSection";
 import ApplicationCTA from "@/components/ApplicationCTA";
 import ApplicationForm from "@/components/ApplicationForm";
