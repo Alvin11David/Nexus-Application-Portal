@@ -77,7 +77,10 @@ const innovationArticles = [
   "Medical engineering team unveils maternal safety monitoring prototype",
 ];
 
-const audienceGuides: Record<string, { title: string; note: string; cta: string }> = {
+const audienceGuides: Record<
+  string,
+  { title: string; note: string; cta: string }
+> = {
   "Prospective student: admissions and programs": {
     title: "Your next step starts here",
     note: "Compare programs, application timelines, and entry pathways with advisor-ready checklists.",
