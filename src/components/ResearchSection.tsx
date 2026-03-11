@@ -115,15 +115,19 @@ const ResearchSection = () => {
             fearlessness matched only by their methodological rigor.
           </p>
 
-          <div ref={statsRef} className="grid grid-cols-2 gap-x-16 gap-y-12">
+          <div ref={statsRef} className="grid grid-cols-2 gap-x-8 md:gap-x-16 gap-y-8 md:gap-y-12">
             {stats.map((stat) => (
-              <div key={stat.label} className="stat-item opacity-0">
-                <div className="font-heading text-4xl md:text-5xl font-light text-foreground">
+              <div
+                key={stat.label}
+                className="stat-item group opacity-0 p-4 md:p-5 border border-transparent hover:border-accent/30 hover:bg-accent/5 transition-all duration-500 cursor-pointer"
+              >
+                <div className="font-heading text-4xl md:text-5xl font-light text-foreground group-hover:text-accent transition-colors duration-400">
                   {stat.number}
                 </div>
-                <div className="font-body text-sm text-muted-foreground mt-2 tracking-wider uppercase">
+                <div className="font-body text-sm text-muted-foreground mt-2 tracking-wider uppercase group-hover:text-foreground transition-colors duration-300">
                   {stat.label}
                 </div>
+                <div className="w-0 h-px bg-accent mt-3 group-hover:w-12 transition-all duration-500" />
               </div>
             ))}
           </div>

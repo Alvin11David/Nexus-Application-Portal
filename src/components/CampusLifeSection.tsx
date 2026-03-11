@@ -198,12 +198,12 @@ const CampusLifeSection = () => {
         ].map((s) => (
           <div
             key={s.label}
-            className="stat-pill flex items-baseline gap-2 px-6 py-3 border border-border opacity-0"
+            className="stat-pill group flex items-baseline gap-2 px-6 py-3 border border-border opacity-0 transition-all duration-400 hover:border-accent/40 hover:bg-accent/5 hover:-translate-y-1 cursor-pointer"
           >
-            <span className="font-heading text-2xl md:text-3xl font-light text-foreground">
+            <span className="font-heading text-2xl md:text-3xl font-light text-foreground group-hover:text-accent transition-colors duration-300">
               {s.value}
             </span>
-            <span className="font-body text-xs tracking-[0.15em] uppercase text-muted-foreground">
+            <span className="font-body text-xs tracking-[0.15em] uppercase text-muted-foreground group-hover:text-foreground transition-colors duration-300">
               {s.label}
             </span>
           </div>
@@ -218,9 +218,13 @@ const CampusLifeSection = () => {
         {highlights.map((item) => {
           const Icon = item.icon;
           return (
-            <div key={item.title} className="campus-card group opacity-0">
+            <div
+              key={item.title}
+              className="campus-card group opacity-0 relative overflow-hidden p-4 -m-4 border border-transparent hover:border-accent/30 hover:bg-accent/5 transition-all duration-500"
+            >
+              <div className="absolute left-0 top-0 h-full w-[3px] bg-accent origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-500 ease-out" />
               <div className="flex items-start gap-4 mb-4">
-                <div className="w-10 h-10 flex items-center justify-center border border-border group-hover:border-accent group-hover:bg-accent/10 transition-all duration-500">
+                <div className="w-10 h-10 flex items-center justify-center border border-border group-hover:border-accent group-hover:bg-accent/10 transition-all duration-500 group-hover:rotate-3">
                   <Icon
                     size={18}
                     className="text-muted-foreground group-hover:text-accent transition-colors duration-500"
@@ -228,19 +232,24 @@ const CampusLifeSection = () => {
                 </div>
                 <div>
                   <div className="flex items-baseline gap-3">
-                    <h3 className="font-heading text-xl font-light text-foreground">
+                    <h3 className="font-heading text-xl font-light text-foreground group-hover:text-accent transition-colors duration-400">
                       {item.title}
                     </h3>
-                    <span className="font-heading text-2xl font-light text-accent">
+                    <span className="font-heading text-2xl font-light text-accent transition-transform duration-500 group-hover:translate-x-1">
                       {item.stat}
                     </span>
                   </div>
                 </div>
               </div>
-              <p className="font-body text-sm text-muted-foreground leading-relaxed pl-14">
+              <p className="font-body text-sm text-muted-foreground leading-relaxed pl-14 group-hover:text-foreground transition-colors duration-400">
                 {item.description}
               </p>
-              <div className="w-0 h-px bg-accent mt-6 group-hover:w-full transition-all duration-700" />
+              <div className="flex items-center justify-between pl-14 mt-6">
+                <div className="w-0 h-px bg-accent group-hover:w-full transition-all duration-700" />
+                <span className="text-accent opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ml-4 leading-none">
+                  →
+                </span>
+              </div>
             </div>
           );
         })}

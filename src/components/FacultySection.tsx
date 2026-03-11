@@ -91,18 +91,22 @@ const FacultySection = () => {
 
       <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
         {faculty.map((member) => (
-          <div key={member.name} className="faculty-card group opacity-0">
+          <div
+            key={member.name}
+            className="faculty-card group opacity-0 relative overflow-hidden p-5 -m-5 border border-transparent hover:border-accent/30 hover:bg-accent/5 transition-all duration-500"
+          >
+            <div className="absolute left-0 top-0 h-full w-[3px] bg-accent origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-500 ease-out" />
             {/* Initials block */}
-            <div className="w-full aspect-[3/2] bg-secondary flex items-center justify-center mb-6 overflow-hidden">
-              <span className="font-heading text-6xl font-light text-muted-foreground/40 tracking-widest select-none">
+            <div className="w-full aspect-[3/2] bg-secondary flex items-center justify-center mb-6 overflow-hidden transition-all duration-500 group-hover:bg-accent/10 group-hover:border group-hover:border-accent/30">
+              <span className="font-heading text-6xl font-light text-muted-foreground/40 tracking-widest select-none transition-colors duration-500 group-hover:text-accent/50">
                 {member.name.split(" ").filter(w => w.length > 1).map(w => w[0]).join("")}
               </span>
             </div>
 
-            <h3 className="font-heading text-2xl font-light text-foreground mb-1">
+            <h3 className="font-heading text-2xl font-light text-foreground mb-1 group-hover:text-accent transition-colors duration-400">
               {member.name}
             </h3>
-            <p className="font-body text-xs tracking-[0.15em] uppercase text-accent mb-4">
+            <p className="font-body text-xs tracking-[0.15em] uppercase text-accent mb-4 group-hover:tracking-[0.2em] transition-all duration-400">
               {member.title}
             </p>
 
@@ -111,7 +115,7 @@ const FacultySection = () => {
                 <span className="font-body text-xs tracking-[0.2em] uppercase text-muted-foreground">
                   Research
                 </span>
-                <p className="font-body text-sm text-foreground mt-0.5">
+                <p className="font-body text-sm text-foreground mt-0.5 group-hover:text-accent/90 transition-colors duration-300">
                   {member.area}
                 </p>
               </div>
@@ -119,11 +123,11 @@ const FacultySection = () => {
                 <span className="font-body text-xs tracking-[0.2em] uppercase text-muted-foreground">
                   Credentials
                 </span>
-                <p className="font-body text-sm text-foreground mt-0.5">
+                <p className="font-body text-sm text-foreground mt-0.5 group-hover:text-foreground transition-colors duration-300">
                   {member.credentials}
                 </p>
               </div>
-              <p className="font-body text-xs text-muted-foreground pt-2">
+              <p className="font-body text-xs text-muted-foreground pt-2 group-hover:text-accent transition-colors duration-300">
                 {member.years}
               </p>
             </div>
