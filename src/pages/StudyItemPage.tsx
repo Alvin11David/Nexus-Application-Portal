@@ -500,9 +500,12 @@ const StudyItemPage = () => {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-accent text-accent-foreground rounded-[16px] font-body text-xs tracking-[0.15em] uppercase hover:bg-accent/90 transition-all duration-300 hover:-translate-y-0.5">
+                  <Link
+                    to="/study/how-to-apply"
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-accent text-accent-foreground rounded-[16px] font-body text-xs tracking-[0.15em] uppercase hover:bg-accent/90 transition-all duration-300 hover:-translate-y-0.5"
+                  >
                     Start Application <ArrowRight size={14} />
-                  </button>
+                  </Link>
                   <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 border border-accent/40 text-accent rounded-[16px] font-body text-xs tracking-[0.15em] uppercase hover:bg-accent/10 transition-all duration-300 hover:-translate-y-0.5">
                     Download Guide <FileText size={14} />
                   </button>
