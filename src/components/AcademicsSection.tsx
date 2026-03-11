@@ -6,12 +6,36 @@ import academicsImg from "@/assets/academics.jpg";
 gsap.registerPlugin(ScrollTrigger);
 
 const programs = [
-  { name: "Philosophy & Ethics", duration: "4 Years", type: "Bachelor of Arts" },
-  { name: "Theoretical Physics", duration: "4 Years", type: "Bachelor of Science" },
-  { name: "Comparative Literature", duration: "3 Years", type: "Bachelor of Arts" },
-  { name: "Biomedical Engineering", duration: "5 Years", type: "Bachelor of Engineering" },
-  { name: "Mathematical Sciences", duration: "4 Years", type: "Bachelor of Science" },
-  { name: "Architecture & Urban Design", duration: "5 Years", type: "Bachelor of Architecture" },
+  {
+    name: "Philosophy & Ethics",
+    duration: "4 Years",
+    type: "Bachelor of Arts",
+  },
+  {
+    name: "Theoretical Physics",
+    duration: "4 Years",
+    type: "Bachelor of Science",
+  },
+  {
+    name: "Comparative Literature",
+    duration: "3 Years",
+    type: "Bachelor of Arts",
+  },
+  {
+    name: "Biomedical Engineering",
+    duration: "5 Years",
+    type: "Bachelor of Engineering",
+  },
+  {
+    name: "Mathematical Sciences",
+    duration: "4 Years",
+    type: "Bachelor of Science",
+  },
+  {
+    name: "Architecture & Urban Design",
+    duration: "5 Years",
+    type: "Bachelor of Architecture",
+  },
 ];
 
 const AcademicsSection = () => {
@@ -23,21 +47,37 @@ const AcademicsSection = () => {
   useEffect(() => {
     const ctx = gsap.context(() => {
       // Heading slides from left
-      gsap.fromTo(headingRef.current,
+      gsap.fromTo(
+        headingRef.current,
         { x: -100, opacity: 0 },
         {
-          x: 0, opacity: 1, duration: 1.2, ease: "power3.out",
-          scrollTrigger: { trigger: headingRef.current, start: "top 80%", end: "top 50%", toggleActions: "play none none reverse" }
-        }
+          x: 0,
+          opacity: 1,
+          duration: 1.2,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: headingRef.current,
+            start: "top 80%",
+            end: "top 50%",
+            toggleActions: "play none none reverse",
+          },
+        },
       );
 
       // Image clip-path reveal + parallax
-      gsap.fromTo(imageRef.current,
+      gsap.fromTo(
+        imageRef.current,
         { clipPath: "inset(0 100% 0 0)" },
         {
-          clipPath: "inset(0 0% 0 0)", duration: 1.4, ease: "power3.inOut",
-          scrollTrigger: { trigger: imageRef.current, start: "top 75%", toggleActions: "play none none reverse" }
-        }
+          clipPath: "inset(0 0% 0 0)",
+          duration: 1.4,
+          ease: "power3.inOut",
+          scrollTrigger: {
+            trigger: imageRef.current,
+            start: "top 75%",
+            toggleActions: "play none none reverse",
+          },
+        },
       );
 
       // Parallax on inner image
@@ -50,19 +90,28 @@ const AcademicsSection = () => {
             start: "top bottom",
             end: "bottom top",
             scrub: true,
-          }
+          },
         });
       }
 
       // Program items stagger
       if (programsRef.current) {
         const items = programsRef.current.querySelectorAll(".program-item");
-        gsap.fromTo(items,
+        gsap.fromTo(
+          items,
           { y: 30, opacity: 0 },
           {
-            y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power2.out",
-            scrollTrigger: { trigger: programsRef.current, start: "top 75%", toggleActions: "play none none reverse" }
-          }
+            y: 0,
+            opacity: 1,
+            duration: 0.6,
+            stagger: 0.1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: programsRef.current,
+              start: "top 75%",
+              toggleActions: "play none none reverse",
+            },
+          },
         );
       }
     }, sectionRef);
@@ -71,8 +120,15 @@ const AcademicsSection = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} id="academics" className="py-32 md:py-48 px-8 md:px-16">
-      <h2 ref={headingRef} className="heading-section text-foreground mb-24 opacity-0">
+    <section
+      ref={sectionRef}
+      id="academics"
+      className="py-32 md:py-48 px-8 md:px-16"
+    >
+      <h2
+        ref={headingRef}
+        className="heading-section text-foreground mb-24 opacity-0"
+      >
         Academics
       </h2>
 
@@ -86,8 +142,9 @@ const AcademicsSection = () => {
             />
           </div>
           <p className="body-text text-muted-foreground mt-6 max-w-sm">
-            Our curriculum is designed not to fill minds, but to sharpen them—through
-            direct engagement with primary sources and rigorous methodological training.
+            Our curriculum is designed not to fill minds, but to sharpen
+            them—through direct engagement with primary sources and rigorous
+            methodological training.
           </p>
         </div>
 
