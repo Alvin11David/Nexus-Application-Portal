@@ -7,6 +7,7 @@ import {
   ArrowRight,
   BadgeCheck,
   CalendarDays,
+  CheckCircle2,
   ChevronDown,
   FileCheck2,
   FileText,
@@ -146,11 +147,136 @@ const sectionLinks = [
 
 const pathwayIcons = [GraduationCap, Layers3, Landmark, ShieldCheck];
 
+type ApplicationData = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  nationality: string;
+  programLevel: string;
+  preferredProgram: string;
+  intake: string;
+  statement: string;
+  agreePolicy: boolean;
+};
+
+const initialApplicationData: ApplicationData = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  nationality: "",
+  programLevel: "",
+  preferredProgram: "",
+  intake: "",
+  statement: "",
+  agreePolicy: false,
+};
+
+const intakeOptions = ["April 2026", "August 2026", "January 2027"];
+const levelOptions = ["Undergraduate", "Postgraduate", "Mature Age Entry"];
+const programOptions = [
+  "BSc Computer Science",
+  "BA Mass Communication",
+  "BBA",
+  "MSc Data Science",
+  "MBA",
+  "MA Public Policy",
+];
+
 const StudyItemPage = () => {
   const { slug } = useParams();
   const item = studyLinks.find((entry) => entry.slug === slug);
   const isJoinAdmissions = item?.slug === "join-admissions";
+  const isHowToApply = item?.slug === "how-to-apply";
   const [openFaqIndex, setOpenFaqIndex] = useState<number>(0);
+  const [applicationStep, setApplicationStep] = useState(1);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [applicationData, setApplicationData] = useState<ApplicationData>(
+    initialApplicationData,
+  );
+  const [formError, setFormError] = useState("");
+
+  const updateApplicationData = <K extends keyof ApplicationData>(
+    field: K,
+    value: ApplicationData[K],
+  ) => {
+    setApplicationData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const validateStep = (step: number) => {
+    if (step === 1) {
+      if (
+        !applicationData.firstName.trim() ||
+        !applicationData.lastName.trim() ||
+        !applicationData.email.trim() ||
+        !applicationData.phone.trim()
+      ) {
+        return "Please complete all personal details before continuing.";
+      }
+      if (!applicationData.email.includes("@")) {
+        return "Please enter a valid email address.";
+      }
+    }
+
+    if (step === 2) {
+      if (
+        !applicationData.programLevel ||
+        !applicationData.preferredProgram ||
+        !applicationData.intake
+      ) {
+        return "Please select your program level, preferred program, and intake.";
+      }
+    }
+
+    if (step === 3) {
+      if (
+        !applicationData.statement.trim() ||
+        applicationData.statement.length < 80
+      ) {
+        return "Please provide a short statement of at least 80 characters.";
+      }
+      if (!applicationData.agreePolicy) {
+        return "You must accept the admissions policy declaration.";
+      }
+    }
+
+    return "";
+  };
+
+  const handleNextStep = () => {
+    const validationMessage = validateStep(applicationStep);
+    if (validationMessage) {
+      setFormError(validationMessage);
+      return;
+    }
+
+    setFormError("");
+    setApplicationStep((prev) => Math.min(prev + 1, 3));
+  };
+
+  const handlePreviousStep = () => {
+    setFormError("");
+    setApplicationStep((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleSubmitApplication = () => {
+    const validationMessage = validateStep(3);
+    if (validationMessage) {
+      setFormError(validationMessage);
+      return;
+    }
+
+    setFormError("");
+    setFormSubmitted(true);
+  };
+
+  const startNewApplication = () => {
+    setApplicationData(initialApplicationData);
+    setApplicationStep(1);
+    setFormSubmitted(false);
+    setFormError("");
+  };
 
   if (!item) {
     return <Navigate to="/not-found" replace />;
@@ -511,6 +637,333 @@ const StudyItemPage = () => {
                   </button>
                 </div>
               </article>
+            </section>
+          </>
+        ) : isHowToApply ? (
+          <>
+            <section className="relative max-w-6xl mx-auto mt-8 border border-border/60 rounded-[28px] bg-gradient-to-br from-background via-background to-secondary/25 p-6 md:p-9">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <div className="lg:col-span-2">
+                  <p className="font-body text-xs tracking-[0.2em] uppercase text-accent mb-4">
+                    Online Application Portal
+                  </p>
+                  <h2 className="font-heading text-4xl md:text-5xl font-light text-foreground leading-[0.95] mb-4">
+                    Apply in 3 guided steps
+                  </h2>
+                  <p className="font-body text-sm md:text-base text-muted-foreground leading-relaxed mb-5">
+                    Complete your profile, choose your program, and submit your
+                    statement. You can finish in under 10 minutes.
+                  </p>
+
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((stepNumber) => (
+                      <div
+                        key={stepNumber}
+                        className={`flex items-center gap-3 border rounded-[14px] px-3 py-2.5 transition-all duration-300 ${
+                          applicationStep === stepNumber
+                            ? "border-accent/50 bg-accent/10"
+                            : "border-border/60"
+                        }`}
+                      >
+                        <span
+                          className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-body ${
+                            applicationStep >= stepNumber
+                              ? "bg-accent text-accent-foreground"
+                              : "bg-secondary text-muted-foreground"
+                          }`}
+                        >
+                          {stepNumber}
+                        </span>
+                        <span className="font-body text-xs uppercase tracking-[0.12em] text-foreground">
+                          {stepNumber === 1 && "Personal Details"}
+                          {stepNumber === 2 && "Program Selection"}
+                          {stepNumber === 3 && "Statement & Submit"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="lg:col-span-3 border border-border/60 rounded-[22px] p-5 md:p-6 bg-background/90">
+                  {formSubmitted ? (
+                    <div className="text-center py-8">
+                      <div className="w-14 h-14 rounded-full bg-accent/15 mx-auto flex items-center justify-center mb-4">
+                        <CheckCircle2 size={28} className="text-accent" />
+                      </div>
+                      <h3 className="font-heading text-3xl font-light text-foreground mb-3">
+                        Application Submitted
+                      </h3>
+                      <p className="font-body text-sm md:text-base text-muted-foreground leading-relaxed max-w-lg mx-auto mb-6">
+                        Thank you, {applicationData.firstName}. Your application
+                        for {applicationData.preferredProgram} has been
+                        received. Admissions will contact you via{" "}
+                        {applicationData.email}.
+                      </p>
+                      <div className="flex flex-wrap items-center justify-center gap-3">
+                        <button
+                          type="button"
+                          onClick={startNewApplication}
+                          className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] border border-accent/40 text-accent font-body text-xs tracking-[0.14em] uppercase hover:bg-accent/10 transition-colors duration-300"
+                        >
+                          Start New Application
+                        </button>
+                        <Link
+                          to="/study/join-admissions"
+                          className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] bg-accent text-accent-foreground font-body text-xs tracking-[0.14em] uppercase hover:bg-accent/90 transition-colors duration-300"
+                        >
+                          Back to Admissions <ArrowRight size={14} />
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {applicationStep === 1 && (
+                        <div>
+                          <h3 className="font-heading text-3xl font-light text-foreground mb-5">
+                            Personal details
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <label className="space-y-2">
+                              <span className="font-body text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                                First Name
+                              </span>
+                              <input
+                                value={applicationData.firstName}
+                                onChange={(event) =>
+                                  updateApplicationData(
+                                    "firstName",
+                                    event.target.value,
+                                  )
+                                }
+                                className="w-full border border-border/60 rounded-[14px] px-4 py-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent/45"
+                              />
+                            </label>
+                            <label className="space-y-2">
+                              <span className="font-body text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                                Last Name
+                              </span>
+                              <input
+                                value={applicationData.lastName}
+                                onChange={(event) =>
+                                  updateApplicationData(
+                                    "lastName",
+                                    event.target.value,
+                                  )
+                                }
+                                className="w-full border border-border/60 rounded-[14px] px-4 py-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent/45"
+                              />
+                            </label>
+                            <label className="space-y-2">
+                              <span className="font-body text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                                Email
+                              </span>
+                              <input
+                                type="email"
+                                value={applicationData.email}
+                                onChange={(event) =>
+                                  updateApplicationData(
+                                    "email",
+                                    event.target.value,
+                                  )
+                                }
+                                className="w-full border border-border/60 rounded-[14px] px-4 py-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent/45"
+                              />
+                            </label>
+                            <label className="space-y-2">
+                              <span className="font-body text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                                Phone Number
+                              </span>
+                              <input
+                                value={applicationData.phone}
+                                onChange={(event) =>
+                                  updateApplicationData(
+                                    "phone",
+                                    event.target.value,
+                                  )
+                                }
+                                className="w-full border border-border/60 rounded-[14px] px-4 py-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent/45"
+                              />
+                            </label>
+                            <label className="space-y-2 md:col-span-2">
+                              <span className="font-body text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                                Nationality
+                              </span>
+                              <input
+                                value={applicationData.nationality}
+                                onChange={(event) =>
+                                  updateApplicationData(
+                                    "nationality",
+                                    event.target.value,
+                                  )
+                                }
+                                className="w-full border border-border/60 rounded-[14px] px-4 py-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent/45"
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {applicationStep === 2 && (
+                        <div>
+                          <h3 className="font-heading text-3xl font-light text-foreground mb-5">
+                            Program selection
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <label className="space-y-2">
+                              <span className="font-body text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                                Program Level
+                              </span>
+                              <select
+                                value={applicationData.programLevel}
+                                onChange={(event) =>
+                                  updateApplicationData(
+                                    "programLevel",
+                                    event.target.value,
+                                  )
+                                }
+                                className="w-full border border-border/60 rounded-[14px] px-4 py-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent/45"
+                              >
+                                <option value="">Select level</option>
+                                {levelOptions.map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <label className="space-y-2">
+                              <span className="font-body text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                                Intake
+                              </span>
+                              <select
+                                value={applicationData.intake}
+                                onChange={(event) =>
+                                  updateApplicationData(
+                                    "intake",
+                                    event.target.value,
+                                  )
+                                }
+                                className="w-full border border-border/60 rounded-[14px] px-4 py-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent/45"
+                              >
+                                <option value="">Select intake</option>
+                                {intakeOptions.map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                            <label className="space-y-2 md:col-span-2">
+                              <span className="font-body text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                                Preferred Program
+                              </span>
+                              <select
+                                value={applicationData.preferredProgram}
+                                onChange={(event) =>
+                                  updateApplicationData(
+                                    "preferredProgram",
+                                    event.target.value,
+                                  )
+                                }
+                                className="w-full border border-border/60 rounded-[14px] px-4 py-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent/45"
+                              >
+                                <option value="">Select program</option>
+                                {programOptions.map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {applicationStep === 3 && (
+                        <div>
+                          <h3 className="font-heading text-3xl font-light text-foreground mb-5">
+                            Statement and declaration
+                          </h3>
+                          <label className="space-y-2 block mb-4">
+                            <span className="font-body text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                              Why do you want to join this program?
+                            </span>
+                            <textarea
+                              value={applicationData.statement}
+                              onChange={(event) =>
+                                updateApplicationData(
+                                  "statement",
+                                  event.target.value,
+                                )
+                              }
+                              rows={6}
+                              className="w-full border border-border/60 rounded-[14px] px-4 py-3 bg-background focus:outline-none focus:ring-2 focus:ring-accent/45"
+                              placeholder="Write at least 80 characters..."
+                            />
+                            <span className="font-body text-[11px] text-muted-foreground">
+                              {applicationData.statement.length} / 80 minimum
+                            </span>
+                          </label>
+
+                          <label className="inline-flex items-start gap-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={applicationData.agreePolicy}
+                              onChange={(event) =>
+                                updateApplicationData(
+                                  "agreePolicy",
+                                  event.target.checked,
+                                )
+                              }
+                              className="mt-1"
+                            />
+                            <span className="font-body text-sm text-muted-foreground leading-relaxed">
+                              I confirm that the information provided is
+                              accurate and I agree to the admissions policy and
+                              verification procedures.
+                            </span>
+                          </label>
+                        </div>
+                      )}
+
+                      {formError && (
+                        <p className="mt-4 text-sm text-destructive font-body">
+                          {formError}
+                        </p>
+                      )}
+
+                      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                        <button
+                          type="button"
+                          onClick={handlePreviousStep}
+                          disabled={applicationStep === 1}
+                          className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] border border-border/70 text-foreground font-body text-xs tracking-[0.14em] uppercase disabled:opacity-40 disabled:cursor-not-allowed hover:border-accent/40 hover:text-accent transition-colors duration-300"
+                        >
+                          Back
+                        </button>
+
+                        {applicationStep < 3 ? (
+                          <button
+                            type="button"
+                            onClick={handleNextStep}
+                            className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] bg-accent text-accent-foreground font-body text-xs tracking-[0.14em] uppercase hover:bg-accent/90 transition-colors duration-300"
+                          >
+                            Continue <ArrowRight size={14} />
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={handleSubmitApplication}
+                            className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] bg-accent text-accent-foreground font-body text-xs tracking-[0.14em] uppercase hover:bg-accent/90 transition-colors duration-300"
+                          >
+                            Submit Application <CheckCircle2 size={14} />
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
             </section>
           </>
         ) : (
