@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { z } from "zod";
+import gsap from "gsap";
+import { ArrowRight, ArrowLeft, Check, ChevronDown } from "lucide-react";
 
 const applicationSchema = z.object({
   firstName: z.string().trim().min(1, "Required").max(100),
@@ -54,28 +56,137 @@ interface ApplicationFormProps {
   onClose: () => void;
 }
 
+// Animated floating-label input
+const FloatingInput = ({
+  label, value, onChange, error, type = "text",
+}: {
+  label: string; value: string; onChange: (v: string) => void; error?: string; type?: string;
+}) => {
+  const [focused, setFocused] = useState(false);
+  const lineRef = useRef<HTMLDivElement>(null);
+  const hasValue = value.length > 0;
+
+  useEffect(() => {
+    if (lineRef.current) {
+      gsap.to(lineRef.current, {
+        scaleX: focused ? 1 : 0,
+        duration: 0.5,
+        ease: "power3.out",
+      });
+    }
+  }, [focused]);
+
+  return (
+    <div className="relative group">
+      <label
+        className={`absolute left-0 font-body transition-all duration-500 pointer-events-none ${
+          focused || hasValue
+            ? "text-[10px] tracking-[0.25em] uppercase -top-2 text-accent"
+            : "text-sm top-3 text-muted-foreground"
+        }`}
+      >
+        {label}
+      </label>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        className="w-full bg-transparent border-b border-border py-3 pt-4 font-body text-sm text-foreground focus:outline-none transition-colors duration-500"
+      />
+      {/* Animated accent line */}
+      <div ref={lineRef} className="absolute bottom-0 left-0 w-full h-[2px] bg-accent origin-left scale-x-0" />
+      {error && (
+        <p className="font-body text-xs text-destructive mt-1.5 animate-fade-in">{error}</p>
+      )}
+    </div>
+  );
+};
+
+// Animated select
+const FloatingSelect = ({
+  label, value, onChange, options, error,
+}: {
+  label: string; value: string; onChange: (v: string) => void; options: string[]; error?: string;
+}) => {
+  const [focused, setFocused] = useState(false);
+  const lineRef = useRef<HTMLDivElement>(null);
+  const hasValue = value.length > 0;
+
+  useEffect(() => {
+    if (lineRef.current) {
+      gsap.to(lineRef.current, {
+        scaleX: focused ? 1 : 0,
+        duration: 0.5,
+        ease: "power3.out",
+      });
+    }
+  }, [focused]);
+
+  return (
+    <div className="relative group">
+      <label
+        className={`absolute left-0 font-body transition-all duration-500 pointer-events-none z-10 ${
+          focused || hasValue
+            ? "text-[10px] tracking-[0.25em] uppercase -top-2 text-accent"
+            : "text-sm top-3 text-muted-foreground"
+        }`}
+      >
+        {label}
+      </label>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          className="w-full bg-transparent border-b border-border py-3 pt-4 font-body text-sm text-foreground focus:outline-none appearance-none cursor-pointer transition-colors duration-500 pr-8"
+        >
+          <option value=""></option>
+          {options.map((o) => (
+            <option key={o} value={o}>{o}</option>
+          ))}
+        </select>
+        <ChevronDown
+          size={16}
+          className={`absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground transition-transform duration-300 pointer-events-none ${
+            focused ? "rotate-180 text-accent" : ""
+          }`}
+        />
+      </div>
+      <div ref={lineRef} className="absolute bottom-0 left-0 w-full h-[2px] bg-accent origin-left scale-x-0" />
+      {error && (
+        <p className="font-body text-xs text-destructive mt-1.5 animate-fade-in">{error}</p>
+      )}
+    </div>
+  );
+};
+
 const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
   const [formData, setFormData] = useState<Partial<ApplicationData>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const stepContentRef = useRef<HTMLDivElement>(null);
+  const successRef = useRef<HTMLDivElement>(null);
 
-  const updateField = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const updateField = useCallback((field: string, value: string | boolean) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
-      setErrors(prev => {
+      setErrors((prev) => {
         const next = { ...prev };
         delete next[field];
         return next;
       });
     }
-  };
+  }, [errors]);
 
   const steps = [
-    { title: "Personal Information", fields: ["firstName", "lastName", "email", "phone", "dateOfBirth", "nationality"] },
-    { title: "Address", fields: ["address", "city", "postalCode", "country"] },
-    { title: "Academic Background", fields: ["program", "startDate", "previousInstitution", "highestQualification", "gpa"] },
-    { title: "Personal Statement", fields: ["personalStatement", "howDidYouHear", "agreeTerms"] },
+    { title: "Personal Information", subtitle: "Tell us about yourself", fields: ["firstName", "lastName", "email", "phone", "dateOfBirth", "nationality"] },
+    { title: "Your Address", subtitle: "Where should we reach you?", fields: ["address", "city", "postalCode", "country"] },
+    { title: "Academic Background", subtitle: "Your educational journey", fields: ["program", "startDate", "previousInstitution", "highestQualification", "gpa"] },
+    { title: "Personal Statement", subtitle: "Share your story", fields: ["personalStatement", "howDidYouHear", "agreeTerms"] },
   ];
 
   const validateStep = () => {
@@ -83,17 +194,16 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
     const stepErrors: Record<string, string> = {};
 
     const result = applicationSchema.safeParse({
-      ...Object.fromEntries(currentFields.map(f => [f, (formData as Record<string, unknown>)[f] ?? ""])),
-      // Fill other fields with valid defaults to isolate validation
+      ...Object.fromEntries(currentFields.map((f) => [f, (formData as Record<string, unknown>)[f] ?? ""])),
       ...Object.fromEntries(
         Object.keys(applicationSchema.shape)
-          .filter(k => !currentFields.includes(k))
-          .map(k => [k, k === "agreeTerms" ? true : k === "personalStatement" ? "x".repeat(50) : k === "email" ? "a@b.c" : k === "phone" ? "1234567" : k === "dateOfBirth" ? "2000-01-01" : "placeholder"])
+          .filter((k) => !currentFields.includes(k))
+          .map((k) => [k, k === "agreeTerms" ? true : k === "personalStatement" ? "x".repeat(50) : k === "email" ? "a@b.c" : k === "phone" ? "1234567" : k === "dateOfBirth" ? "2000-01-01" : "placeholder"])
       ),
     });
 
     if (!result.success) {
-      result.error.errors.forEach(err => {
+      result.error.errors.forEach((err) => {
         const field = err.path[0] as string;
         if (currentFields.includes(field)) {
           stepErrors[field] = err.message;
@@ -105,38 +215,106 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
     return Object.keys(stepErrors).length === 0;
   };
 
+  // Animate step transitions
+  const animateStepIn = useCallback(() => {
+    if (stepContentRef.current) {
+      const children = stepContentRef.current.children;
+      gsap.fromTo(children,
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, stagger: 0.06, ease: "power2.out", delay: 0.1 }
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!submitted) animateStepIn();
+  }, [step, submitted, animateStepIn]);
+
+  useEffect(() => {
+    if (submitted && successRef.current) {
+      const tl = gsap.timeline();
+      tl.fromTo(successRef.current.querySelector(".success-icon"),
+        { scale: 0, rotation: -180 },
+        { scale: 1, rotation: 0, duration: 0.8, ease: "back.out(1.7)" }
+      )
+      .fromTo(successRef.current.querySelector(".success-title"),
+        { y: 40, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
+        "-=0.3"
+      )
+      .fromTo(successRef.current.querySelector(".success-text"),
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" },
+        "-=0.4"
+      )
+      .fromTo(successRef.current.querySelector(".success-btn"),
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" },
+        "-=0.3"
+      );
+    }
+  }, [submitted]);
+
   const handleNext = () => {
     if (validateStep()) {
-      if (step < steps.length - 1) {
-        setStep(step + 1);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+      if (stepContentRef.current) {
+        gsap.to(stepContentRef.current.children, {
+          y: -20, opacity: 0, duration: 0.3, stagger: 0.03, ease: "power2.in",
+          onComplete: () => {
+            if (step < steps.length - 1) {
+              setStep(step + 1);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            } else {
+              setSubmitted(true);
+            }
+          },
+        });
       } else {
-        setSubmitted(true);
+        if (step < steps.length - 1) setStep(step + 1);
+        else setSubmitted(true);
       }
     }
   };
 
-  const inputClasses = "w-full bg-transparent border-b border-border py-3 font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors duration-700";
-  const selectClasses = "w-full bg-transparent border-b border-border py-3 font-body text-sm text-foreground focus:outline-none focus:border-accent transition-colors duration-700 appearance-none cursor-pointer";
-  const labelClasses = "font-body text-xs tracking-[0.2em] uppercase text-muted-foreground mb-2 block";
-  const errorClasses = "font-body text-xs text-destructive mt-1";
+  const handlePrev = () => {
+    if (stepContentRef.current) {
+      gsap.to(stepContentRef.current.children, {
+        y: 20, opacity: 0, duration: 0.3, stagger: 0.03, ease: "power2.in",
+        onComplete: () => {
+          if (step > 0) setStep(step - 1);
+          else onClose();
+        },
+      });
+    } else {
+      if (step > 0) setStep(step - 1);
+      else onClose();
+    }
+  };
+
+  const val = (field: string) => ((formData as Record<string, string>)[field] ?? "");
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-8 py-32">
-        <div className="w-16 h-px bg-accent mb-12" />
-        <h2 className="font-heading text-4xl md:text-6xl font-light text-foreground text-center mb-8">
+      <div ref={successRef} className="min-h-screen flex flex-col items-center justify-center px-8 py-32">
+        <div className="success-icon w-20 h-20 rounded-full border-2 border-accent flex items-center justify-center mb-12">
+          <Check size={32} className="text-accent" />
+        </div>
+        <h2 className="success-title font-heading text-4xl md:text-6xl font-light text-foreground text-center mb-6 opacity-0">
           Application Received
         </h2>
-        <p className="body-text text-muted-foreground text-center max-w-md mb-12">
-          Thank you, {formData.firstName}. Your application to the {formData.program} program
+        <p className="success-text body-text text-muted-foreground text-center max-w-md mb-12 opacity-0">
+          Thank you, {formData.firstName}. Your application to the{" "}
+          <span className="text-accent">{formData.program}</span> program
           has been submitted. We will be in touch within 10 business days.
         </p>
         <button
           onClick={onClose}
-          className="px-12 py-4 border border-foreground font-body text-sm tracking-[0.3em] uppercase text-foreground transition-colors duration-700 hover:bg-accent hover:border-accent hover:text-accent-foreground"
+          className="success-btn group relative px-12 py-4 border border-foreground font-body text-sm tracking-[0.3em] uppercase text-foreground overflow-hidden opacity-0"
         >
-          Return to Site
+          <span className="relative z-10 group-hover:text-accent-foreground transition-colors duration-500">
+            Return to Site
+          </span>
+          <div className="absolute inset-0 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
         </button>
       </div>
     );
@@ -144,192 +322,175 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
 
   return (
     <div className="min-h-screen px-8 md:px-16 py-16 md:py-24 max-w-3xl mx-auto">
-      {/* Progress */}
-      <div className="flex items-center gap-4 mb-16">
-        {steps.map((s, i) => (
-          <div key={s.title} className="flex items-center gap-4">
-            <button
-              onClick={() => i < step && setStep(i)}
-              className={`font-body text-xs tracking-[0.2em] uppercase transition-colors duration-500 ${
-                i === step ? "text-foreground" : i < step ? "text-accent cursor-pointer" : "text-muted-foreground"
-              }`}
-            >
-              {String(i + 1).padStart(2, "0")}
-            </button>
-            {i < steps.length - 1 && <div className="w-8 h-px bg-border" />}
-          </div>
-        ))}
+      {/* Progress bar */}
+      <div className="mb-16">
+        <div className="flex items-center gap-2 mb-6">
+          {steps.map((s, i) => (
+            <div key={s.title} className="flex items-center gap-2 flex-1">
+              <button
+                onClick={() => i < step && setStep(i)}
+                className={`relative w-10 h-10 rounded-full border-2 flex items-center justify-center font-body text-xs tracking-wide transition-all duration-700 ${
+                  i < step
+                    ? "border-accent bg-accent text-accent-foreground cursor-pointer"
+                    : i === step
+                    ? "border-foreground text-foreground"
+                    : "border-border text-muted-foreground"
+                }`}
+              >
+                {i < step ? <Check size={14} /> : String(i + 1).padStart(2, "0")}
+              </button>
+              {i < steps.length - 1 && (
+                <div className="flex-1 h-px relative overflow-hidden">
+                  <div className="absolute inset-0 bg-border" />
+                  <div
+                    className="absolute inset-y-0 left-0 bg-accent transition-all duration-700 ease-out"
+                    style={{ width: i < step ? "100%" : "0%" }}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Step title with animated reveal */}
+        <div className="overflow-hidden">
+          <h2 className="font-heading text-3xl md:text-5xl font-light text-foreground">
+            {steps[step].title}
+          </h2>
+        </div>
+        <p className="body-text text-muted-foreground mt-2">
+          {steps[step].subtitle}
+        </p>
       </div>
 
-      <h2 className="font-heading text-3xl md:text-5xl font-light text-foreground mb-4">
-        {steps[step].title}
-      </h2>
-      <p className="body-text text-muted-foreground mb-16">
-        Step {step + 1} of {steps.length}
-      </p>
+      {/* Step Content */}
+      <div ref={stepContentRef}>
+        {step === 0 && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+              <FloatingInput label="First Name" value={val("firstName")} onChange={(v) => updateField("firstName", v)} error={errors.firstName} />
+              <FloatingInput label="Last Name" value={val("lastName")} onChange={(v) => updateField("lastName", v)} error={errors.lastName} />
+              <FloatingInput label="Email Address" value={val("email")} onChange={(v) => updateField("email", v)} error={errors.email} type="email" />
+              <FloatingInput label="Phone Number" value={val("phone")} onChange={(v) => updateField("phone", v)} error={errors.phone} type="tel" />
+              <FloatingInput label="Date of Birth" value={val("dateOfBirth")} onChange={(v) => updateField("dateOfBirth", v)} error={errors.dateOfBirth} type="date" />
+              <FloatingInput label="Nationality" value={val("nationality")} onChange={(v) => updateField("nationality", v)} error={errors.nationality} />
+            </div>
+          </>
+        )}
 
-      {/* Step 0: Personal */}
-      {step === 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-          <div>
-            <label className={labelClasses}>First Name</label>
-            <input className={inputClasses} value={formData.firstName ?? ""} onChange={e => updateField("firstName", e.target.value)} placeholder="Enter your first name" />
-            {errors.firstName && <p className={errorClasses}>{errors.firstName}</p>}
-          </div>
-          <div>
-            <label className={labelClasses}>Last Name</label>
-            <input className={inputClasses} value={formData.lastName ?? ""} onChange={e => updateField("lastName", e.target.value)} placeholder="Enter your last name" />
-            {errors.lastName && <p className={errorClasses}>{errors.lastName}</p>}
-          </div>
-          <div>
-            <label className={labelClasses}>Email Address</label>
-            <input className={inputClasses} type="email" value={formData.email ?? ""} onChange={e => updateField("email", e.target.value)} placeholder="your@email.com" />
-            {errors.email && <p className={errorClasses}>{errors.email}</p>}
-          </div>
-          <div>
-            <label className={labelClasses}>Phone Number</label>
-            <input className={inputClasses} type="tel" value={formData.phone ?? ""} onChange={e => updateField("phone", e.target.value)} placeholder="+1 234 567 890" />
-            {errors.phone && <p className={errorClasses}>{errors.phone}</p>}
-          </div>
-          <div>
-            <label className={labelClasses}>Date of Birth</label>
-            <input className={inputClasses} type="date" value={formData.dateOfBirth ?? ""} onChange={e => updateField("dateOfBirth", e.target.value)} />
-            {errors.dateOfBirth && <p className={errorClasses}>{errors.dateOfBirth}</p>}
-          </div>
-          <div>
-            <label className={labelClasses}>Nationality</label>
-            <input className={inputClasses} value={formData.nationality ?? ""} onChange={e => updateField("nationality", e.target.value)} placeholder="Enter your nationality" />
-            {errors.nationality && <p className={errorClasses}>{errors.nationality}</p>}
-          </div>
-        </div>
-      )}
+        {step === 1 && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+              <div className="md:col-span-2">
+                <FloatingInput label="Street Address" value={val("address")} onChange={(v) => updateField("address", v)} error={errors.address} />
+              </div>
+              <FloatingInput label="City" value={val("city")} onChange={(v) => updateField("city", v)} error={errors.city} />
+              <FloatingInput label="Postal Code" value={val("postalCode")} onChange={(v) => updateField("postalCode", v)} error={errors.postalCode} />
+              <div className="md:col-span-2">
+                <FloatingInput label="Country" value={val("country")} onChange={(v) => updateField("country", v)} error={errors.country} />
+              </div>
+            </div>
+          </>
+        )}
 
-      {/* Step 1: Address */}
-      {step === 1 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-          <div className="md:col-span-2">
-            <label className={labelClasses}>Street Address</label>
-            <input className={inputClasses} value={formData.address ?? ""} onChange={e => updateField("address", e.target.value)} placeholder="Enter your street address" />
-            {errors.address && <p className={errorClasses}>{errors.address}</p>}
-          </div>
-          <div>
-            <label className={labelClasses}>City</label>
-            <input className={inputClasses} value={formData.city ?? ""} onChange={e => updateField("city", e.target.value)} placeholder="Enter your city" />
-            {errors.city && <p className={errorClasses}>{errors.city}</p>}
-          </div>
-          <div>
-            <label className={labelClasses}>Postal Code</label>
-            <input className={inputClasses} value={formData.postalCode ?? ""} onChange={e => updateField("postalCode", e.target.value)} placeholder="Enter postal code" />
-            {errors.postalCode && <p className={errorClasses}>{errors.postalCode}</p>}
-          </div>
-          <div className="md:col-span-2">
-            <label className={labelClasses}>Country</label>
-            <input className={inputClasses} value={formData.country ?? ""} onChange={e => updateField("country", e.target.value)} placeholder="Enter your country" />
-            {errors.country && <p className={errorClasses}>{errors.country}</p>}
-          </div>
-        </div>
-      )}
+        {step === 2 && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+              <div className="md:col-span-2">
+                <FloatingSelect label="Program of Interest" value={val("program")} onChange={(v) => updateField("program", v)} options={programs} error={errors.program} />
+              </div>
+              <FloatingSelect label="Preferred Start Date" value={val("startDate")} onChange={(v) => updateField("startDate", v)} options={["Fall 2026", "Spring 2027", "Fall 2027"]} error={errors.startDate} />
+              <FloatingInput label="GPA / Score" value={val("gpa")} onChange={(v) => updateField("gpa", v)} error={errors.gpa} />
+              <FloatingInput label="Previous Institution" value={val("previousInstitution")} onChange={(v) => updateField("previousInstitution", v)} error={errors.previousInstitution} />
+              <FloatingSelect label="Highest Qualification" value={val("highestQualification")} onChange={(v) => updateField("highestQualification", v)} options={qualifications} error={errors.highestQualification} />
+            </div>
+          </>
+        )}
 
-      {/* Step 2: Academic */}
-      {step === 2 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-          <div className="md:col-span-2">
-            <label className={labelClasses}>Program of Interest</label>
-            <select className={selectClasses} value={formData.program ?? ""} onChange={e => updateField("program", e.target.value)}>
-              <option value="">Select a program</option>
-              {programs.map(p => <option key={p} value={p}>{p}</option>)}
-            </select>
-            {errors.program && <p className={errorClasses}>{errors.program}</p>}
-          </div>
-          <div>
-            <label className={labelClasses}>Preferred Start Date</label>
-            <select className={selectClasses} value={formData.startDate ?? ""} onChange={e => updateField("startDate", e.target.value)}>
-              <option value="">Select intake</option>
-              <option value="fall-2026">Fall 2026</option>
-              <option value="spring-2027">Spring 2027</option>
-              <option value="fall-2027">Fall 2027</option>
-            </select>
-            {errors.startDate && <p className={errorClasses}>{errors.startDate}</p>}
-          </div>
-          <div>
-            <label className={labelClasses}>GPA / Score</label>
-            <input className={inputClasses} value={formData.gpa ?? ""} onChange={e => updateField("gpa", e.target.value)} placeholder="e.g. 3.8 / 4.0" />
-            {errors.gpa && <p className={errorClasses}>{errors.gpa}</p>}
-          </div>
-          <div>
-            <label className={labelClasses}>Previous Institution</label>
-            <input className={inputClasses} value={formData.previousInstitution ?? ""} onChange={e => updateField("previousInstitution", e.target.value)} placeholder="Name of school or college" />
-            {errors.previousInstitution && <p className={errorClasses}>{errors.previousInstitution}</p>}
-          </div>
-          <div>
-            <label className={labelClasses}>Highest Qualification</label>
-            <select className={selectClasses} value={formData.highestQualification ?? ""} onChange={e => updateField("highestQualification", e.target.value)}>
-              <option value="">Select qualification</option>
-              {qualifications.map(q => <option key={q} value={q}>{q}</option>)}
-            </select>
-            {errors.highestQualification && <p className={errorClasses}>{errors.highestQualification}</p>}
-          </div>
-        </div>
-      )}
+        {step === 3 && (
+          <>
+            <div className="space-y-10">
+              <div>
+                <label className="font-body text-[10px] tracking-[0.25em] uppercase text-accent mb-2 block">
+                  Personal Statement
+                </label>
+                <p className="font-body text-xs text-muted-foreground mb-4">
+                  In no more than 5,000 characters, tell us why you wish to study at Veritas
+                  and what question drives your intellectual curiosity.
+                </p>
+                <div className="relative group">
+                  <textarea
+                    className="w-full bg-transparent border border-border py-4 px-4 font-body text-sm text-foreground min-h-[220px] resize-y focus:outline-none focus:border-accent transition-colors duration-500"
+                    value={val("personalStatement")}
+                    onChange={(e) => updateField("personalStatement", e.target.value)}
+                    placeholder="Begin writing here..."
+                  />
+                  <div className="flex justify-between mt-2">
+                    <p className="font-body text-xs text-muted-foreground">
+                      {val("personalStatement").length} / 5,000 characters
+                    </p>
+                    {val("personalStatement").length >= 50 && (
+                      <span className="font-body text-xs text-accent flex items-center gap-1 animate-fade-in">
+                        <Check size={12} /> Minimum met
+                      </span>
+                    )}
+                  </div>
+                  {errors.personalStatement && (
+                    <p className="font-body text-xs text-destructive mt-1 animate-fade-in">{errors.personalStatement}</p>
+                  )}
+                </div>
+              </div>
 
-      {/* Step 3: Statement */}
-      {step === 3 && (
-        <div className="space-y-8">
-          <div>
-            <label className={labelClasses}>Personal Statement</label>
-            <p className="font-body text-xs text-muted-foreground mb-4">
-              In no more than 5,000 characters, tell us why you wish to study at Veritas
-              and what question drives your intellectual curiosity.
-            </p>
-            <textarea
-              className={`${inputClasses} min-h-[200px] resize-y border rounded-sm p-4`}
-              value={formData.personalStatement ?? ""}
-              onChange={e => updateField("personalStatement", e.target.value)}
-              placeholder="Begin writing here..."
-            />
-            <p className="font-body text-xs text-muted-foreground mt-2">
-              {(formData.personalStatement ?? "").length} / 5,000 characters
-            </p>
-            {errors.personalStatement && <p className={errorClasses}>{errors.personalStatement}</p>}
-          </div>
-          <div>
-            <label className={labelClasses}>How did you hear about us?</label>
-            <select className={selectClasses} value={formData.howDidYouHear ?? ""} onChange={e => updateField("howDidYouHear", e.target.value)}>
-              <option value="">Select an option</option>
-              {hearAbout.map(h => <option key={h} value={h}>{h}</option>)}
-            </select>
-            {errors.howDidYouHear && <p className={errorClasses}>{errors.howDidYouHear}</p>}
-          </div>
-          <div className="flex items-start gap-3 pt-4">
-            <input
-              type="checkbox"
-              id="agreeTerms"
-              checked={!!formData.agreeTerms}
-              onChange={e => updateField("agreeTerms", e.target.checked)}
-              className="mt-1 accent-accent"
-            />
-            <label htmlFor="agreeTerms" className="font-body text-sm text-foreground leading-relaxed">
-              I confirm that all information provided is accurate and I agree to the terms
-              and conditions of the Veritas Institute application process.
-            </label>
-          </div>
-          {errors.agreeTerms && <p className={errorClasses}>{errors.agreeTerms}</p>}
-        </div>
-      )}
+              <FloatingSelect label="How did you hear about us?" value={val("howDidYouHear")} onChange={(v) => updateField("howDidYouHear", v)} options={hearAbout} error={errors.howDidYouHear} />
+
+              <div className="flex items-start gap-4 pt-4">
+                <button
+                  type="button"
+                  onClick={() => updateField("agreeTerms", !formData.agreeTerms)}
+                  className={`mt-0.5 w-5 h-5 border-2 flex items-center justify-center shrink-0 transition-all duration-500 ${
+                    formData.agreeTerms
+                      ? "border-accent bg-accent"
+                      : "border-border hover:border-muted-foreground"
+                  }`}
+                >
+                  {formData.agreeTerms && (
+                    <Check size={12} className="text-accent-foreground animate-scale-in" />
+                  )}
+                </button>
+                <label
+                  onClick={() => updateField("agreeTerms", !formData.agreeTerms)}
+                  className="font-body text-sm text-foreground/80 leading-relaxed cursor-pointer select-none hover:text-foreground transition-colors duration-500"
+                >
+                  I confirm that all information provided is accurate and I agree to the terms
+                  and conditions of the Veritas Institute application process.
+                </label>
+              </div>
+              {errors.agreeTerms && (
+                <p className="font-body text-xs text-destructive animate-fade-in">{errors.agreeTerms}</p>
+              )}
+            </div>
+          </>
+        )}
+      </div>
 
       {/* Navigation */}
-      <div className="flex items-center justify-between mt-16 pt-8 border-t border-border">
+      <div className="flex items-center justify-between mt-20 pt-8 border-t border-border">
         <button
-          onClick={() => step > 0 ? setStep(step - 1) : onClose()}
-          className="font-body text-sm tracking-[0.2em] uppercase text-muted-foreground transition-colors duration-500 hover:text-foreground"
+          onClick={handlePrev}
+          className="group flex items-center gap-3 font-body text-sm tracking-[0.2em] uppercase text-muted-foreground transition-all duration-500 hover:text-foreground"
         >
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform duration-500" />
           {step > 0 ? "Previous" : "Cancel"}
         </button>
         <button
           onClick={handleNext}
-          className="px-10 py-3 bg-foreground font-body text-sm tracking-[0.3em] uppercase text-background transition-colors duration-700 hover:bg-accent"
+          className="group relative flex items-center gap-3 px-10 py-3 bg-foreground font-body text-sm tracking-[0.3em] uppercase text-background overflow-hidden"
         >
-          {step < steps.length - 1 ? "Continue" : "Submit Application"}
+          <span className="relative z-10 transition-colors duration-500 group-hover:text-accent-foreground">
+            {step < steps.length - 1 ? "Continue" : "Submit"}
+          </span>
+          <ArrowRight size={16} className="relative z-10 group-hover:translate-x-1 transition-transform duration-500" />
+          <div className="absolute inset-0 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
         </button>
       </div>
     </div>
