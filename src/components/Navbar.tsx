@@ -161,7 +161,11 @@ const Navbar = () => {
                             setStudyMenuOpen(false);
                           }}
                           className="group text-left rounded-[16px] border border-transparent hover:border-accent/35 hover:bg-accent/5 px-3 py-2.5 transition-all duration-300"
-                          style={{ transitionDelay: studyMenuOpen ? `${i * 10}ms` : "0ms" }}
+                          style={{
+                            transitionDelay: studyMenuOpen
+                              ? `${i * 10}ms`
+                              : "0ms",
+                          }}
                         >
                           <p className="font-body text-xs uppercase tracking-[0.12em] text-foreground group-hover:text-accent transition-colors duration-300">
                             {item.title}
@@ -179,8 +183,8 @@ const Navbar = () => {
                       Learn by doing, guided by global standards.
                     </h3>
                     <p className="font-body text-sm text-muted-foreground leading-relaxed mb-6">
-                      With over 143 programs across 10 colleges, Veritas combines
-                      critical scholarship with practical outcomes.
+                      With over 143 programs across 10 colleges, Veritas
+                      combines critical scholarship with practical outcomes.
                     </p>
                     <button
                       onClick={() => {
