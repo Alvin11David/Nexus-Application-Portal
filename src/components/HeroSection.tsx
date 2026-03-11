@@ -1,19 +1,16 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import heroCampus from "@/assets/hero-campus.jpg";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const navItems = ["Academics", "Research", "Faculty", "Apply"];
-
 const HeroSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const navRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
-  const [navVisible, setNavVisible] = useState(true);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -30,7 +27,7 @@ const HeroSection = () => {
 
       // Hero image parallax
       gsap.to(imageRef.current, {
-        yPercent: 20,
+        yPercent: 25,
         ease: "none",
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -40,13 +37,15 @@ const HeroSection = () => {
         },
       });
 
-      // Nav fade out on scroll
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top top",
-        end: "bottom top",
-        onUpdate: (self) => {
-          setNavVisible(self.progress < 0.15);
+      // Overlay darkens as you scroll
+      gsap.to(overlayRef.current, {
+        opacity: 0.7,
+        ease: "none",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
         },
       });
     }, sectionRef);
@@ -56,36 +55,14 @@ const HeroSection = () => {
 
   return (
     <section ref={sectionRef} className="relative h-screen overflow-hidden">
-      {/* Navigation */}
-      <nav
-        ref={navRef}
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 md:px-16 py-8 transition-opacity duration-700"
-        style={{ opacity: navVisible ? 1 : 0, pointerEvents: navVisible ? "auto" : "none" }}
-      >
-        <div className="font-heading text-xl md:text-2xl font-light tracking-[0.3em] uppercase text-foreground">
-          Veritas Institute
-        </div>
-        <div className="hidden md:flex items-center gap-12">
-          {navItems.map((item) => (
-            <a
-              key={item}
-              href={`#${item.toLowerCase()}`}
-              className="accent-link font-body text-sm tracking-[0.2em] uppercase"
-            >
-              {item}
-            </a>
-          ))}
-        </div>
-      </nav>
-
       {/* Hero Image */}
       <div ref={imageRef} className="absolute inset-0 -top-10">
         <img
           src={heroCampus}
           alt="Veritas Institute campus architecture with dramatic shadows and warm light"
-          className="w-full h-[120%] object-cover"
+          className="w-full h-[130%] object-cover"
         />
-        <div className="absolute inset-0 bg-foreground/40" />
+        <div ref={overlayRef} className="absolute inset-0 bg-foreground/40" />
       </div>
 
       {/* Hero Content */}
@@ -105,6 +82,12 @@ const HeroSection = () => {
           Veritas Institute is a place of rigorous inquiry, where the pursuit of knowledge
           shapes not just careers, but the very architecture of understanding.
         </p>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-60">
+          <span className="font-body text-[10px] tracking-[0.3em] uppercase text-primary-foreground">Scroll</span>
+          <div className="w-px h-8 bg-primary-foreground/50 animate-pulse" />
+        </div>
       </div>
     </section>
   );
