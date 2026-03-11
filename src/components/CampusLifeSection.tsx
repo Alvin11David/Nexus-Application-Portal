@@ -198,7 +198,7 @@ const CampusLifeSection = () => {
         ].map((s) => (
           <div
             key={s.label}
-            className="stat-pill group flex items-baseline gap-2 px-6 py-3 border border-border opacity-0 transition-all duration-400 hover:border-accent/40 hover:bg-accent/5 hover:-translate-y-1 cursor-pointer"
+            className="stat-pill group flex items-baseline gap-2 px-6 py-3 border border-border rounded-[20px] opacity-0 transition-all duration-400 hover:border-accent/40 hover:bg-accent/5 hover:-translate-y-1 cursor-pointer"
           >
             <span className="font-heading text-2xl md:text-3xl font-light text-foreground group-hover:text-accent transition-colors duration-300">
               {s.value}
