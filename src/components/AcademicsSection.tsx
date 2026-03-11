@@ -78,7 +78,7 @@ const AcademicsSection = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8">
         <div className="lg:col-span-5">
-          <div ref={imageRef} className="overflow-hidden">
+          <div ref={imageRef} className="overflow-hidden rounded-[20px]">
             <img
               src={academicsImg}
               alt="Aged leather-bound books on weathered wooden library shelves"

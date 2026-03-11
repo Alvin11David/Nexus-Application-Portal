@@ -125,7 +125,7 @@ const CampusLifeSection = () => {
       </p>
 
       {/* Hero Image */}
-      <div ref={imageRef} className="w-full overflow-hidden mb-24">
+      <div ref={imageRef} className="w-full overflow-hidden rounded-[20px] mb-24">
         <img
           src={campusLifeImg}
           alt="Veritas Institute campus quad at golden hour with students and autumn foliage"

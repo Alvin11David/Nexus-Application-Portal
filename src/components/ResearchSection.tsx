@@ -98,7 +98,7 @@ const ResearchSection = () => {
         </div>
 
         <div className="lg:col-span-5 order-1 lg:order-2">
-          <div ref={imageRef} className="overflow-hidden">
+          <div ref={imageRef} className="overflow-hidden rounded-[20px]">
             <img
               src={researchImg}
               alt="Scientific laboratory glassware with light refracting through beakers"
