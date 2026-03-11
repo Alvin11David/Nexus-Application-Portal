@@ -34,7 +34,7 @@
     --input: 60 3% 82%;
     --ring: 38 34% 55%;
 
-    --radius: 0.25rem;
+    --radius: 20px;
 
     --font-heading: "Cormorant Garamond", serif;
     --font-body: "Inter", sans-serif;
@@ -70,6 +70,14 @@
   }
 
   img {
+    border-radius: 20px;
+  }
+
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"] {
     border-radius: 20px;
   }
 }
