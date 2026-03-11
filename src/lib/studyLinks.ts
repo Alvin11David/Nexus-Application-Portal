@@ -8,7 +8,8 @@ export const studyLinks: StudyLink[] = [
   {
     title: "Join/Admissions",
     slug: "join-admissions",
-    summary: "Entry requirements, application windows, and selection guidelines.",
+    summary:
+      "Entry requirements, application windows, and selection guidelines.",
   },
   {
     title: "Academic Registrar",
@@ -48,7 +49,8 @@ export const studyLinks: StudyLink[] = [
   {
     title: "Academics",
     slug: "academics",
-    summary: "Academic calendar, coursework expectations, and progression rules.",
+    summary:
+      "Academic calendar, coursework expectations, and progression rules.",
   },
   {
     title: "Scholarships",
