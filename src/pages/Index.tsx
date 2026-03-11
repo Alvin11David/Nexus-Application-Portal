@@ -98,6 +98,7 @@ const Index = () => {
             <CampusLifeSection />
             <QuoteSection />
             <ApplicationCTA onApply={openApplication} />
+            <Footer />
           </>
         )}
       </div>
