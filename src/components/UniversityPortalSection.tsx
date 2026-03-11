@@ -1,10 +1,13 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   ArrowRight,
   CalendarDays,
   ChevronDown,
+  Compass,
+  GraduationCap,
+  HandHeart,
   MapPin,
   Newspaper,
   Sparkles,
@@ -74,7 +77,36 @@ const innovationArticles = [
   "Medical engineering team unveils maternal safety monitoring prototype",
 ];
 
+const audienceGuides: Record<string, { title: string; note: string; cta: string }> = {
+  "Prospective student: admissions and programs": {
+    title: "Your next step starts here",
+    note: "Compare programs, application timelines, and entry pathways with advisor-ready checklists.",
+    cta: "Explore Admissions",
+  },
+  "Current student: timetable and support": {
+    title: "Everything for your semester",
+    note: "Access timetables, learning support, and key student services in one guided track.",
+    cta: "Open Student Hub",
+  },
+  "Parent/guardian: tuition and campus life": {
+    title: "Support with confidence",
+    note: "Find tuition guidance, accommodation insights, and safety resources for informed planning.",
+    cta: "View Parent Resources",
+  },
+  "Research partner: labs and innovation": {
+    title: "Collaborate on impact",
+    note: "Discover labs, grant-ready partnerships, and translational research opportunities.",
+    cta: "See Research Partnerships",
+  },
+  "Alumni: events and giving": {
+    title: "Stay part of the story",
+    note: "Reconnect through alumni events, mentorship programs, and strategic giving channels.",
+    cta: "Open Alumni Network",
+  },
+};
+
 const UniversityPortalSection = () => {
+  const [selectedAudience, setSelectedAudience] = useState(quickOptions[0]);
   const sectionRef = useRef<HTMLElement>(null);
   const quickLinksRef = useRef<HTMLDivElement>(null);
   const storiesRef = useRef<HTMLDivElement>(null);
@@ -99,7 +131,7 @@ const UniversityPortalSection = () => {
               start: "top 75%",
               toggleActions: "play none none reverse",
             },
-          }
+          },
         );
 
         gsap.fromTo(
@@ -116,7 +148,7 @@ const UniversityPortalSection = () => {
               start: "top 75%",
               toggleActions: "play none none reverse",
             },
-          }
+          },
         );
 
         gsap.fromTo(
@@ -135,7 +167,7 @@ const UniversityPortalSection = () => {
               start: "top 75%",
               toggleActions: "play none none reverse",
             },
-          }
+          },
         );
       }
 
@@ -154,7 +186,7 @@ const UniversityPortalSection = () => {
               start: "top 75%",
               toggleActions: "play none none reverse",
             },
-          }
+          },
         );
 
         gsap.fromTo(
@@ -172,7 +204,7 @@ const UniversityPortalSection = () => {
               start: "top 75%",
               toggleActions: "play none none reverse",
             },
-          }
+          },
         );
       }
 
@@ -191,7 +223,7 @@ const UniversityPortalSection = () => {
               start: "top 75%",
               toggleActions: "play none none reverse",
             },
-          }
+          },
         );
 
         gsap.fromTo(
@@ -209,7 +241,7 @@ const UniversityPortalSection = () => {
               start: "top 75%",
               toggleActions: "play none none reverse",
             },
-          }
+          },
         );
       }
 
@@ -228,7 +260,7 @@ const UniversityPortalSection = () => {
               start: "top 75%",
               toggleActions: "play none none reverse",
             },
-          }
+          },
         );
 
         gsap.fromTo(
@@ -246,7 +278,7 @@ const UniversityPortalSection = () => {
               start: "top 75%",
               toggleActions: "play none none reverse",
             },
-          }
+          },
         );
       }
 
@@ -265,7 +297,7 @@ const UniversityPortalSection = () => {
               start: "top 80%",
               toggleActions: "play none none reverse",
             },
-          }
+          },
         );
 
         gsap.fromTo(
@@ -282,8 +314,32 @@ const UniversityPortalSection = () => {
               start: "top 80%",
               toggleActions: "play none none reverse",
             },
-          }
+          },
         );
+      }
+
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
+      if (!prefersReducedMotion) {
+        gsap.to(".floating-orb-a", {
+          x: -14,
+          y: 22,
+          duration: 6.8,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        });
+
+        gsap.to(".floating-orb-b", {
+          x: 12,
+          y: -16,
+          duration: 5.6,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+        });
       }
     }, sectionRef);
 
@@ -293,13 +349,17 @@ const UniversityPortalSection = () => {
   return (
     <section
       ref={sectionRef}
-      className="py-32 md:py-48 px-8 md:px-16 bg-gradient-to-b from-background via-secondary/15 to-background"
+      className="relative py-32 md:py-48 px-8 md:px-16 bg-gradient-to-b from-background via-secondary/15 to-background overflow-hidden"
     >
+      <div className="floating-orb-a absolute top-20 left-[-8rem] w-72 h-72 rounded-full bg-accent/10 blur-3xl pointer-events-none" />
+      <div className="floating-orb-b absolute bottom-24 right-[-9rem] w-80 h-80 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_1px_1px,hsl(var(--foreground)/0.04)_1px,transparent_0)] bg-[length:26px_26px]" />
+
       {/* Quick Links Section */}
       <div
         ref={quickLinksRef}
         id="quick-links"
-        className="mb-32 md:mb-40 max-w-7xl mx-auto"
+        className="relative mb-32 md:mb-40 max-w-7xl mx-auto"
       >
         <p className="font-body text-xs tracking-[0.3em] uppercase text-muted-foreground mb-6">
           Quick Links
@@ -319,7 +379,12 @@ const UniversityPortalSection = () => {
               I am a...
             </label>
             <div className="relative mb-6">
-              <select className="w-full bg-background border border-border/50 rounded-[16px] px-5 py-3.5 font-body text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-transparent appearance-none cursor-pointer transition-all duration-300 hover:border-accent/30">
+              <select
+                value={selectedAudience}
+                onChange={(event) => setSelectedAudience(event.target.value)}
+                className="w-full bg-background border border-border/50 rounded-[16px] px-5 py-3.5 font-body text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-transparent appearance-none cursor-pointer transition-all duration-300 hover:border-accent/30"
+                aria-label="Select your user type"
+              >
                 {quickOptions.map((option) => (
                   <option key={option}>{option}</option>
                 ))}
@@ -331,9 +396,26 @@ const UniversityPortalSection = () => {
             </div>
             <p className="font-body text-sm text-muted-foreground leading-relaxed">
               This dynamic list highlights the most requested pathways. Can't
-              find your way? <span className="text-accent font-medium">Contact our team</span> for
-              personalized guidance.
+              find your way?{" "}
+              <span className="text-accent font-medium">Contact our team</span>{" "}
+              for personalized guidance.
             </p>
+
+            <div className="mt-6 border border-border/50 rounded-[16px] p-4 bg-background/70 backdrop-blur-sm">
+              <p className="font-body text-[10px] tracking-[0.2em] uppercase text-accent mb-2">
+                Personalized Path
+              </p>
+              <p className="font-heading text-xl font-light text-foreground leading-tight mb-2">
+                {audienceGuides[selectedAudience].title}
+              </p>
+              <p className="font-body text-sm text-muted-foreground leading-relaxed mb-4">
+                {audienceGuides[selectedAudience].note}
+              </p>
+              <button className="inline-flex items-center gap-2 font-body text-xs tracking-[0.15em] uppercase text-accent border border-accent/35 px-4 py-2.5 rounded-[12px] hover:bg-accent/10 transition-all duration-300">
+                {audienceGuides[selectedAudience].cta}
+                <ArrowRight size={13} />
+              </button>
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -341,14 +423,17 @@ const UniversityPortalSection = () => {
               {
                 title: "Join",
                 text: "Begin your admission journey and discover scholarship routes.",
+                icon: GraduationCap,
               },
               {
                 title: "Visit",
                 text: "Book a campus tour, open lecture, or faculty meet-and-greet.",
+                icon: Compass,
               },
               {
                 title: "Give",
                 text: "Support student success, research, and community impact.",
+                icon: HandHeart,
               },
             ].map((item) => (
               <button
@@ -356,6 +441,9 @@ const UniversityPortalSection = () => {
                 className="action-card text-left border border-border/50 rounded-[20px] p-5 md:p-6 bg-background group relative overflow-hidden transition-all duration-500 hover:border-accent/50 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)]"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent -translate-x-full group-hover:translate-x-0 transition-transform duration-700" />
+                <div className="relative inline-flex w-10 h-10 rounded-[12px] border border-accent/25 bg-accent/10 items-center justify-center mb-3 group-hover:bg-accent/20 transition-colors duration-300">
+                  <item.icon size={16} className="text-accent" />
+                </div>
                 <div className="relative flex items-start justify-between mb-2">
                   <span className="font-heading text-3xl font-light text-foreground group-hover:text-accent transition-colors duration-300">
                     {item.title}
@@ -417,7 +505,10 @@ const UniversityPortalSection = () => {
                 className="inline-flex items-center gap-2.5 font-body text-xs tracking-[0.16em] uppercase text-foreground group-hover:text-accent transition-all duration-300"
               >
                 Read More
-                <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
+                <ArrowRight
+                  size={14}
+                  className="group-hover:translate-x-1 transition-transform duration-300"
+                />
               </a>
             </article>
           ))}
@@ -479,7 +570,10 @@ const UniversityPortalSection = () => {
                 <div className="md:col-span-3 md:text-right">
                   <button className="w-full md:w-auto inline-flex items-center justify-center md:justify-end gap-2 font-body text-xs tracking-[0.15em] uppercase text-accent border border-accent/30 px-4 py-2.5 rounded-[12px] group-hover:bg-accent/10 transition-all duration-300">
                     View Details
-                    <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform duration-300" />
+                    <ArrowRight
+                      size={13}
+                      className="group-hover:translate-x-1 transition-transform duration-300"
+                    />
                   </button>
                 </div>
               </div>
@@ -563,6 +657,8 @@ const UniversityPortalSection = () => {
             <input
               type="email"
               placeholder="Enter your email"
+              required
+              aria-label="Email address"
               className="w-full border border-border/50 rounded-[16px] px-5 py-3.5 bg-background font-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-transparent transition-all duration-300"
             />
             <button
