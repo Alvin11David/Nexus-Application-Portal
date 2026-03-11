@@ -1,4 +1,10 @@
-import { ArrowRight, CalendarDays, MapPin, Newspaper, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  MapPin,
+  Newspaper,
+  Sparkles,
+} from "lucide-react";
 
 const quickOptions = [
   "Prospective student: admissions and programs",
@@ -72,7 +78,8 @@ const UniversityPortalSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 border border-border rounded-[20px] p-6 md:p-8 bg-background">
             <p className="font-heading text-3xl md:text-4xl font-light text-foreground leading-tight mb-5">
-              Use the choices below to access the resources you need immediately.
+              Use the choices below to access the resources you need
+              immediately.
             </p>
             <label className="font-body text-xs tracking-[0.18em] uppercase text-muted-foreground block mb-2">
               Select Option
@@ -83,8 +90,8 @@ const UniversityPortalSection = () => {
               ))}
             </select>
             <p className="font-body text-sm text-muted-foreground mt-4">
-              This list highlights the most requested paths. If you cannot find what
-              you need, contact us and we will guide you directly.
+              This list highlights the most requested paths. If you cannot find
+              what you need, contact us and we will guide you directly.
             </p>
           </div>
 
@@ -240,7 +247,10 @@ const UniversityPortalSection = () => {
               className="group border border-border rounded-[20px] p-5 bg-background transition-all duration-500 hover:border-accent/40 hover:bg-accent/5"
             >
               <div className="inline-flex items-center gap-2 mb-3">
-                <Newspaper size={14} className="text-muted-foreground group-hover:text-accent transition-colors duration-300" />
+                <Newspaper
+                  size={14}
+                  className="text-muted-foreground group-hover:text-accent transition-colors duration-300"
+                />
                 <span className="font-body text-[11px] tracking-[0.15em] uppercase text-muted-foreground">
                   Research Article
                 </span>

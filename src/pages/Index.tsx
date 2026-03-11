@@ -24,7 +24,7 @@ const Index = () => {
 
   const openApplication = () => {
     if (!mainContentRef.current || applicationOpen) return;
-    
+
     setApplicationOpen(true);
 
     gsap.to(mainContentRef.current, {
@@ -35,12 +35,13 @@ const Index = () => {
       onComplete: () => {
         window.scrollTo({ top: 0, behavior: "instant" });
         if (formRef.current) {
-          gsap.fromTo(formRef.current, 
+          gsap.fromTo(
+            formRef.current,
             { opacity: 0, y: 40 },
-            { opacity: 1, y: 0, duration: 0.8, ease: "power2.out", delay: 0.2 }
+            { opacity: 1, y: 0, duration: 0.8, ease: "power2.out", delay: 0.2 },
           );
         }
-      }
+      },
     });
   };
 
@@ -55,7 +56,7 @@ const Index = () => {
       onComplete: () => {
         setApplicationOpen(false);
         ScrollTrigger.refresh();
-      }
+      },
     });
   };
 
@@ -63,67 +64,65 @@ const Index = () => {
     const timeout = setTimeout(() => ScrollTrigger.refresh(), 100);
     return () => {
       clearTimeout(timeout);
-      ScrollTrigger.getAll().forEach(t => t.kill());
+      ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, []);
 
   return (
     <LoadingWrapper>
-    <div className="relative min-h-screen bg-background" id="home">
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 z-[100] bg-primary text-primary-foreground px-4 py-2 rounded-[20px] font-body text-sm"
-      >
-        Skip to main content
-      </a>
-      {/* Navbar - hidden when application form is open */}
-      {!applicationOpen && <Navbar />}
+      <div className="relative min-h-screen bg-background" id="home">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 z-[100] bg-primary text-primary-foreground px-4 py-2 rounded-[20px] font-body text-sm"
+        >
+          Skip to main content
+        </a>
+        {/* Navbar - hidden when application form is open */}
+        {!applicationOpen && <Navbar />}
 
-      {/* Compressed content bar when application is open */}
-      <div
-        ref={mainContentRef}
-        id="main-content"
-        className={`relative ${applicationOpen ? 'cursor-pointer' : ''}`}
-        onClick={applicationOpen ? closeApplication : undefined}
-      >
+        {/* Compressed content bar when application is open */}
+        <div
+          ref={mainContentRef}
+          id="main-content"
+          className={`relative ${applicationOpen ? "cursor-pointer" : ""}`}
+          onClick={applicationOpen ? closeApplication : undefined}
+        >
+          {applicationOpen && (
+            <div className="h-16 flex items-center justify-between px-8 md:px-16 bg-primary">
+              <span className="font-heading text-lg text-primary-foreground tracking-widest uppercase">
+                Veritas Institute
+              </span>
+              <span className="font-body text-xs text-primary-foreground/60 tracking-wider uppercase">
+                Click to return to site
+              </span>
+            </div>
+          )}
+
+          {!applicationOpen && (
+            <>
+              <HeroSection />
+              <AcademicsSection />
+              <ResearchSection />
+              <FacultySection />
+              <CampusLifeSection />
+              <UniversityPortalSection />
+              <QuoteSection />
+              <ApplicationCTA onApply={openApplication} />
+              <Footer />
+            </>
+          )}
+        </div>
+
+        {/* Application Form */}
         {applicationOpen && (
-          <div className="h-16 flex items-center justify-between px-8 md:px-16 bg-primary">
-            <span className="font-heading text-lg text-primary-foreground tracking-widest uppercase">
-              Veritas Institute
-            </span>
-            <span className="font-body text-xs text-primary-foreground/60 tracking-wider uppercase">
-              Click to return to site
-            </span>
+          <div ref={formRef} className="opacity-0">
+            <ApplicationForm onClose={closeApplication} />
           </div>
         )}
 
-        {!applicationOpen && (
-          <>
-            <HeroSection />
-            <AcademicsSection />
-            <ResearchSection />
-            <FacultySection />
-            <CampusLifeSection />
-            <UniversityPortalSection />
-            <QuoteSection />
-            <ApplicationCTA onApply={openApplication} />
-            <Footer />
-          </>
-        )}
+        {/* Floating Apply Button */}
+        {!applicationOpen && <FloatingApplyButton onClick={openApplication} />}
       </div>
-
-      {/* Application Form */}
-      {applicationOpen && (
-        <div ref={formRef} className="opacity-0">
-          <ApplicationForm onClose={closeApplication} />
-        </div>
-      )}
-
-      {/* Floating Apply Button */}
-      {!applicationOpen && (
-        <FloatingApplyButton onClick={openApplication} />
-      )}
-    </div>
     </LoadingWrapper>
   );
 };
