@@ -12,6 +12,7 @@ import QuoteSection from "@/components/QuoteSection";
 import ApplicationCTA from "@/components/ApplicationCTA";
 import ApplicationForm from "@/components/ApplicationForm";
 import FloatingApplyButton from "@/components/FloatingApplyButton";
+import Footer from "@/components/Footer";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -97,6 +98,7 @@ const Index = () => {
             <CampusLifeSection />
             <QuoteSection />
             <ApplicationCTA onApply={openApplication} />
+            <Footer />
           </>
         )}
       </div>
