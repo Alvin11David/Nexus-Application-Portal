@@ -6,19 +6,26 @@ import { Mail, Phone, MapPin, Instagram, Twitter, Linkedin, Youtube, ArrowUpRigh
 gsap.registerPlugin(ScrollTrigger);
 
 const quickLinks = [
-  { label: "Academics", href: "#academics" },
-  { label: "Research", href: "#research" },
-  { label: "Faculty", href: "#faculty" },
-  { label: "Campus Life", href: "#campus-life" },
-  { label: "Apply Now", href: "#apply" },
+  { label: "Get in Touch", href: "#" },
+  { label: "Upcoming Events", href: "#events" },
+  { label: "Jobs & Careers", href: "#" },
+  { label: "Campus Map", href: "#" },
+  { label: "Emergency Contacts", href: "#" },
 ];
 
 const resources = [
-  { label: "Student Portal", href: "#" },
-  { label: "Library Access", href: "#" },
-  { label: "Academic Calendar", href: "#" },
-  { label: "Financial Aid", href: "#" },
-  { label: "Career Services", href: "#" },
+  { label: "About Institute", href: "#" },
+  { label: "Facts & Figures", href: "#" },
+  { label: "Visit Institute", href: "#" },
+  { label: "Alumni", href: "#" },
+  { label: "History Timeline", href: "#" },
+  { label: "Admissions Lists", href: "#" },
+  { label: "How to Apply", href: "#" },
+  { label: "Courses Listings", href: "#" },
+  { label: "Fees & Payment", href: "#" },
+  { label: "International Students", href: "#" },
+  { label: "Scholarships", href: "#" },
+  { label: "Learning Online", href: "#" },
 ];
 
 const socials = [
@@ -73,17 +80,17 @@ const Footer = () => {
           {/* Brand & Contact */}
           <div className="footer-col lg:col-span-1 opacity-0">
             <h3 className="font-heading text-3xl font-light tracking-[0.2em] uppercase mb-6">
-              Veritas
+              Institute University
             </h3>
             <p className="font-body text-sm text-primary-foreground/60 leading-relaxed mb-8">
-              A place of rigorous inquiry, where the pursuit of knowledge shapes the very architecture of understanding.
+              A community of inquiry, innovation, and service, where students and faculty build solutions for society.
             </p>
 
             <div className="space-y-4">
-              <a href="mailto:admissions@veritas.edu" className="group flex items-center gap-3 font-body text-sm text-primary-foreground/70 transition-colors duration-500 hover:text-primary-foreground">
+              <a href="mailto:admissions@instituteuniversity.edu" className="group flex items-center gap-3 font-body text-sm text-primary-foreground/70 transition-colors duration-500 hover:text-primary-foreground">
                 <Mail size={16} className="text-primary-foreground/40 group-hover:text-accent transition-colors duration-500" />
                 <span className="relative">
-                  admissions@veritas.edu
+                  admissions@instituteuniversity.edu
                   <span className="absolute -bottom-0.5 left-0 w-full h-px bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                 </span>
               </a>
@@ -97,9 +104,9 @@ const Footer = () => {
               <div className="flex items-start gap-3">
                 <MapPin size={16} className="text-primary-foreground/40 mt-0.5 shrink-0" />
                 <p className="font-body text-sm text-primary-foreground/70 leading-relaxed">
-                  1 Scholar's Walk<br />
-                  Cambridge, MA 02138<br />
-                  United States
+                  P.O. Box 7062<br />
+                  Institute Hill Road<br />
+                  Kampala, Uganda
                 </p>
               </div>
             </div>
@@ -128,7 +135,7 @@ const Footer = () => {
           {/* Resources */}
           <div className="footer-col opacity-0">
             <p className="font-body text-xs tracking-[0.3em] uppercase text-primary-foreground/40 mb-8">
-              Resources
+              About & Admissions
             </p>
             <ul className="space-y-4">
               {resources.map((link) => (

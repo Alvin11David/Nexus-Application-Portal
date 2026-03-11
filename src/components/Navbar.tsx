@@ -6,11 +6,14 @@ import { Menu, X } from "lucide-react";
 gsap.registerPlugin(ScrollTrigger);
 
 const navItems = [
-  { label: "Academics", href: "#academics" },
+  { label: "Home", href: "#home" },
+  { label: "Study", href: "#academics" },
+  { label: "Students", href: "#campus-life" },
   { label: "Research", href: "#research" },
-  { label: "Faculty", href: "#faculty" },
-  { label: "Campus Life", href: "#campus-life" },
-  { label: "Apply", href: "#apply" },
+  { label: "About", href: "#faculty" },
+  { label: "News", href: "#campus-updates" },
+  { label: "Quick Links", href: "#quick-links" },
+  { label: "Donate", href: "#newsletter" },
 ];
 
 const Navbar = () => {
@@ -37,6 +40,10 @@ const Navbar = () => {
 
   const handleNavClick = (href: string) => {
     setMobileOpen(false);
+    if (href === "#home") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     const el = document.querySelector(href);
     if (el) {
       el.scrollIntoView({ behavior: "smooth" });

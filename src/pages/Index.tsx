@@ -8,6 +8,7 @@ import AcademicsSection from "@/components/AcademicsSection";
 import ResearchSection from "@/components/ResearchSection";
 import FacultySection from "@/components/FacultySection";
 import CampusLifeSection from "@/components/CampusLifeSection";
+import UniversityPortalSection from "@/components/UniversityPortalSection";
 import QuoteSection from "@/components/QuoteSection";
 import ApplicationCTA from "@/components/ApplicationCTA";
 import ApplicationForm from "@/components/ApplicationForm";
@@ -68,13 +69,20 @@ const Index = () => {
 
   return (
     <LoadingWrapper>
-    <div className="relative min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background" id="home">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 z-[100] bg-primary text-primary-foreground px-4 py-2 rounded-[20px] font-body text-sm"
+      >
+        Skip to main content
+      </a>
       {/* Navbar - hidden when application form is open */}
       {!applicationOpen && <Navbar />}
 
       {/* Compressed content bar when application is open */}
       <div
         ref={mainContentRef}
+        id="main-content"
         className={`relative ${applicationOpen ? 'cursor-pointer' : ''}`}
         onClick={applicationOpen ? closeApplication : undefined}
       >
@@ -96,6 +104,7 @@ const Index = () => {
             <ResearchSection />
             <FacultySection />
             <CampusLifeSection />
+            <UniversityPortalSection />
             <QuoteSection />
             <ApplicationCTA onApply={openApplication} />
             <Footer />
