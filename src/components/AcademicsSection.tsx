@@ -156,19 +156,32 @@ const AcademicsSection = () => {
             {programs.map((program) => (
               <div
                 key={program.name}
-                className="program-item border-t border-border py-6 flex items-baseline justify-between gap-4 opacity-0 group cursor-default"
+                className="program-item border-t border-border py-5 flex items-center justify-between gap-4 opacity-0 group cursor-pointer relative overflow-hidden transition-all duration-500 hover:pl-5 hover:pr-3 hover:bg-accent/5"
               >
-                <div className="flex-1">
+                {/* Left accent bar slides in */}
+                <div className="absolute left-0 top-0 h-full w-[3px] bg-accent origin-top scale-y-0 group-hover:scale-y-100 transition-transform duration-500 ease-out" />
+
+                {/* Background sweep */}
+                <div className="absolute inset-0 bg-gradient-to-r from-accent/8 to-transparent -translate-x-full group-hover:translate-x-0 transition-transform duration-700 ease-out pointer-events-none" />
+
+                <div className="flex-1 relative transition-transform duration-500 ease-out group-hover:translate-x-1">
                   <h3 className="font-heading text-2xl md:text-3xl font-light text-foreground group-hover:text-accent transition-colors duration-500">
                     {program.name}
                   </h3>
+                  <p className="font-body text-xs tracking-[0.2em] uppercase text-transparent group-hover:text-accent/70 max-h-0 group-hover:max-h-6 overflow-hidden transition-all duration-500 ease-out mt-0 group-hover:mt-1 md:hidden">
+                    {program.type}
+                  </p>
                 </div>
-                <div className="flex items-baseline gap-8">
-                  <span className="font-body text-sm text-muted-foreground hidden md:block">
+
+                <div className="flex items-center gap-6 relative">
+                  <span className="font-body text-sm text-muted-foreground hidden md:block group-hover:text-foreground transition-colors duration-300 group-hover:tracking-wide">
                     {program.type}
                   </span>
-                  <span className="font-body text-sm text-muted-foreground">
+                  <span className="font-body text-sm text-muted-foreground group-hover:text-accent transition-colors duration-300 font-medium">
                     {program.duration}
+                  </span>
+                  <span className="text-accent opacity-0 -translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 ease-out text-lg leading-none">
+                    →
                   </span>
                 </div>
               </div>
