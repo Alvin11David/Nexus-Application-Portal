@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import LoadingWrapper from "@/components/LoadingScreen";
+import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import AcademicsSection from "@/components/AcademicsSection";
 import ResearchSection from "@/components/ResearchSection";
 import FacultySection from "@/components/FacultySection";
+import CampusLifeSection from "@/components/CampusLifeSection";
 import QuoteSection from "@/components/QuoteSection";
 import ApplicationCTA from "@/components/ApplicationCTA";
 import ApplicationForm from "@/components/ApplicationForm";
@@ -56,7 +58,6 @@ const Index = () => {
   };
 
   useEffect(() => {
-    // Refresh ScrollTrigger after load
     const timeout = setTimeout(() => ScrollTrigger.refresh(), 100);
     return () => {
       clearTimeout(timeout);
@@ -67,6 +68,9 @@ const Index = () => {
   return (
     <LoadingWrapper>
     <div className="relative min-h-screen bg-background">
+      {/* Navbar - hidden when application form is open */}
+      {!applicationOpen && <Navbar />}
+
       {/* Compressed content bar when application is open */}
       <div
         ref={mainContentRef}
@@ -90,6 +94,7 @@ const Index = () => {
             <AcademicsSection />
             <ResearchSection />
             <FacultySection />
+            <CampusLifeSection />
             <QuoteSection />
             <ApplicationCTA onApply={openApplication} />
           </>

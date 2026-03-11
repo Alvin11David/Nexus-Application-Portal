@@ -22,6 +22,7 @@ const AcademicsSection = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // Heading slides from left
       gsap.fromTo(headingRef.current,
         { x: -100, opacity: 0 },
         {
@@ -30,6 +31,7 @@ const AcademicsSection = () => {
         }
       );
 
+      // Image clip-path reveal + parallax
       gsap.fromTo(imageRef.current,
         { clipPath: "inset(0 100% 0 0)" },
         {
@@ -38,6 +40,21 @@ const AcademicsSection = () => {
         }
       );
 
+      // Parallax on inner image
+      if (imageRef.current) {
+        gsap.to(imageRef.current.querySelector("img"), {
+          yPercent: 12,
+          ease: "none",
+          scrollTrigger: {
+            trigger: imageRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+          }
+        });
+      }
+
+      // Program items stagger
       if (programsRef.current) {
         const items = programsRef.current.querySelectorAll(".program-item");
         gsap.fromTo(items,
@@ -60,7 +77,6 @@ const AcademicsSection = () => {
       </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-8">
-        {/* Image — takes up golden ratio proportion */}
         <div className="lg:col-span-5">
           <div ref={imageRef} className="overflow-hidden">
             <img
@@ -75,19 +91,18 @@ const AcademicsSection = () => {
           </p>
         </div>
 
-        {/* Programs List */}
         <div className="lg:col-span-7 lg:pl-8" ref={programsRef}>
           <p className="font-body text-xs tracking-[0.3em] uppercase text-muted-foreground mb-12">
             Programs of Study
           </p>
           <div className="space-y-0">
-            {programs.map((program, i) => (
+            {programs.map((program) => (
               <div
                 key={program.name}
-                className="program-item border-t border-border py-6 flex items-baseline justify-between gap-4 opacity-0"
+                className="program-item border-t border-border py-6 flex items-baseline justify-between gap-4 opacity-0 group cursor-default"
               >
                 <div className="flex-1">
-                  <h3 className="font-heading text-2xl md:text-3xl font-light text-foreground">
+                  <h3 className="font-heading text-2xl md:text-3xl font-light text-foreground group-hover:text-accent transition-colors duration-500">
                     {program.name}
                   </h3>
                 </div>

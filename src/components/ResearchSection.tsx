@@ -20,6 +20,7 @@ const ResearchSection = () => {
 
   useEffect(() => {
     const ctx = gsap.context(() => {
+      // Heading from right
       gsap.fromTo(headingRef.current,
         { x: 100, opacity: 0 },
         {
@@ -28,14 +29,30 @@ const ResearchSection = () => {
         }
       );
 
+      // Image reveal: scale down + fade in with clip-path from bottom
       gsap.fromTo(imageRef.current,
-        { scale: 1.15, opacity: 0 },
+        { clipPath: "inset(100% 0 0 0)", scale: 1.1 },
         {
-          scale: 1, opacity: 1, duration: 1.6, ease: "power2.out",
+          clipPath: "inset(0% 0 0 0)", scale: 1, duration: 1.6, ease: "power3.inOut",
           scrollTrigger: { trigger: imageRef.current, start: "top 75%", toggleActions: "play none none reverse" }
         }
       );
 
+      // Parallax on inner image
+      if (imageRef.current) {
+        gsap.to(imageRef.current.querySelector("img"), {
+          yPercent: 15,
+          ease: "none",
+          scrollTrigger: {
+            trigger: imageRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+          }
+        });
+      }
+
+      // Stats stagger
       if (statsRef.current) {
         const items = statsRef.current.querySelectorAll(".stat-item");
         gsap.fromTo(items,
@@ -58,7 +75,6 @@ const ResearchSection = () => {
       </h2>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-        {/* Text & Stats */}
         <div className="lg:col-span-7 order-2 lg:order-1">
           <p className="body-text text-foreground max-w-2xl text-lg mb-16">
             At Veritas, research is not a department—it is the institution's lifeblood.
@@ -81,9 +97,8 @@ const ResearchSection = () => {
           </div>
         </div>
 
-        {/* Image */}
         <div className="lg:col-span-5 order-1 lg:order-2">
-          <div ref={imageRef} className="overflow-hidden opacity-0">
+          <div ref={imageRef} className="overflow-hidden">
             <img
               src={researchImg}
               alt="Scientific laboratory glassware with light refracting through beakers"
