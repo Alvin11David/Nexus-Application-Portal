@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -6,13 +7,18 @@ import {
   ArrowRight,
   BadgeCheck,
   CalendarDays,
+  ChevronDown,
   FileCheck2,
   FileText,
   GraduationCap,
   HelpCircle,
+  Landmark,
+  Layers3,
   Mail,
   MapPin,
   Phone,
+  ShieldCheck,
+  Sparkles,
   Wallet,
 } from "lucide-react";
 
@@ -129,10 +135,22 @@ const admissionFaqs = [
   },
 ];
 
+const sectionLinks = [
+  { id: "pathways", label: "Pathways" },
+  { id: "journey", label: "Application Steps" },
+  { id: "requirements", label: "Requirements" },
+  { id: "finance", label: "Fees & Funding" },
+  { id: "faq", label: "FAQ" },
+  { id: "support", label: "Support" },
+];
+
+const pathwayIcons = [GraduationCap, Layers3, Landmark, ShieldCheck];
+
 const StudyItemPage = () => {
   const { slug } = useParams();
   const item = studyLinks.find((entry) => entry.slug === slug);
   const isJoinAdmissions = item?.slug === "join-admissions";
+  const [openFaqIndex, setOpenFaqIndex] = useState<number>(0);
 
   if (!item) {
     return <Navigate to="/not-found" replace />;
@@ -141,41 +159,97 @@ const StudyItemPage = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="pt-28 md:pt-36 px-8 md:px-16 pb-20">
-        <section className="max-w-6xl mx-auto">
+      <main className="pt-28 md:pt-36 px-6 md:px-12 lg:px-16 pb-20 relative overflow-hidden">
+        {isJoinAdmissions && (
+          <>
+            <div className="absolute top-16 left-[-8rem] w-80 h-80 rounded-full bg-accent/10 blur-3xl pointer-events-none" />
+            <div className="absolute top-[38rem] right-[-10rem] w-96 h-96 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_1px_1px,hsl(var(--foreground)/0.03)_1px,transparent_0)] bg-[length:26px_26px]" />
+          </>
+        )}
+
+        <section className="relative max-w-6xl mx-auto">
           <Link
             to="/study"
             className="inline-flex items-center gap-2 font-body text-xs tracking-[0.15em] uppercase text-muted-foreground hover:text-accent transition-colors duration-300 mb-6"
           >
             Back to Study at Veritas
           </Link>
-          <h1 className="font-heading text-5xl md:text-7xl font-light text-foreground leading-[0.95] mb-5 max-w-5xl">
-            {item.title}
-          </h1>
-          <p className="font-body text-base md:text-lg text-muted-foreground max-w-4xl leading-relaxed">
-            {item.summary}
-          </p>
+
+          {isJoinAdmissions ? (
+            <div className="border border-border/60 rounded-[28px] bg-gradient-to-br from-background via-background to-secondary/30 p-7 md:p-10 lg:p-12 shadow-[0_14px_40px_rgba(0,0,0,0.06)]">
+              <p className="inline-flex items-center gap-2 font-body text-[10px] tracking-[0.2em] uppercase text-accent mb-5 border border-accent/35 px-3 py-1.5 rounded-[999px]">
+                <Sparkles size={12} /> Admissions 2026
+              </p>
+              <h1 className="font-heading text-5xl md:text-7xl font-light text-foreground leading-[0.95] mb-5 max-w-5xl">
+                Join Institute University
+              </h1>
+              <p className="font-body text-base md:text-lg text-muted-foreground max-w-4xl leading-relaxed mb-7">
+                Everything you need to apply with confidence: entry pathways,
+                deadlines, requirements, scholarships, payment options, and
+                direct support from admissions.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <a
+                  href="#journey"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] bg-accent text-accent-foreground font-body text-xs tracking-[0.15em] uppercase hover:bg-accent/90 transition-colors duration-300"
+                >
+                  Start Application Steps <ArrowRight size={14} />
+                </a>
+                <a
+                  href="#requirements"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] border border-accent/35 text-accent font-body text-xs tracking-[0.15em] uppercase hover:bg-accent/10 transition-colors duration-300"
+                >
+                  Check Requirements <FileText size={14} />
+                </a>
+              </div>
+            </div>
+          ) : (
+            <>
+              <h1 className="font-heading text-5xl md:text-7xl font-light text-foreground leading-[0.95] mb-5 max-w-5xl">
+                {item.title}
+              </h1>
+              <p className="font-body text-base md:text-lg text-muted-foreground max-w-4xl leading-relaxed">
+                {item.summary}
+              </p>
+            </>
+          )}
         </section>
 
         {isJoinAdmissions ? (
           <>
-            <section className="max-w-6xl mx-auto mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <section className="relative max-w-6xl mx-auto mt-7 flex flex-wrap gap-2.5">
+              {sectionLinks.map((section) => (
+                <a
+                  key={section.id}
+                  href={`#${section.id}`}
+                  className="text-[10px] md:text-xs tracking-[0.14em] uppercase font-body border border-border/60 text-foreground px-3.5 py-2 rounded-[999px] hover:border-accent/40 hover:text-accent hover:bg-accent/10 transition-all duration-300"
+                >
+                  {section.label}
+                </a>
+              ))}
+            </section>
+
+            <section className="relative max-w-6xl mx-auto mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
               {admissionStats.map((stat) => (
                 <article
                   key={stat.label}
-                  className="border border-border/60 rounded-[20px] p-5 bg-gradient-to-br from-background to-secondary/20"
+                  className="group border border-border/60 rounded-[20px] p-5 bg-gradient-to-br from-background to-secondary/20 transition-all duration-400 hover:border-accent/45 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(0,0,0,0.08)]"
                 >
                   <p className="font-body text-xs tracking-[0.15em] uppercase text-muted-foreground mb-2">
                     {stat.label}
                   </p>
-                  <p className="font-heading text-3xl md:text-4xl font-light text-foreground">
+                  <p className="font-heading text-3xl md:text-4xl font-light text-foreground group-hover:text-accent transition-colors duration-300">
                     {stat.value}
                   </p>
                 </article>
               ))}
             </section>
 
-            <section className="max-w-6xl mx-auto mt-10 border border-border/60 rounded-[24px] p-6 md:p-8 bg-background">
+            <section
+              id="pathways"
+              className="relative max-w-6xl mx-auto mt-10 border border-border/60 rounded-[24px] p-6 md:p-8 bg-background/90 backdrop-blur-sm"
+            >
               <div className="flex items-center gap-2 mb-5">
                 <GraduationCap size={18} className="text-accent" />
                 <p className="font-body text-xs tracking-[0.2em] uppercase text-accent">
@@ -183,37 +257,47 @@ const StudyItemPage = () => {
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {pathways.map((pathway) => (
-                  <article
-                    key={pathway.title}
-                    className="border border-border/50 rounded-[20px] p-5 bg-background transition-all duration-300 hover:border-accent/40 hover:bg-accent/5"
-                  >
-                    <h2 className="font-heading text-2xl font-light text-foreground mb-2">
-                      {pathway.title}
-                    </h2>
-                    <p className="font-body text-sm text-muted-foreground leading-relaxed">
-                      {pathway.detail}
-                    </p>
-                  </article>
-                ))}
+                {pathways.map((pathway, index) => {
+                  const PathwayIcon = pathwayIcons[index % pathwayIcons.length];
+
+                  return (
+                    <article
+                      key={pathway.title}
+                      className="group border border-border/50 rounded-[20px] p-5 bg-gradient-to-br from-background to-secondary/10 transition-all duration-400 hover:border-accent/40 hover:shadow-[0_12px_28px_rgba(0,0,0,0.08)]"
+                    >
+                      <div className="w-10 h-10 rounded-[12px] border border-accent/30 bg-accent/10 flex items-center justify-center mb-3 group-hover:bg-accent/18 transition-colors duration-300">
+                        <PathwayIcon size={16} className="text-accent" />
+                      </div>
+                      <h2 className="font-heading text-2xl font-light text-foreground mb-2 group-hover:text-accent transition-colors duration-300">
+                        {pathway.title}
+                      </h2>
+                      <p className="font-body text-sm text-muted-foreground leading-relaxed">
+                        {pathway.detail}
+                      </p>
+                    </article>
+                  );
+                })}
               </div>
             </section>
 
-            <section className="max-w-6xl mx-auto mt-10 grid grid-cols-1 lg:grid-cols-5 gap-6">
-              <article className="lg:col-span-3 border border-border/60 rounded-[24px] p-6 md:p-8 bg-background">
+            <section
+              id="journey"
+              className="relative max-w-6xl mx-auto mt-10 grid grid-cols-1 lg:grid-cols-5 gap-6"
+            >
+              <article className="lg:col-span-3 border border-border/60 rounded-[24px] p-6 md:p-8 bg-background/95 backdrop-blur-sm">
                 <p className="font-body text-xs tracking-[0.2em] uppercase text-accent mb-4">
                   Step-by-Step
                 </p>
                 <h2 className="font-heading text-4xl md:text-5xl font-light text-foreground leading-[0.95] mb-6">
                   Application Journey
                 </h2>
-                <div className="space-y-4">
+                <div className="relative space-y-4 before:content-[''] before:absolute before:left-[15px] before:top-3 before:bottom-3 before:w-[1px] before:bg-border/80">
                   {applicationJourney.map((step, index) => (
                     <div
                       key={step}
-                      className="flex items-start gap-4 border border-border/50 rounded-[18px] p-4"
+                      className="relative flex items-start gap-4 border border-border/50 rounded-[18px] p-4 bg-background/90"
                     >
-                      <span className="w-8 h-8 rounded-full border border-accent/50 bg-accent/10 text-accent flex items-center justify-center font-body text-xs shrink-0">
+                      <span className="relative z-10 w-8 h-8 rounded-full border border-accent/50 bg-accent/12 text-accent flex items-center justify-center font-body text-xs shrink-0">
                         {index + 1}
                       </span>
                       <p className="font-body text-sm md:text-base text-foreground leading-relaxed">
@@ -232,7 +316,7 @@ const StudyItemPage = () => {
                   {importantDates.map((dateItem) => (
                     <div
                       key={dateItem.phase}
-                      className="border border-border/50 rounded-[16px] p-4"
+                      className="border border-border/50 rounded-[16px] p-4 bg-background/80"
                     >
                       <p className="font-body text-[10px] tracking-[0.14em] uppercase text-muted-foreground mb-1">
                         {dateItem.phase}
@@ -246,8 +330,11 @@ const StudyItemPage = () => {
               </article>
             </section>
 
-            <section className="max-w-6xl mx-auto mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <article className="border border-border/60 rounded-[24px] p-6 md:p-8 bg-background">
+            <section
+              id="finance"
+              className="relative max-w-6xl mx-auto mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6"
+            >
+              <article className="border border-border/60 rounded-[24px] p-6 md:p-8 bg-background/95 backdrop-blur-sm">
                 <div className="flex items-center gap-2 mb-4">
                   <FileCheck2 size={18} className="text-accent" />
                   <p className="font-body text-xs tracking-[0.2em] uppercase text-accent">
@@ -257,7 +344,10 @@ const StudyItemPage = () => {
                 <ul className="space-y-3">
                   {requiredDocuments.map((doc) => (
                     <li key={doc} className="flex items-start gap-3">
-                      <BadgeCheck size={16} className="text-accent mt-0.5 shrink-0" />
+                      <BadgeCheck
+                        size={16}
+                        className="text-accent mt-0.5 shrink-0"
+                      />
                       <span className="font-body text-sm text-foreground leading-relaxed">
                         {doc}
                       </span>
@@ -266,7 +356,7 @@ const StudyItemPage = () => {
                 </ul>
               </article>
 
-              <article className="border border-border/60 rounded-[24px] p-6 md:p-8 bg-background">
+              <article className="border border-border/60 rounded-[24px] p-6 md:p-8 bg-background/95 backdrop-blur-sm">
                 <div className="flex items-center gap-2 mb-4">
                   <Wallet size={18} className="text-accent" />
                   <p className="font-body text-xs tracking-[0.2em] uppercase text-accent">
@@ -276,7 +366,10 @@ const StudyItemPage = () => {
                 <ul className="space-y-3">
                   {financeOptions.map((itemText) => (
                     <li key={itemText} className="flex items-start gap-3">
-                      <ArrowRight size={14} className="text-accent mt-1 shrink-0" />
+                      <ArrowRight
+                        size={14}
+                        className="text-accent mt-1 shrink-0"
+                      />
                       <span className="font-body text-sm text-foreground leading-relaxed">
                         {itemText}
                       </span>
@@ -286,7 +379,10 @@ const StudyItemPage = () => {
               </article>
             </section>
 
-            <section className="max-w-6xl mx-auto mt-10 border border-border/60 rounded-[24px] p-6 md:p-8 bg-background">
+            <section
+              id="requirements"
+              className="relative max-w-6xl mx-auto mt-10 border border-border/60 rounded-[24px] p-6 md:p-8 bg-background/95 backdrop-blur-sm"
+            >
               <div className="flex items-center gap-2 mb-5">
                 <FileText size={18} className="text-accent" />
                 <p className="font-body text-xs tracking-[0.2em] uppercase text-accent">
@@ -297,7 +393,7 @@ const StudyItemPage = () => {
                 {entryRequirements.map((group) => (
                   <article
                     key={group.title}
-                    className="border border-border/50 rounded-[20px] p-5"
+                    className="border border-border/50 rounded-[20px] p-5 bg-gradient-to-br from-background to-secondary/15"
                   >
                     <h3 className="font-heading text-2xl font-light text-foreground mb-3">
                       {group.title}
@@ -306,9 +402,12 @@ const StudyItemPage = () => {
                       {group.items.map((requirement) => (
                         <li
                           key={requirement}
-                          className="font-body text-sm text-muted-foreground leading-relaxed"
+                          className="flex items-start gap-2"
                         >
-                          {requirement}
+                          <span className="w-1.5 h-1.5 rounded-full bg-accent mt-2 shrink-0" />
+                          <span className="font-body text-sm text-muted-foreground leading-relaxed">
+                            {requirement}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -317,8 +416,11 @@ const StudyItemPage = () => {
               </div>
             </section>
 
-            <section className="max-w-6xl mx-auto mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <article className="border border-border/60 rounded-[24px] p-6 md:p-8 bg-background">
+            <section
+              id="faq"
+              className="relative max-w-6xl mx-auto mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6"
+            >
+              <article className="border border-border/60 rounded-[24px] p-6 md:p-8 bg-background/95 backdrop-blur-sm">
                 <div className="flex items-center gap-2 mb-5">
                   <HelpCircle size={18} className="text-accent" />
                   <p className="font-body text-xs tracking-[0.2em] uppercase text-accent">
@@ -326,23 +428,53 @@ const StudyItemPage = () => {
                   </p>
                 </div>
                 <div className="space-y-4">
-                  {admissionFaqs.map((faq) => (
+                  {admissionFaqs.map((faq, index) => (
                     <article
                       key={faq.question}
-                      className="border border-border/50 rounded-[16px] p-4"
+                      className="border border-border/50 rounded-[16px] bg-background"
                     >
-                      <h3 className="font-body text-sm uppercase tracking-[0.08em] text-foreground mb-2">
-                        {faq.question}
-                      </h3>
-                      <p className="font-body text-sm text-muted-foreground leading-relaxed">
-                        {faq.answer}
-                      </p>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOpenFaqIndex((currentIndex) =>
+                            currentIndex === index ? -1 : index,
+                          )
+                        }
+                        className="w-full px-4 py-4 text-left flex items-center justify-between gap-3"
+                        aria-expanded={openFaqIndex === index}
+                      >
+                        <h3 className="font-body text-sm uppercase tracking-[0.08em] text-foreground">
+                          {faq.question}
+                        </h3>
+                        <ChevronDown
+                          size={16}
+                          className={`text-muted-foreground transition-transform duration-300 ${
+                            openFaqIndex === index
+                              ? "rotate-180 text-accent"
+                              : ""
+                          }`}
+                        />
+                      </button>
+                      <div
+                        className={`grid transition-all duration-300 ${
+                          openFaqIndex === index
+                            ? "grid-rows-[1fr] opacity-100"
+                            : "grid-rows-[0fr] opacity-0"
+                        }`}
+                      >
+                        <p className="overflow-hidden px-4 pb-4 font-body text-sm text-muted-foreground leading-relaxed">
+                          {faq.answer}
+                        </p>
+                      </div>
                     </article>
                   ))}
                 </div>
               </article>
 
-              <article className="border border-border/60 rounded-[24px] p-6 md:p-8 bg-gradient-to-br from-background to-secondary/25">
+              <article
+                id="support"
+                className="border border-border/60 rounded-[24px] p-6 md:p-8 bg-gradient-to-br from-background to-secondary/25"
+              >
                 <p className="font-body text-xs tracking-[0.2em] uppercase text-accent mb-4">
                   Need Help?
                 </p>
@@ -351,24 +483,27 @@ const StudyItemPage = () => {
                 </h2>
                 <div className="space-y-3 mb-6">
                   <p className="font-body text-sm text-foreground inline-flex items-center gap-2">
-                    <Mail size={14} className="text-accent" /> admissions@institute.ac.ug
+                    <Mail size={14} className="text-accent" />{" "}
+                    admissions@institute.ac.ug
                   </p>
                   <p className="font-body text-sm text-foreground inline-flex items-center gap-2">
                     <Phone size={14} className="text-accent" /> +256 700 123 456
                   </p>
                   <p className="font-body text-sm text-foreground inline-flex items-center gap-2">
-                    <MapPin size={14} className="text-accent" /> Registrar Block, Main Campus
+                    <MapPin size={14} className="text-accent" /> Registrar
+                    Block, Main Campus
                   </p>
                   <p className="font-body text-sm text-foreground inline-flex items-center gap-2">
-                    <CalendarDays size={14} className="text-accent" /> Monday-Friday, 8:00 AM - 5:00 PM
+                    <CalendarDays size={14} className="text-accent" />{" "}
+                    Monday-Friday, 8:00 AM - 5:00 PM
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-accent text-accent-foreground rounded-[16px] font-body text-xs tracking-[0.15em] uppercase hover:bg-accent/90 transition-colors duration-300">
+                  <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-accent text-accent-foreground rounded-[16px] font-body text-xs tracking-[0.15em] uppercase hover:bg-accent/90 transition-all duration-300 hover:-translate-y-0.5">
                     Start Application <ArrowRight size={14} />
                   </button>
-                  <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 border border-accent/40 text-accent rounded-[16px] font-body text-xs tracking-[0.15em] uppercase hover:bg-accent/10 transition-colors duration-300">
+                  <button className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 border border-accent/40 text-accent rounded-[16px] font-body text-xs tracking-[0.15em] uppercase hover:bg-accent/10 transition-all duration-300 hover:-translate-y-0.5">
                     Download Guide <FileText size={14} />
                   </button>
                 </div>
