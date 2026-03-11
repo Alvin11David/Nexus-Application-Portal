@@ -115,7 +115,10 @@ const ResearchSection = () => {
             fearlessness matched only by their methodological rigor.
           </p>
 
-          <div ref={statsRef} className="grid grid-cols-2 gap-x-8 md:gap-x-16 gap-y-8 md:gap-y-12">
+          <div
+            ref={statsRef}
+            className="grid grid-cols-2 gap-x-8 md:gap-x-16 gap-y-8 md:gap-y-12"
+          >
             {stats.map((stat) => (
               <div
                 key={stat.label}
