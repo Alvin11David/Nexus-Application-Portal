@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Institute University icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0B3D2E" />
+      <stop offset="100%" stop-color="#1F6A50" />
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="40" fill="url(#bg)" />
+  <path d="M48 102L128 64L208 102L128 140L48 102Z" fill="#F8EBC6" />
+  <path d="M72 118V162C72 176 97 188 128 188C159 188 184 176 184 162V118L128 154L72 118Z" fill="#F8EBC6" opacity="0.95" />
+  <text x="128" y="232" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#F8EBC6">IU</text>
+</svg>
