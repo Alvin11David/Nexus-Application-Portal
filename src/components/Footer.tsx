@@ -35,6 +35,7 @@ const resources = [
   { label: "International Students", href: "/admissions/international" },
   { label: "Scholarships", href: "/admissions/scholarships" },
   { label: "Learning Online", href: "/admissions/online" },
+  { label: "FAQ", href: "/admissions/faq" },
 ];
 
 const socials = [

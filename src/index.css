@@ -24,7 +24,7 @@
     --muted: 60 3% 82%;
     --muted-foreground: 60 3% 45%;
 
-    --accent: 38 34% 55%;
+    --accent: 38 52% 45%;
     --accent-foreground: 60 7% 95%;
 
     --destructive: 0 84.2% 60.2%;
@@ -32,7 +32,7 @@
 
     --border: 60 3% 82%;
     --input: 60 3% 82%;
-    --ring: 38 34% 55%;
+    --ring: 38 52% 45%;
 
     --radius: 20px;
 
@@ -115,4 +115,59 @@
 html {
   scrollbar-width: thin;
   scrollbar-color: hsl(var(--muted)) transparent;
+}
+
+/* Hover Animation Keyframes */
+@keyframes cardLift {
+  from {
+    transform: translateY(0px);
+  }
+  to {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes cardGlow {
+  from {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  to {
+    box-shadow: 0 12px 24px rgba(138, 119, 84, 0.15);
+  }
+}
+
+@keyframes iconScale {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.15);
+  }
+}
+
+@keyframes iconRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(6deg);
+  }
+}
+
+/* Hover Utility Classes */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  animation: cardLift 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards,
+    cardGlow 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.icon-hover {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-hover:hover {
+  animation: iconScale 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }

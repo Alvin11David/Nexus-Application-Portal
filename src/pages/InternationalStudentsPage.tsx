@@ -153,7 +153,7 @@ const InternationalStudentsPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {stats.map((item) => (
             <div key={item.label} className="stat-card opacity-0">
-              <div className="p-8 rounded-[24px] border border-border/40 bg-background hover:border-accent/40 text-center transition-all duration-500 hover:shadow-lg">
+              <div className="card-hover p-8 rounded-[24px] border border-border/40 bg-background hover:border-accent/40 text-center transition-all duration-500">
                 <p className="font-heading text-4xl font-light text-accent mb-3">
                   {item.value}
                 </p>
@@ -182,8 +182,8 @@ const InternationalStudentsPage = () => {
             const Icon = item.icon;
             return (
               <div key={item.title} className="service-card opacity-0">
-                <div className="h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl">
-                  <Icon size={32} className="text-accent mb-6" />
+                <div className="card-hover h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500">
+                  <Icon size={32} className="icon-hover text-accent mb-6" />
                   <h3 className="font-heading text-xl font-light text-foreground mb-3">
                     {item.title}
                   </h3>

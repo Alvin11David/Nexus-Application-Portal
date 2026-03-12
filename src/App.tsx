@@ -28,6 +28,7 @@ import FeesPaymentPage from "./pages/FeesPaymentPage.tsx";
 import InternationalStudentsPage from "./pages/InternationalStudentsPage.tsx";
 import ScholarshipsPage from "./pages/ScholarshipsPage.tsx";
 import LearningOnlinePage from "./pages/LearningOnlinePage.tsx";
+import FAQPage from "./pages/FAQPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +64,7 @@ const AnimatedRoutes = () => {
         />
         <Route path="/admissions/scholarships" element={<ScholarshipsPage />} />
         <Route path="/admissions/online" element={<LearningOnlinePage />} />
+        <Route path="/admissions/faq" element={<FAQPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </PageTransition>

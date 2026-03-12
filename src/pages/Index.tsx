@@ -11,6 +11,7 @@ import CampusLifeSection from "@/components/CampusLifeSection";
 import UniversityPortalSection from "@/components/UniversityPortalSection";
 import QuoteSection from "@/components/QuoteSection";
 import ApplicationCTA from "@/components/ApplicationCTA";
+import FAQSection from "@/components/FAQSection";
 import ApplicationForm from "@/components/ApplicationForm";
 import FloatingApplyButton from "@/components/FloatingApplyButton";
 import Footer from "@/components/Footer";
@@ -107,6 +108,7 @@ const Index = () => {
               <CampusLifeSection />
               <UniversityPortalSection />
               <QuoteSection />
+              <FAQSection />
               <ApplicationCTA onApply={openApplication} />
               <Footer />
             </>

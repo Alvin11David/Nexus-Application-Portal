@@ -146,7 +146,7 @@ const HowToApplyPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl">
           {steps.map((step, index) => (
             <div key={step.number} className="step-card opacity-0">
-              <div className="relative p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl h-full">
+              <div className="card-hover relative p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 h-full">
                 {/* Step number background */}
                 <div className="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center">
                   <span className="font-heading text-3xl font-light text-accent/60">
@@ -167,7 +167,7 @@ const HowToApplyPage = () => {
                     {index < steps.length - 1 ? (
                       <>
                         Next Step
-                        <ArrowRight size={16} />
+                        <ArrowRight size={16} className="icon-hover" />
                       </>
                     ) : (
                       <>✓ Complete</>

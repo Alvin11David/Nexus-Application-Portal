@@ -175,9 +175,9 @@ const FeesPaymentPage = () => {
         <div className="max-w-3xl space-y-4 mb-12">
           {feeBreakdown.map((item) => (
             <div key={item.category} className="fee-item opacity-0">
-              <div className="flex items-center justify-between p-6 rounded-[20px] border border-border/40 hover:border-accent/40 bg-background transition-all duration-500 hover:shadow-lg">
+              <div className="card-hover flex items-center justify-between p-6 rounded-[20px] border border-border/40 hover:border-accent/40 bg-background transition-all duration-500">
                 <div className="flex items-center gap-4 flex-1">
-                  <DollarSign size={24} className="text-accent flex-shrink-0" />
+                  <DollarSign size={24} className="icon-hover text-accent flex-shrink-0" />
                   <div>
                     <p className="font-body text-sm font-semibold text-foreground mb-1">
                       {item.category}
@@ -226,8 +226,8 @@ const FeesPaymentPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {paymentPlans.map((plan) => (
             <div key={plan.name} className="plan-card opacity-0">
-              <div className="h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl">
-                <CreditCard size={32} className="text-accent mb-6" />
+              <div className="card-hover h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500">
+                <CreditCard size={32} className="icon-hover text-accent mb-6" />
                 <h3 className="font-heading text-2xl font-light text-foreground mb-3">
                   {plan.name}
                 </h3>

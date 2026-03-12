@@ -167,9 +167,9 @@ const VisitInstitutePage = () => {
           {highlights.map((item) => (
             <div
               key={item}
-              className="highlight-item opacity-0 flex items-start gap-4 p-6 rounded-[20px] border border-border/40 hover:border-accent/40 bg-background transition-all duration-500 hover:shadow-lg"
+              className="highlight-item opacity-0 card-hover flex items-start gap-4 p-6 rounded-[20px] border border-border/40 hover:border-accent/40 bg-background transition-all duration-500"
             >
-              <MapPin size={24} className="text-accent flex-shrink-0 mt-1" />
+              <MapPin size={24} className="icon-hover text-accent flex-shrink-0 mt-1" />
               <p className="font-body text-muted-foreground leading-relaxed">
                 {item}
               </p>
@@ -192,13 +192,13 @@ const VisitInstitutePage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {tours.map((tour) => (
             <div key={tour.name} className="tour-card opacity-0">
-              <div className="p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl">
+              <div className="card-hover p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500">
                 <h3 className="font-heading text-2xl font-light text-foreground mb-8">
                   {tour.name}
                 </h3>
                 <div className="space-y-5">
                   <div className="flex items-center gap-4">
-                    <Clock size={20} className="text-accent flex-shrink-0" />
+                    <Clock size={20} className="icon-hover text-accent flex-shrink-0" />
                     <div>
                       <p className="font-body text-xs text-muted-foreground tracking-widest uppercase">
                         Duration
@@ -209,7 +209,7 @@ const VisitInstitutePage = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <Users size={20} className="text-accent flex-shrink-0" />
+                    <Users size={20} className="icon-hover text-accent flex-shrink-0" />
                     <div>
                       <p className="font-body text-xs text-muted-foreground tracking-widest uppercase">
                         Group Size
@@ -218,7 +218,7 @@ const VisitInstitutePage = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <Calendar size={20} className="text-accent flex-shrink-0" />
+                    <Calendar size={20} className="icon-hover text-accent flex-shrink-0" />
                     <div>
                       <p className="font-body text-xs text-muted-foreground tracking-widest uppercase">
                         Schedule

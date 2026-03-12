@@ -159,7 +159,7 @@ const ScholarshipsPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {stats.map((item) => (
             <div key={item.label} className="stat-card opacity-0">
-              <div className="p-8 rounded-[24px] border border-border/40 bg-background hover:border-accent/40 text-center transition-all duration-500 hover:shadow-lg">
+              <div className="card-hover p-8 rounded-[24px] border border-border/40 bg-background hover:border-accent/40 text-center transition-all duration-500">
                 <p className="font-heading text-4xl font-light text-accent mb-3">
                   {item.value}
                 </p>
@@ -189,10 +189,10 @@ const ScholarshipsPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {scholarshipTypes.map((scholarship) => (
             <div key={scholarship.name} className="scholarship-card opacity-0">
-              <div className="group h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl">
+              <div className="group card-hover h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500">
                 <Award
                   size={32}
-                  className="text-accent mb-6 group-hover:scale-110 transition-transform"
+                  className="icon-hover text-accent mb-6 group-hover:scale-110 transition-transform"
                 />
                 <h3 className="font-heading text-2xl font-light text-foreground mb-4">
                   {scholarship.name}

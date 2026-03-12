@@ -157,7 +157,7 @@ const CoursesListingsPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {colleges.map((college) => (
             <div key={college.name} className="college-card opacity-0">
-              <div className="group h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl cursor-pointer">
+              <div className="group card-hover h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 cursor-pointer">
                 <div className="flex items-start justify-between mb-6 pb-6 border-b border-border/50">
                   <div>
                     <h3 className="font-heading text-xl font-light text-foreground mb-2 leading-tight">
@@ -169,7 +169,7 @@ const CoursesListingsPage = () => {
                   </div>
                   <BookOpen
                     size={32}
-                    className="text-accent/40 group-hover:text-accent transition-colors duration-300"
+                    className="icon-hover text-accent/40 group-hover:text-accent transition-colors duration-300"
                   />
                 </div>
                 <p className="font-body text-sm text-muted-foreground leading-relaxed mb-6">

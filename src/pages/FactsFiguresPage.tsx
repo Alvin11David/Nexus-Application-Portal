@@ -188,10 +188,10 @@ const FactsFiguresPage = () => {
             const Icon = item.icon;
             return (
               <div key={item.label} className="stat-card opacity-0">
-                <div className="h-full p-8 rounded-[24px] border border-border/40 bg-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl relative overflow-hidden group">
+                <div className="card-hover h-full p-8 rounded-[24px] border border-border/40 bg-background hover:border-accent/40 transition-all duration-500 relative overflow-hidden group">
                   <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="relative z-10">
-                    <Icon size={32} className="text-accent mb-6" />
+                    <Icon size={32} className="icon-hover text-accent mb-6" />
                     <p className="font-body text-xs tracking-[0.15em] uppercase text-muted-foreground font-semibold mb-4">
                       {item.label}
                     </p>
@@ -223,7 +223,7 @@ const FactsFiguresPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {facts.map((item) => (
             <div key={item.category} className="fact-card opacity-0">
-              <div className="p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/30 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-lg">
+              <div className="card-hover p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/30 to-background hover:border-accent/40 transition-all duration-500">
                 <p className="font-body text-xs tracking-[0.15em] uppercase text-accent font-semibold mb-4">
                   {item.category}
                 </p>

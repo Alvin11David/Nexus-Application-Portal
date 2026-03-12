@@ -181,8 +181,8 @@ const LearningOnlinePage = () => {
             const Icon = item.icon;
             return (
               <div key={item.title} className="feature-card opacity-0">
-                <div className="h-full p-8 rounded-[24px] border border-border/50 bg-background hover:border-accent/40 transition-all duration-500 hover:shadow-lg">
-                  <Icon size={32} className="text-accent mb-6" />
+                <div className="card-hover h-full p-8 rounded-[24px] border border-border/50 bg-background hover:border-accent/40 transition-all duration-500">
+                  <Icon size={32} className="icon-hover text-accent mb-6" />
                   <h3 className="font-heading text-xl font-light text-foreground mb-3">
                     {item.title}
                   </h3>
@@ -210,7 +210,7 @@ const LearningOnlinePage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {programs.map((program) => (
             <div key={program.name} className="program-card opacity-0">
-              <div className="h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl">
+              <div className="card-hover h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500">
                 <h3 className="font-heading text-2xl font-light text-foreground mb-6">
                   {program.name}
                 </h3>

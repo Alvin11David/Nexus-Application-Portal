@@ -137,7 +137,7 @@ const AboutInstitutePage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {highlights.map((item) => (
             <div key={item.title} className="highlight-card opacity-0">
-              <div className="p-6 rounded-[24px] border border-border/60 hover:border-accent/40 bg-gradient-to-br from-secondary/20 to-background transition-all duration-500 hover:shadow-lg">
+              <div className="card-hover p-6 rounded-[24px] border border-border/60 hover:border-accent/40 bg-gradient-to-br from-secondary/20 to-background transition-all duration-500">
                 <p className="font-body text-xs tracking-[0.15em] uppercase text-accent font-semibold mb-3">
                   {item.title}
                 </p>
@@ -175,7 +175,7 @@ const AboutInstitutePage = () => {
               <div key={term} className="flex items-start gap-4">
                 <CheckCircle2
                   size={24}
-                  className="text-accent flex-shrink-0 mt-1"
+                  className="icon-hover text-accent flex-shrink-0 mt-1"
                 />
                 <p className="font-body text-muted-foreground">{term}</p>
               </div>

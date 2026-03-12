@@ -165,7 +165,7 @@ const HistoryTimelinePage = () => {
                 >
                   {/* Content */}
                   <div className="flex-1 w-full lg:w-auto">
-                    <div className="p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-lg">
+                    <div className="card-hover p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500">
                       <p className="font-body text-xs tracking-[0.15em] uppercase text-accent font-semibold mb-3">
                         {item.year}
                       </p>

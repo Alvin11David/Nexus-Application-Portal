@@ -172,7 +172,7 @@ const AdmissionsListsPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {admissionTypes.map((item) => (
             <div key={item.type} className="admission-card opacity-0">
-              <div className="p-8 rounded-[24px] border border-border/50 bg-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl">
+              <div className="card-hover p-8 rounded-[24px] border border-border/50 bg-background hover:border-accent/40 transition-all duration-500">
                 <div className="mb-6 pb-6 border-b border-border/50">
                   <h3 className="font-heading text-2xl font-light text-foreground mb-2">
                     {item.type}
@@ -214,11 +214,11 @@ const AdmissionsListsPage = () => {
             {requirements.map((req) => (
               <div
                 key={req}
-                className="requirement-item opacity-0 flex items-start gap-4 p-6 rounded-[20px] border border-border/40 hover:border-accent/40 bg-gradient-to-r from-secondary/10 to-background transition-all duration-500"
+                className="requirement-item opacity-0 card-hover flex items-start gap-4 p-6 rounded-[20px] border border-border/40 hover:border-accent/40 bg-gradient-to-r from-secondary/10 to-background transition-all duration-500"
               >
                 <CheckCircle2
                   size={24}
-                  className="text-accent flex-shrink-0 mt-0.5"
+                  className="icon-hover text-accent flex-shrink-0 mt-0.5"
                 />
                 <p className="font-body text-muted-foreground leading-relaxed pt-1">
                   {req}
