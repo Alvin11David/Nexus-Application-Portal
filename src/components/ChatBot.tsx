@@ -426,8 +426,8 @@ const ChatBot = () => {
           </div>
 
           {/* Input Area */}
-          <div className="px-4 py-3 border-t border-border/30 bg-background/80 backdrop-blur-sm">
-            <div className="flex items-center gap-2 bg-secondary/40 border border-border/40 rounded-2xl px-4 py-1 focus-within:border-accent/40 focus-within:shadow-[0_0_0_3px_hsla(38,52%,45%,0.08)] transition-all duration-300">
+          <div className="px-4 py-3 border-t border-gray-200 bg-white">
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-1 focus-within:border-accent/40 focus-within:shadow-[0_0_0_3px_hsla(38,52%,45%,0.08)] transition-all duration-300">
               <input
                 ref={inputRef}
                 type="text"
