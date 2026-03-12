@@ -294,7 +294,7 @@ const ChatBot = () => {
       {isOpen && (
         <div
           ref={chatRef}
-          className="absolute bottom-16 right-0 w-[calc(100vw-2rem)] sm:w-[400px] h-[min(580px,calc(100vh-6rem))] rounded-3xl border border-border/40 bg-background/98 backdrop-blur-2xl shadow-[0_25px_80px_-12px_rgba(0,0,0,0.25)] flex flex-col overflow-hidden"
+          className="absolute bottom-16 right-0 w-[calc(100vw-2rem)] sm:w-[400px] h-[min(580px,calc(100vh-6rem))] rounded-3xl border border-border/40 bg-white shadow-[0_25px_80px_-12px_rgba(0,0,0,0.25)] flex flex-col overflow-hidden"
         >
           {/* Header */}
           <div className="relative flex items-center justify-between px-5 py-4 bg-gradient-to-r from-accent to-accent/85">
