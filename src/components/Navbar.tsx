@@ -208,8 +208,9 @@ const Navbar = () => {
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className={`md:hidden transition-colors duration-500 ${
-              scrolled ? "text-foreground" : "text-primary-foreground"
+              scrolled || mobileOpen ? "text-foreground" : "text-primary-foreground"
             }`}
+            aria-label="Toggle menu"
           >
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
