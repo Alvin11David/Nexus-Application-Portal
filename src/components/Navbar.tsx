@@ -1,20 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X, Sparkles } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { studyLinks } from "@/lib/studyLinks";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const navItems = [
-  { label: "Home", href: "/" },
-  { label: "Students", href: "/students" },
-  { label: "Research", href: "/research" },
-  { label: "About", href: "/about" },
-  { label: "News", href: "/news" },
-  { label: "Quick Links", href: "/quick-links" },
-  { label: "Donate", href: "/donate" },
+  { label: "Home", href: "/", badge: "Welcome" },
+  { label: "Students", href: "/students", badge: "Community" },
+  { label: "Research", href: "/research", badge: "Discovery" },
+  { label: "About", href: "/about", badge: "Heritage" },
+  { label: "News", href: "/news", badge: "Updates" },
+  { label: "Quick Links", href: "/quick-links", badge: "Tools" },
+  { label: "Donate", href: "/donate", badge: "Support" },
 ];
 
 const Navbar = () => {
