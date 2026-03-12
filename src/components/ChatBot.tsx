@@ -342,7 +342,7 @@ const ChatBot = () => {
                 <div className="w-16 h-16 rounded-3xl bg-accent/10 flex items-center justify-center mb-4 border border-accent/20">
                   <Sparkles size={28} className="text-accent" />
                 </div>
-                <h3 className="font-heading text-xl font-semibold text-foreground mb-1.5">
+                <h3 className="font-heading text-xl font-semibold text-gray-900 mb-1.5">
                   Hi, I'm Vera! 👋
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-5 max-w-[260px]">
