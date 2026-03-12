@@ -1,32 +1,99 @@
 import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send, Bot, User } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import gsap from "gsap";
 
 interface Message {
   id: string;
-  text: string;
-  sender: "user" | "bot";
-  timestamp: Date;
+  role: "user" | "assistant";
+  content: string;
 }
 
-const MOCK_RESPONSES: Record<string, string> = {
-  hello: "Hello! 👋 I'm Vera, your virtual guide to Veritas Institute. How can I help you today?",
-  hi: "Hi there! 👋 Welcome to Veritas Institute. What would you like to know?",
-  admission: "Great question! Our application periods are:\n\n• **Early Decision**: November 1\n• **Regular Decision**: January 15\n• **Rolling Admissions**: March 1 – May 30\n\nYou'll need transcripts, test scores, a personal statement, and recommendation letters. The application fee is $75. Would you like to know more?",
-  tuition: "Here's a breakdown of our annual costs:\n\n• **Undergraduate**: $52,000\n• **Graduate**: $38,000–$58,000\n• **Room & Board**: $16,500\n\n92% of students receive financial aid, with an average scholarship of $28,000! 🎓",
-  scholarship: "We're committed to making education accessible! 92% of our students receive some form of financial aid. The average scholarship is $28,000. Contact finaid@veritas.edu for personalized information.",
-  program: "Veritas offers 143+ degree programs across 10 colleges including Arts & Sciences, Engineering, Business, Medicine, Law, and more! Our student-to-faculty ratio is an impressive 12:1. What field interests you?",
-  research: "Research is at our core! With $450M+ in annual funding, we have centers of excellence in AI, biotechnology, sustainable energy, and public policy. We also have 200+ active industry partnerships. 🔬",
-  campus: "Our beautiful 320-acre campus features 45 academic buildings, 12 research centers, 8 libraries, a sports complex, and 15 residence halls. We'd love for you to visit! 🏛️",
-  contact: "You can reach us at:\n\n• **Main Office**: +1 (555) 123-4567\n• **Admissions**: admissions@veritas.edu\n• **Financial Aid**: finaid@veritas.edu\n• **Address**: 1 Veritas Way, Academic City, ST 10001",
-};
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
-function getMockResponse(input: string): string {
-  const lower = input.toLowerCase();
-  for (const [key, response] of Object.entries(MOCK_RESPONSES)) {
-    if (lower.includes(key)) return response;
+async function streamChat({
+  messages,
+  onDelta,
+  onDone,
+  onError,
+}: {
+  messages: { role: string; content: string }[];
+  onDelta: (text: string) => void;
+  onDone: () => void;
+  onError: (err: string) => void;
+}) {
+  const resp = await fetch(CHAT_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+    },
+    body: JSON.stringify({ messages }),
+  });
+
+  if (!resp.ok) {
+    const data = await resp.json().catch(() => ({}));
+    onError(data.error || "Something went wrong. Please try again.");
+    return;
   }
-  return "Thank you for your question! I'm currently running in offline mode. Once connected to our AI backend, I'll be able to answer all your questions about Veritas Institute in detail. In the meantime, feel free to ask about admissions, tuition, programs, research, campus life, or contact info! 😊";
+
+  if (!resp.body) {
+    onError("No response stream available.");
+    return;
+  }
+
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    let newlineIndex: number;
+    while ((newlineIndex = buffer.indexOf("\n")) !== -1) {
+      let line = buffer.slice(0, newlineIndex);
+      buffer = buffer.slice(newlineIndex + 1);
+
+      if (line.endsWith("\r")) line = line.slice(0, -1);
+      if (line.startsWith(":") || line.trim() === "") continue;
+      if (!line.startsWith("data: ")) continue;
+
+      const jsonStr = line.slice(6).trim();
+      if (jsonStr === "[DONE]") {
+        onDone();
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(jsonStr);
+        const content = parsed.choices?.[0]?.delta?.content;
+        if (content) onDelta(content);
+      } catch {
+        buffer = line + "\n" + buffer;
+        break;
+      }
+    }
+  }
+
+  // Flush remaining
+  if (buffer.trim()) {
+    for (let raw of buffer.split("\n")) {
+      if (!raw) continue;
+      if (raw.endsWith("\r")) raw = raw.slice(0, -1);
+      if (!raw.startsWith("data: ")) continue;
+      const jsonStr = raw.slice(6).trim();
+      if (jsonStr === "[DONE]") continue;
+      try {
+        const parsed = JSON.parse(jsonStr);
+        const content = parsed.choices?.[0]?.delta?.content;
+        if (content) onDelta(content);
+      } catch { /* ignore */ }
+    }
+  }
+
+  onDone();
 }
 
 const ChatBot = () => {
@@ -34,60 +101,102 @@ const ChatBot = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      text: "Hello! 👋 I'm **Vera**, your virtual assistant for Veritas Institute. Ask me anything about admissions, programs, campus life, and more!",
-      sender: "bot",
-      timestamp: new Date(),
+      role: "assistant",
+      content:
+        "Hello! 👋 I'm **Vera**, your virtual assistant for Veritas Institute. Ask me anything about admissions, programs, campus life, and more!",
     },
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   useEffect(() => {
-    if (chatRef.current) {
-      if (isOpen) {
-        gsap.fromTo(
-          chatRef.current,
-          { opacity: 0, scale: 0.9, y: 20 },
-          { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "back.out(1.7)" }
-        );
-      }
+    if (chatRef.current && isOpen) {
+      gsap.fromTo(
+        chatRef.current,
+        { opacity: 0, scale: 0.9, y: 20 },
+        { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "back.out(1.7)" }
+      );
     }
   }, [isOpen]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
-    const userMessage: Message = {
+    const userMsg: Message = {
       id: Date.now().toString(),
-      text: input.trim(),
-      sender: "user",
-      timestamp: new Date(),
+      role: "user",
+      content: input.trim(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     setInput("");
     setIsLoading(true);
 
-    // Simulate delay for mock responses
-    await new Promise((r) => setTimeout(r, 800 + Math.random() * 700));
+    let assistantSoFar = "";
 
-    const botResponse = getMockResponse(userMessage.text);
-    const botMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      text: botResponse,
-      sender: "bot",
-      timestamp: new Date(),
+    const upsertAssistant = (chunk: string) => {
+      assistantSoFar += chunk;
+      setMessages((prev) => {
+        const last = prev[prev.length - 1];
+        if (last?.role === "assistant" && last.id === "streaming") {
+          return prev.map((m, i) =>
+            i === prev.length - 1 ? { ...m, content: assistantSoFar } : m
+          );
+        }
+        return [
+          ...prev,
+          { id: "streaming", role: "assistant" as const, content: assistantSoFar },
+        ];
+      });
     };
 
-    setMessages((prev) => [...prev, botMessage]);
-    setIsLoading(false);
+    try {
+      await streamChat({
+        messages: updatedMessages
+          .filter((m) => m.id !== "welcome")
+          .map((m) => ({ role: m.role, content: m.content })),
+        onDelta: upsertAssistant,
+        onDone: () => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === "streaming"
+                ? { ...m, id: Date.now().toString() }
+                : m
+            )
+          );
+          setIsLoading(false);
+        },
+        onError: (err) => {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: Date.now().toString(),
+              role: "assistant",
+              content: `I'm sorry, I encountered an issue: ${err}. Please try again.`,
+            },
+          ]);
+          setIsLoading(false);
+        },
+      });
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          role: "assistant",
+          content:
+            "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
+        },
+      ]);
+      setIsLoading(false);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -99,7 +208,6 @@ const ChatBot = () => {
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      {/* Chat Window */}
       {isOpen && (
         <div
           ref={chatRef}
@@ -112,10 +220,12 @@ const ChatBot = () => {
                 <Bot size={18} />
               </div>
               <div>
-                <p className="font-heading text-sm font-semibold tracking-wide">Vera</p>
+                <p className="font-heading text-sm font-semibold tracking-wide">
+                  Vera
+                </p>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-[11px] opacity-80">Online</span>
+                  <span className="text-[11px] opacity-80">AI-Powered</span>
                 </div>
               </div>
             </div>
@@ -132,52 +242,59 @@ const ChatBot = () => {
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex gap-2 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                className={`flex gap-2 ${
+                  msg.role === "user" ? "justify-end" : "justify-start"
+                }`}
               >
-                {msg.sender === "bot" && (
+                {msg.role === "assistant" && (
                   <div className="w-7 h-7 rounded-full bg-accent/15 flex items-center justify-center flex-shrink-0 mt-1">
                     <Bot size={14} className="text-accent" />
                   </div>
                 )}
                 <div
                   className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                    msg.sender === "user"
+                    msg.role === "user"
                       ? "bg-accent text-accent-foreground rounded-br-md"
                       : "bg-secondary text-foreground rounded-bl-md"
                   }`}
                 >
-                  {msg.text.split("\n").map((line, i) => (
-                    <span key={i}>
-                      {line.split(/(\*\*.*?\*\*)/).map((part, j) =>
-                        part.startsWith("**") && part.endsWith("**") ? (
-                          <strong key={j}>{part.slice(2, -2)}</strong>
-                        ) : (
-                          part
-                        )
-                      )}
-                      {i < msg.text.split("\n").length - 1 && <br />}
-                    </span>
-                  ))}
+                  {msg.role === "assistant" ? (
+                    <div className="prose prose-sm max-w-none dark:prose-invert prose-p:my-1 prose-ul:my-1 prose-li:my-0.5">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    msg.content
+                  )}
                 </div>
-                {msg.sender === "user" && (
+                {msg.role === "user" && (
                   <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-1">
                     <User size={14} className="text-muted-foreground" />
                   </div>
                 )}
               </div>
             ))}
-            {isLoading && (
-              <div className="flex gap-2 justify-start">
-                <div className="w-7 h-7 rounded-full bg-accent/15 flex items-center justify-center flex-shrink-0">
-                  <Bot size={14} className="text-accent" />
+            {isLoading &&
+              messages[messages.length - 1]?.role !== "assistant" && (
+                <div className="flex gap-2 justify-start">
+                  <div className="w-7 h-7 rounded-full bg-accent/15 flex items-center justify-center flex-shrink-0">
+                    <Bot size={14} className="text-accent" />
+                  </div>
+                  <div className="bg-secondary rounded-2xl rounded-bl-md px-4 py-3 flex gap-1.5">
+                    <span
+                      className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce"
+                      style={{ animationDelay: "0ms" }}
+                    />
+                    <span
+                      className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    />
+                    <span
+                      className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    />
+                  </div>
                 </div>
-                <div className="bg-secondary rounded-2xl rounded-bl-md px-4 py-3 flex gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "300ms" }} />
-                </div>
-              </div>
-            )}
+              )}
             <div ref={messagesEndRef} />
           </div>
 
@@ -207,7 +324,6 @@ const ChatBot = () => {
 
       {/* Floating Button */}
       <button
-        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         className="w-14 h-14 rounded-full bg-accent text-accent-foreground shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center"
       >
