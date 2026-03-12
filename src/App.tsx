@@ -29,6 +29,7 @@ import InternationalStudentsPage from "./pages/InternationalStudentsPage.tsx";
 import ScholarshipsPage from "./pages/ScholarshipsPage.tsx";
 import LearningOnlinePage from "./pages/LearningOnlinePage.tsx";
 import FAQPage from "./pages/FAQPage.tsx";
+import ChatBot from "@/components/ChatBot";
 
 const queryClient = new QueryClient();
 
@@ -78,6 +79,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AnimatedRoutes />
+        <ChatBot />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

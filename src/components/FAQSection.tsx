@@ -103,7 +103,8 @@ const FAQSection = () => {
           Frequently Asked Questions
         </h2>
         <p className="font-body text-lg text-muted-foreground leading-relaxed">
-          Find answers to common questions about admissions, academics, and more.
+          Find answers to common questions about admissions, academics, and
+          more.
         </p>
       </div>
 

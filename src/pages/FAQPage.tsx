@@ -225,7 +225,10 @@ const FAQPage = () => {
             <div key={category.category} className="max-w-4xl mx-auto">
               {/* Category Header */}
               <div className="flex items-center gap-4 mb-12">
-                <category.icon size={32} className="icon-hover text-accent flex-shrink-0" />
+                <category.icon
+                  size={32}
+                  className="icon-hover text-accent flex-shrink-0"
+                />
                 <h2 className="font-heading text-3xl md:text-4xl font-light text-foreground">
                   {category.category}
                 </h2>
@@ -290,8 +293,8 @@ const FAQPage = () => {
                 className="text-accent font-semibold hover:text-accent/80 transition-colors"
               >
                 admissions@veritas.edu
-              </a>
-              {" "}or call{" "}
+              </a>{" "}
+              or call{" "}
               <a
                 href="tel:+1-555-VERITAS"
                 className="text-accent font-semibold hover:text-accent/80 transition-colors"
