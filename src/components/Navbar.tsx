@@ -197,7 +197,9 @@ const Navbar = () => {
                 } ${isActive(item.href) ? "!text-accent" : ""}`}
               >
                 {item.label}
-                <span className={`absolute -bottom-1 left-0 w-full h-px bg-accent transition-transform duration-500 origin-left ${isActive(item.href) ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
+                <span
+                  className={`absolute -bottom-1 left-0 w-full h-px bg-accent transition-transform duration-500 origin-left ${isActive(item.href) ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`}
+                />
               </button>
             ))}
           </div>
