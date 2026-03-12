@@ -446,7 +446,7 @@ const ChatBot = () => {
                 <Send size={14} />
               </button>
             </div>
-            <p className="text-[9px] text-muted-foreground/50 text-center mt-2 tracking-wide">
+            <p className="text-[9px] text-gray-400 text-center mt-2 tracking-wide">
               Powered by Veritas AI · Responses may be approximate
             </p>
           </div>
