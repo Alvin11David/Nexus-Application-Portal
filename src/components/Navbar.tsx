@@ -78,7 +78,7 @@ const Navbar = () => {
       <nav
         ref={navRef}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 opacity-0 ${
-          scrolled
+          scrolled || mobileOpen
             ? "bg-background/90 backdrop-blur-md shadow-[0_1px_0_hsl(var(--border))]"
             : "bg-transparent"
         }`}
@@ -208,8 +208,9 @@ const Navbar = () => {
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className={`md:hidden transition-colors duration-500 ${
-              scrolled ? "text-foreground" : "text-primary-foreground"
+              scrolled || mobileOpen ? "text-foreground" : "text-primary-foreground"
             }`}
+            aria-label="Toggle menu"
           >
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -218,7 +219,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       <div
-        className={`fixed inset-0 z-40 bg-background/98 backdrop-blur-lg flex flex-col items-center justify-center gap-8 transition-all duration-500 md:hidden ${
+        className={`fixed inset-0 z-40 bg-background backdrop-blur-lg flex flex-col items-center justify-center gap-6 transition-all duration-500 md:hidden ${
           mobileOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
@@ -229,7 +230,14 @@ const Navbar = () => {
             setMobileOpen(false);
             navigate("/study");
           }}
-          className="font-heading text-3xl font-light text-foreground tracking-[0.15em] uppercase transition-colors duration-500 hover:text-accent"
+          className={`font-heading text-2xl font-light tracking-[0.15em] uppercase transition-all duration-500 hover:text-accent ${
+            location.pathname.startsWith("/study") ? "text-accent" : "text-foreground"
+          }`}
+          style={{
+            transform: mobileOpen ? "translateY(0)" : "translateY(20px)",
+            opacity: mobileOpen ? 1 : 0,
+            transition: "all 0.4s ease 0s",
+          }}
         >
           Study at Veritas
         </button>
@@ -237,11 +245,11 @@ const Navbar = () => {
           <button
             key={item.label}
             onClick={() => handleNavClick(item.href)}
-            className={`font-heading text-3xl font-light tracking-[0.15em] uppercase transition-colors duration-500 hover:text-accent ${isActive(item.href) ? "text-accent" : "text-foreground"}`}
+            className={`font-heading text-2xl font-light tracking-[0.15em] uppercase transition-all duration-500 hover:text-accent ${isActive(item.href) ? "text-accent" : "text-foreground"}`}
             style={{
               transform: mobileOpen ? "translateY(0)" : "translateY(20px)",
               opacity: mobileOpen ? 1 : 0,
-              transition: `all 0.4s ease ${i * 0.08}s`,
+              transition: `all 0.4s ease ${(i + 1) * 0.06}s`,
             }}
           >
             {item.label}
