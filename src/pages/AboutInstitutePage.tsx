@@ -12,7 +12,10 @@ const highlights = [
   { title: "Founded 1922", desc: "Over a century of academic excellence" },
   { title: "143+ Programs", desc: "Across 10 colleges and schools" },
   { title: "12,400+ Students", desc: "From 74 countries worldwide" },
-  { title: "Top 200 Global", desc: "Ranked among world's leading universities" },
+  {
+    title: "Top 200 Global",
+    desc: "Ranked among world's leading universities",
+  },
 ];
 
 const mission = {
@@ -34,7 +37,14 @@ const AboutInstitutePage = () => {
         gsap.fromTo(
           heroTextRef.current.querySelectorAll("*"),
           { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.3 }
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.2,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.3,
+          },
         );
       }
 
@@ -43,7 +53,13 @@ const AboutInstitutePage = () => {
         gsap.fromTo(
           imageRef.current,
           { scale: 1.1, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 1.8, ease: "power2.out", delay: 0.2 }
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 1.8,
+            ease: "power2.out",
+            delay: 0.2,
+          },
         );
       }
 
@@ -59,7 +75,7 @@ const AboutInstitutePage = () => {
             stagger: 0.1,
             ease: "power2.out",
             scrollTrigger: { trigger: highlightsRef.current, start: "top 85%" },
-          }
+          },
         );
       }
 
@@ -75,7 +91,7 @@ const AboutInstitutePage = () => {
             stagger: 0.12,
             ease: "power2.out",
             scrollTrigger: { trigger: missionRef.current, start: "top 80%" },
-          }
+          },
         );
       }
     });
@@ -99,7 +115,10 @@ const AboutInstitutePage = () => {
           <div className="absolute inset-0 bg-primary/60" />
         </div>
 
-        <div ref={heroTextRef} className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl">
+        <div
+          ref={heroTextRef}
+          className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl"
+        >
           <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-6">
             About the Institute
           </p>
@@ -107,7 +126,8 @@ const AboutInstitutePage = () => {
             Veritas Institute
           </h1>
           <p className="font-body text-lg text-primary-foreground/80 max-w-2xl leading-relaxed">
-            A beacon of academic excellence, producing leaders who transform communities across Africa and the world since 1922.
+            A beacon of academic excellence, producing leaders who transform
+            communities across Africa and the world since 1922.
           </p>
         </div>
       </div>
@@ -146,9 +166,17 @@ const AboutInstitutePage = () => {
             {mission.desc}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {["Academic Leadership", "Global Impact", "Student-Centric", "Research Innovation"].map((term) => (
+            {[
+              "Academic Leadership",
+              "Global Impact",
+              "Student-Centric",
+              "Research Innovation",
+            ].map((term) => (
               <div key={term} className="flex items-start gap-4">
-                <CheckCircle2 size={24} className="text-accent flex-shrink-0 mt-1" />
+                <CheckCircle2
+                  size={24}
+                  className="text-accent flex-shrink-0 mt-1"
+                />
                 <p className="font-body text-muted-foreground">{term}</p>
               </div>
             ))}

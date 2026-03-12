@@ -9,10 +9,30 @@ import aboutHero from "@/assets/about-hero.jpg";
 gsap.registerPlugin(ScrollTrigger);
 
 const tours = [
-  { name: "Campus Walking Tour", duration: "2 hours", group: "Up to 30 people", frequency: "Daily at 10 AM & 2 PM" },
-  { name: "Academic Building Tour", duration: "1.5 hours", group: "Up to 25 people", frequency: "Mon-Fri 11 AM" },
-  { name: "Residential Life Tour", duration: "1 hour", group: "Up to 20 people", frequency: "Daily 3 PM" },
-  { name: "Lab & Innovation Hub", duration: "2.5 hours", group: "Up to 15 people", frequency: "Wed & Fri 9 AM" },
+  {
+    name: "Campus Walking Tour",
+    duration: "2 hours",
+    group: "Up to 30 people",
+    frequency: "Daily at 10 AM & 2 PM",
+  },
+  {
+    name: "Academic Building Tour",
+    duration: "1.5 hours",
+    group: "Up to 25 people",
+    frequency: "Mon-Fri 11 AM",
+  },
+  {
+    name: "Residential Life Tour",
+    duration: "1 hour",
+    group: "Up to 20 people",
+    frequency: "Daily 3 PM",
+  },
+  {
+    name: "Lab & Innovation Hub",
+    duration: "2.5 hours",
+    group: "Up to 15 people",
+    frequency: "Wed & Fri 9 AM",
+  },
 ];
 
 const highlights = [
@@ -38,7 +58,14 @@ const VisitInstitutePage = () => {
         gsap.fromTo(
           heroTextRef.current.querySelectorAll("*"),
           { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.3 }
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.2,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.3,
+          },
         );
       }
 
@@ -47,7 +74,12 @@ const VisitInstitutePage = () => {
         gsap.fromTo(
           imageRef.current,
           { clipPath: "inset(0 0 100% 0)" },
-          { clipPath: "inset(0 0 0% 0)", duration: 1.6, ease: "power3.inOut", delay: 0.4 }
+          {
+            clipPath: "inset(0 0 0% 0)",
+            duration: 1.6,
+            ease: "power3.inOut",
+            delay: 0.4,
+          },
         );
       }
 
@@ -63,7 +95,7 @@ const VisitInstitutePage = () => {
             stagger: 0.1,
             ease: "power2.out",
             scrollTrigger: { trigger: toursRef.current, start: "top 85%" },
-          }
+          },
         );
       }
 
@@ -79,7 +111,7 @@ const VisitInstitutePage = () => {
             stagger: 0.08,
             ease: "power2.out",
             scrollTrigger: { trigger: highlightsRef.current, start: "top 85%" },
-          }
+          },
         );
       }
     });
@@ -103,7 +135,10 @@ const VisitInstitutePage = () => {
           <div className="absolute inset-0 bg-primary/55" />
         </div>
 
-        <div ref={heroTextRef} className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl">
+        <div
+          ref={heroTextRef}
+          className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl"
+        >
           <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-6">
             Campus Experience
           </p>
@@ -111,7 +146,8 @@ const VisitInstitutePage = () => {
             Visit Veritas
           </h1>
           <p className="font-body text-lg text-primary-foreground/80 max-w-2xl leading-relaxed">
-            Experience our beautiful campus firsthand. Explore world-class facilities and meet our vibrant community.
+            Experience our beautiful campus firsthand. Explore world-class
+            facilities and meet our vibrant community.
           </p>
         </div>
       </div>
@@ -129,9 +165,14 @@ const VisitInstitutePage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {highlights.map((item) => (
-            <div key={item} className="highlight-item flex items-start gap-4 p-6 rounded-[20px] border border-border/40 hover:border-accent/40 bg-background transition-all duration-500 hover:shadow-lg">
+            <div
+              key={item}
+              className="highlight-item flex items-start gap-4 p-6 rounded-[20px] border border-border/40 hover:border-accent/40 bg-background transition-all duration-500 hover:shadow-lg"
+            >
               <MapPin size={24} className="text-accent flex-shrink-0 mt-1" />
-              <p className="font-body text-muted-foreground leading-relaxed">{item}</p>
+              <p className="font-body text-muted-foreground leading-relaxed">
+                {item}
+              </p>
             </div>
           ))}
         </div>
@@ -159,22 +200,32 @@ const VisitInstitutePage = () => {
                   <div className="flex items-center gap-4">
                     <Clock size={20} className="text-accent flex-shrink-0" />
                     <div>
-                      <p className="font-body text-xs text-muted-foreground tracking-widest uppercase">Duration</p>
-                      <p className="font-body text-foreground">{tour.duration}</p>
+                      <p className="font-body text-xs text-muted-foreground tracking-widest uppercase">
+                        Duration
+                      </p>
+                      <p className="font-body text-foreground">
+                        {tour.duration}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <Users size={20} className="text-accent flex-shrink-0" />
                     <div>
-                      <p className="font-body text-xs text-muted-foreground tracking-widest uppercase">Group Size</p>
+                      <p className="font-body text-xs text-muted-foreground tracking-widest uppercase">
+                        Group Size
+                      </p>
                       <p className="font-body text-foreground">{tour.group}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <Calendar size={20} className="text-accent flex-shrink-0" />
                     <div>
-                      <p className="font-body text-xs text-muted-foreground tracking-widest uppercase">Schedule</p>
-                      <p className="font-body text-foreground">{tour.frequency}</p>
+                      <p className="font-body text-xs text-muted-foreground tracking-widest uppercase">
+                        Schedule
+                      </p>
+                      <p className="font-body text-foreground">
+                        {tour.frequency}
+                      </p>
                     </div>
                   </div>
                 </div>

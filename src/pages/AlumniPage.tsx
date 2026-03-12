@@ -9,15 +9,45 @@ import aboutHero from "@/assets/about-hero.jpg";
 gsap.registerPlugin(ScrollTrigger);
 
 const stats = [
-  { icon: Users, label: "Alumni Worldwide", value: "45,000+", desc: "In 120 countries" },
-  { icon: Briefcase, label: "Leadership Positions", value: "8,500+", desc: "C-level and senior roles" },
-  { icon: Award, label: "Awards & Recognition", value: "1,200+", desc: "National and international" },
+  {
+    icon: Users,
+    label: "Alumni Worldwide",
+    value: "45,000+",
+    desc: "In 120 countries",
+  },
+  {
+    icon: Briefcase,
+    label: "Leadership Positions",
+    value: "8,500+",
+    desc: "C-level and senior roles",
+  },
+  {
+    icon: Award,
+    label: "Awards & Recognition",
+    value: "1,200+",
+    desc: "National and international",
+  },
 ];
 
 const spotlights = [
-  { name: "Dr. Amara Osei", role: "CEO, Tech Innovation Labs", year: "2015", bio: "Leading digital transformation across Africa" },
-  { name: "Justice Samuel Kipchoge", role: "Judge, Constitutional Court", year: "2008", bio: "Pioneering judicial reform and human rights" },
-  { name: "Prof. Dr. Helena Moreira", role: "Director, Global Health Initiative", year: "2010", bio: "Advancing medical research in developing nations" },
+  {
+    name: "Dr. Amara Osei",
+    role: "CEO, Tech Innovation Labs",
+    year: "2015",
+    bio: "Leading digital transformation across Africa",
+  },
+  {
+    name: "Justice Samuel Kipchoge",
+    role: "Judge, Constitutional Court",
+    year: "2008",
+    bio: "Pioneering judicial reform and human rights",
+  },
+  {
+    name: "Prof. Dr. Helena Moreira",
+    role: "Director, Global Health Initiative",
+    year: "2010",
+    bio: "Advancing medical research in developing nations",
+  },
 ];
 
 const AlumniPage = () => {
@@ -34,7 +64,14 @@ const AlumniPage = () => {
         gsap.fromTo(
           heroTextRef.current.querySelectorAll("*"),
           { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.3 }
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.2,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.3,
+          },
         );
       }
 
@@ -43,7 +80,13 @@ const AlumniPage = () => {
         gsap.fromTo(
           imageRef.current,
           { scale: 1.15, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 1.8, ease: "power2.out", delay: 0.2 }
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 1.8,
+            ease: "power2.out",
+            delay: 0.2,
+          },
         );
       }
 
@@ -59,7 +102,7 @@ const AlumniPage = () => {
             stagger: 0.12,
             ease: "power2.out",
             scrollTrigger: { trigger: statsRef.current, start: "top 85%" },
-          }
+          },
         );
       }
 
@@ -76,7 +119,7 @@ const AlumniPage = () => {
             stagger: 0.1,
             ease: "power2.out",
             scrollTrigger: { trigger: spotlightsRef.current, start: "top 85%" },
-          }
+          },
         );
       }
     });
@@ -100,7 +143,10 @@ const AlumniPage = () => {
           <div className="absolute inset-0 bg-primary/60" />
         </div>
 
-        <div ref={heroTextRef} className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl">
+        <div
+          ref={heroTextRef}
+          className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl"
+        >
           <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-6">
             Our Community
           </p>
@@ -108,13 +154,17 @@ const AlumniPage = () => {
             Veritas Alumni
           </h1>
           <p className="font-body text-lg text-primary-foreground/80 max-w-2xl leading-relaxed">
-            A global network of leaders, innovators, and changemakers transforming society.
+            A global network of leaders, innovators, and changemakers
+            transforming society.
           </p>
         </div>
       </div>
 
       {/* Alumni Stats */}
-      <div ref={statsRef} className="px-8 md:px-16 py-24 bg-gradient-to-b from-secondary/20 to-background">
+      <div
+        ref={statsRef}
+        className="px-8 md:px-16 py-24 bg-gradient-to-b from-secondary/20 to-background"
+      >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {stats.map((item) => {
             const Icon = item.icon;
@@ -128,7 +178,9 @@ const AlumniPage = () => {
                   <p className="font-body text-xs tracking-[0.15em] uppercase text-accent font-semibold mb-3">
                     {item.label}
                   </p>
-                  <p className="font-body text-sm text-muted-foreground">{item.desc}</p>
+                  <p className="font-body text-sm text-muted-foreground">
+                    {item.desc}
+                  </p>
                 </div>
               </div>
             );

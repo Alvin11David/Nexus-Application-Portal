@@ -23,18 +23,18 @@ const quickLinks = [
 ];
 
 const resources = [
-  { label: "About Institute", href: "#" },
-  { label: "Facts & Figures", href: "#" },
-  { label: "Visit Institute", href: "#" },
-  { label: "Alumni", href: "#" },
-  { label: "History Timeline", href: "#" },
-  { label: "Admissions Lists", href: "#" },
-  { label: "How to Apply", href: "#" },
-  { label: "Courses Listings", href: "#" },
-  { label: "Fees & Payment", href: "#" },
-  { label: "International Students", href: "#" },
-  { label: "Scholarships", href: "#" },
-  { label: "Learning Online", href: "#" },
+  { label: "About Institute", href: "/about/institute" },
+  { label: "Facts & Figures", href: "/about/facts-figures" },
+  { label: "Visit Institute", href: "/about/visit" },
+  { label: "Alumni", href: "/about/alumni" },
+  { label: "History Timeline", href: "/about/history" },
+  { label: "Admissions Lists", href: "/admissions/lists" },
+  { label: "How to Apply", href: "/admissions/how-to-apply" },
+  { label: "Courses Listings", href: "/admissions/courses" },
+  { label: "Fees & Payment", href: "/admissions/fees" },
+  { label: "International Students", href: "/admissions/international" },
+  { label: "Scholarships", href: "/admissions/scholarships" },
+  { label: "Learning Online", href: "/admissions/online" },
 ];
 
 const socials = [

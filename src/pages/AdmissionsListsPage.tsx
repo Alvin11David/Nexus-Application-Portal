@@ -9,10 +9,30 @@ import aboutHero from "@/assets/about-hero.jpg";
 gsap.registerPlugin(ScrollTrigger);
 
 const admissionTypes = [
-  { type: "Undergraduate", intake: "2,500 students", deadline: "March 31, 2025", desc: "Bachelor degree programs across all schools" },
-  { type: "Postgraduate", intake: "1,200 students", deadline: "April 30, 2025", desc: "Master's and PhD programs" },
-  { type: "Professional", intake: "800 students", deadline: "May 15, 2025", desc: "Specialized professional programs" },
-  { type: "Exchange", intake: "300 students", deadline: "June 30, 2025", desc: "International exchange students" },
+  {
+    type: "Undergraduate",
+    intake: "2,500 students",
+    deadline: "March 31, 2025",
+    desc: "Bachelor degree programs across all schools",
+  },
+  {
+    type: "Postgraduate",
+    intake: "1,200 students",
+    deadline: "April 30, 2025",
+    desc: "Master's and PhD programs",
+  },
+  {
+    type: "Professional",
+    intake: "800 students",
+    deadline: "May 15, 2025",
+    desc: "Specialized professional programs",
+  },
+  {
+    type: "Exchange",
+    intake: "300 students",
+    deadline: "June 30, 2025",
+    desc: "International exchange students",
+  },
 ];
 
 const requirements = [
@@ -37,7 +57,14 @@ const AdmissionsListsPage = () => {
         gsap.fromTo(
           heroTextRef.current.querySelectorAll("*"),
           { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.3 }
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.2,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.3,
+          },
         );
       }
 
@@ -46,7 +73,13 @@ const AdmissionsListsPage = () => {
         gsap.fromTo(
           imageRef.current,
           { scale: 1.1, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 1.8, ease: "power2.out", delay: 0.2 }
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 1.8,
+            ease: "power2.out",
+            delay: 0.2,
+          },
         );
       }
 
@@ -62,7 +95,7 @@ const AdmissionsListsPage = () => {
             stagger: 0.1,
             ease: "power2.out",
             scrollTrigger: { trigger: typesRef.current, start: "top 85%" },
-          }
+          },
         );
       }
 
@@ -77,8 +110,11 @@ const AdmissionsListsPage = () => {
             duration: 0.7,
             stagger: 0.08,
             ease: "power2.out",
-            scrollTrigger: { trigger: requirementsRef.current, start: "top 85%" },
-          }
+            scrollTrigger: {
+              trigger: requirementsRef.current,
+              start: "top 85%",
+            },
+          },
         );
       }
     });
@@ -102,7 +138,10 @@ const AdmissionsListsPage = () => {
           <div className="absolute inset-0 bg-primary/60" />
         </div>
 
-        <div ref={heroTextRef} className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl">
+        <div
+          ref={heroTextRef}
+          className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl"
+        >
           <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-6">
             Getting Started
           </p>
@@ -110,13 +149,17 @@ const AdmissionsListsPage = () => {
             Admissions Lists
           </h1>
           <p className="font-body text-lg text-primary-foreground/80 max-w-2xl leading-relaxed">
-            Explore our diverse admission pathways and find the program that fits your aspirations.
+            Explore our diverse admission pathways and find the program that
+            fits your aspirations.
           </p>
         </div>
       </div>
 
       {/* Admission Types */}
-      <div ref={typesRef} className="px-8 md:px-16 py-24 bg-gradient-to-b from-secondary/20 to-background">
+      <div
+        ref={typesRef}
+        className="px-8 md:px-16 py-24 bg-gradient-to-b from-secondary/20 to-background"
+      >
         <div className="mb-16">
           <p className="font-body text-xs tracking-[0.3em] uppercase text-accent font-semibold mb-6">
             Pathways
@@ -169,9 +212,17 @@ const AdmissionsListsPage = () => {
         <div className="max-w-3xl">
           <div className="space-y-4">
             {requirements.map((req) => (
-              <div key={req} className="requirement-item flex items-start gap-4 p-6 rounded-[20px] border border-border/40 hover:border-accent/40 bg-gradient-to-r from-secondary/10 to-background transition-all duration-500">
-                <CheckCircle2 size={24} className="text-accent flex-shrink-0 mt-0.5" />
-                <p className="font-body text-muted-foreground leading-relaxed pt-1">{req}</p>
+              <div
+                key={req}
+                className="requirement-item flex items-start gap-4 p-6 rounded-[20px] border border-border/40 hover:border-accent/40 bg-gradient-to-r from-secondary/10 to-background transition-all duration-500"
+              >
+                <CheckCircle2
+                  size={24}
+                  className="text-accent flex-shrink-0 mt-0.5"
+                />
+                <p className="font-body text-muted-foreground leading-relaxed pt-1">
+                  {req}
+                </p>
               </div>
             ))}
           </div>
@@ -179,7 +230,9 @@ const AdmissionsListsPage = () => {
 
         <div className="mt-12 p-8 rounded-[24px] border border-accent/30 bg-accent/5">
           <p className="font-body text-sm text-foreground mb-4">
-            📝 <span className="font-semibold">Note:</span> Each program may have additional specific requirements. Check the program details for full information.
+            📝 <span className="font-semibold">Note:</span> Each program may
+            have additional specific requirements. Check the program details for
+            full information.
           </p>
         </div>
       </div>

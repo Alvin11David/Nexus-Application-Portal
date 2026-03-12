@@ -9,19 +9,63 @@ import aboutHero from "@/assets/about-hero.jpg";
 gsap.registerPlugin(ScrollTrigger);
 
 const stats = [
-  { icon: Users, label: "Students Enrolled", value: "12,400+", trend: "↑ 8% YoY" },
-  { icon: BookOpen, label: "Academic Programs", value: "143+", trend: "↑ New 12 programs" },
-  { icon: Globe, label: "Countries Represented", value: "74", trend: "Expanding globally" },
-  { icon: TrendingUp, label: "Research Growth", value: "+34%", trend: "Year-over-year" },
+  {
+    icon: Users,
+    label: "Students Enrolled",
+    value: "12,400+",
+    trend: "↑ 8% YoY",
+  },
+  {
+    icon: BookOpen,
+    label: "Academic Programs",
+    value: "143+",
+    trend: "↑ New 12 programs",
+  },
+  {
+    icon: Globe,
+    label: "Countries Represented",
+    value: "74",
+    trend: "Expanding globally",
+  },
+  {
+    icon: TrendingUp,
+    label: "Research Growth",
+    value: "+34%",
+    trend: "Year-over-year",
+  },
 ];
 
 const facts = [
-  { category: "Faculty", stat: "1,200+", desc: "Highly qualified faculty members with advanced degrees" },
-  { category: "Libraries", stat: "2.5M+", desc: "Books, journals, and digital resources" },
-  { category: "Labs", stat: "50+", desc: "State-of-the-art research and teaching labs" },
-  { category: "Scholarships", stat: "$18M+", desc: "Annual financial aid distributed" },
-  { category: "Graduation Rate", stat: "94%", desc: "Four-year completion rate" },
-  { category: "Employment", stat: "92%", desc: "Graduate employment within 6 months" },
+  {
+    category: "Faculty",
+    stat: "1,200+",
+    desc: "Highly qualified faculty members with advanced degrees",
+  },
+  {
+    category: "Libraries",
+    stat: "2.5M+",
+    desc: "Books, journals, and digital resources",
+  },
+  {
+    category: "Labs",
+    stat: "50+",
+    desc: "State-of-the-art research and teaching labs",
+  },
+  {
+    category: "Scholarships",
+    stat: "$18M+",
+    desc: "Annual financial aid distributed",
+  },
+  {
+    category: "Graduation Rate",
+    stat: "94%",
+    desc: "Four-year completion rate",
+  },
+  {
+    category: "Employment",
+    stat: "92%",
+    desc: "Graduate employment within 6 months",
+  },
 ];
 
 const FactsFiguresPage = () => {
@@ -38,7 +82,14 @@ const FactsFiguresPage = () => {
         gsap.fromTo(
           heroTextRef.current.querySelectorAll("*"),
           { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.3 }
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.2,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.3,
+          },
         );
       }
 
@@ -47,7 +98,13 @@ const FactsFiguresPage = () => {
         gsap.fromTo(
           imageRef.current,
           { scale: 1.1, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 1.8, ease: "power2.out", delay: 0.2 }
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 1.8,
+            ease: "power2.out",
+            delay: 0.2,
+          },
         );
       }
 
@@ -64,7 +121,7 @@ const FactsFiguresPage = () => {
             stagger: 0.1,
             ease: "power2.out",
             scrollTrigger: { trigger: statsRef.current, start: "top 85%" },
-          }
+          },
         );
       }
 
@@ -80,7 +137,7 @@ const FactsFiguresPage = () => {
             stagger: 0.08,
             ease: "power2.out",
             scrollTrigger: { trigger: factsRef.current, start: "top 85%" },
-          }
+          },
         );
       }
     });
@@ -104,7 +161,10 @@ const FactsFiguresPage = () => {
           <div className="absolute inset-0 bg-primary/60" />
         </div>
 
-        <div ref={heroTextRef} className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl">
+        <div
+          ref={heroTextRef}
+          className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl"
+        >
           <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-6">
             Key Metrics
           </p>
@@ -112,13 +172,17 @@ const FactsFiguresPage = () => {
             Facts & Figures
           </h1>
           <p className="font-body text-lg text-primary-foreground/80 max-w-2xl leading-relaxed">
-            Discover the numbers that define our institution and its impact on students and society.
+            Discover the numbers that define our institution and its impact on
+            students and society.
           </p>
         </div>
       </div>
 
       {/* Key Stats */}
-      <div ref={statsRef} className="px-8 md:px-16 py-24 bg-gradient-to-b from-secondary/20 to-background">
+      <div
+        ref={statsRef}
+        className="px-8 md:px-16 py-24 bg-gradient-to-b from-secondary/20 to-background"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {stats.map((item) => {
             const Icon = item.icon;
@@ -134,7 +198,9 @@ const FactsFiguresPage = () => {
                     <p className="font-heading text-4xl font-light text-foreground mb-3">
                       {item.value}
                     </p>
-                    <p className="font-body text-sm text-accent">{item.trend}</p>
+                    <p className="font-body text-sm text-accent">
+                      {item.trend}
+                    </p>
                   </div>
                 </div>
               </div>

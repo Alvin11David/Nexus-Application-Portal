@@ -8,14 +8,46 @@ import aboutHero from "@/assets/about-hero.jpg";
 gsap.registerPlugin(ScrollTrigger);
 
 const timeline = [
-  { year: "1922", title: "Foundation Era", desc: "Established as the East African Institute of Higher Learning with 47 students and 6 faculty members." },
-  { year: "1948", title: "University Charter", desc: "Became a fully chartered university, expanding to include schools of law, medicine, and engineering." },
-  { year: "1965", title: "Independent Growth", desc: "Post-independence expansion with scholarships for students across Africa." },
-  { year: "1971", title: "Research Pioneer", desc: "Established the first research center in sub-Saharan Africa dedicated to tropical medicine." },
-  { year: "1995", title: "Global Partnerships", desc: "Launched international partnerships with universities across Europe, Asia, and North America." },
-  { year: "2010", title: "Innovation Hub", desc: "Opened the Innovation Hub, a 50,000 sq ft facility bridging academia and industry." },
-  { year: "2020", title: "Digital Transformation", desc: "Rapid transition to digital learning and research platforms during global challenges." },
-  { year: "2024", title: "World Recognition", desc: "Ranked among the top 200 universities globally, with research output growing 34% year-over-year." },
+  {
+    year: "1922",
+    title: "Foundation Era",
+    desc: "Established as the East African Institute of Higher Learning with 47 students and 6 faculty members.",
+  },
+  {
+    year: "1948",
+    title: "University Charter",
+    desc: "Became a fully chartered university, expanding to include schools of law, medicine, and engineering.",
+  },
+  {
+    year: "1965",
+    title: "Independent Growth",
+    desc: "Post-independence expansion with scholarships for students across Africa.",
+  },
+  {
+    year: "1971",
+    title: "Research Pioneer",
+    desc: "Established the first research center in sub-Saharan Africa dedicated to tropical medicine.",
+  },
+  {
+    year: "1995",
+    title: "Global Partnerships",
+    desc: "Launched international partnerships with universities across Europe, Asia, and North America.",
+  },
+  {
+    year: "2010",
+    title: "Innovation Hub",
+    desc: "Opened the Innovation Hub, a 50,000 sq ft facility bridging academia and industry.",
+  },
+  {
+    year: "2020",
+    title: "Digital Transformation",
+    desc: "Rapid transition to digital learning and research platforms during global challenges.",
+  },
+  {
+    year: "2024",
+    title: "World Recognition",
+    desc: "Ranked among the top 200 universities globally, with research output growing 34% year-over-year.",
+  },
 ];
 
 const HistoryTimelinePage = () => {
@@ -31,7 +63,14 @@ const HistoryTimelinePage = () => {
         gsap.fromTo(
           heroTextRef.current.querySelectorAll("*"),
           { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.3 }
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.2,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.3,
+          },
         );
       }
 
@@ -40,7 +79,13 @@ const HistoryTimelinePage = () => {
         gsap.fromTo(
           imageRef.current,
           { scale: 1.1, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 1.8, ease: "power2.out", delay: 0.2 }
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 1.8,
+            ease: "power2.out",
+            delay: 0.2,
+          },
         );
       }
 
@@ -56,7 +101,7 @@ const HistoryTimelinePage = () => {
             stagger: 0.12,
             ease: "power2.out",
             scrollTrigger: { trigger: timelineRef.current, start: "top 80%" },
-          }
+          },
         );
       }
     });
@@ -80,7 +125,10 @@ const HistoryTimelinePage = () => {
           <div className="absolute inset-0 bg-primary/60" />
         </div>
 
-        <div ref={heroTextRef} className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl">
+        <div
+          ref={heroTextRef}
+          className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl"
+        >
           <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-6">
             Journey Through Time
           </p>
@@ -88,7 +136,8 @@ const HistoryTimelinePage = () => {
             History Timeline
           </h1>
           <p className="font-body text-lg text-primary-foreground/80 max-w-2xl leading-relaxed">
-            Over 100 years of transformative moments that shaped Veritas Institute into a global leader in education and research.
+            Over 100 years of transformative moments that shaped Veritas
+            Institute into a global leader in education and research.
           </p>
         </div>
       </div>
@@ -111,7 +160,9 @@ const HistoryTimelinePage = () => {
           <div className="space-y-12">
             {timeline.map((item, index) => (
               <div key={item.year} className="timeline-item">
-                <div className={`flex flex-col ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"} gap-8 items-center`}>
+                <div
+                  className={`flex flex-col ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"} gap-8 items-center`}
+                >
                   {/* Content */}
                   <div className="flex-1 w-full lg:w-auto">
                     <div className="p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-lg">
