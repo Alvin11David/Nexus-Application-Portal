@@ -345,7 +345,7 @@ const ChatBot = () => {
                 <h3 className="font-heading text-xl font-semibold text-gray-900 mb-1.5">
                   Hi, I'm Vera! 👋
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-5 max-w-[260px]">
+                <p className="text-sm text-gray-500 leading-relaxed mb-5 max-w-[260px]">
                   Your AI guide to everything Veritas Institute. What would you like to know?
                 </p>
                 <div className="grid grid-cols-2 gap-2 w-full">
