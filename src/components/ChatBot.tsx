@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot, User } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { MessageCircle, X, Send, Bot, User, Sparkles, RotateCcw } from "lucide-react";
 import gsap from "gsap";
 
 interface Message {
@@ -9,6 +9,13 @@ interface Message {
 }
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+
+const QUICK_TOPICS = [
+  { label: "Admissions", query: "How do I apply to Veritas?" },
+  { label: "Programs", query: "What programs do you offer?" },
+  { label: "Campus Life", query: "Tell me about student life on campus" },
+  { label: "Tuition", query: "What are the tuition costs?" },
+];
 
 async function streamChat({
   messages,
@@ -77,7 +84,6 @@ async function streamChat({
       }
     }
 
-    // Flush remaining
     if (buffer.trim()) {
       for (let raw of buffer.split("\n")) {
         if (!raw) continue;
@@ -101,36 +107,71 @@ async function streamChat({
   }
 }
 
-// Simple markdown rendering for bold and line breaks
+// Enhanced markdown rendering with lists and inline code
 const renderMarkdown = (text: string) => {
-  return text.split("\n").map((line, i) => (
-    <span key={i}>
-      {line.split(/(\*\*.*?\*\*)/).map((part, j) =>
-        part.startsWith("**") && part.endsWith("**") ? (
-          <strong key={j}>{part.slice(2, -2)}</strong>
-        ) : (
-          part
-        )
-      )}
-      {i < text.split("\n").length - 1 && <br />}
-    </span>
-  ));
+  const lines = text.split("\n");
+  const elements: React.ReactNode[] = [];
+  let listItems: string[] = [];
+
+  const flushList = () => {
+    if (listItems.length > 0) {
+      elements.push(
+        <ul key={`list-${elements.length}`} className="ml-4 space-y-0.5 my-1">
+          {listItems.map((item, idx) => (
+            <li key={idx} className="flex gap-1.5 items-start">
+              <span className="text-accent mt-1 text-[8px]">●</span>
+              <span>{renderInline(item)}</span>
+            </li>
+          ))}
+        </ul>
+      );
+      listItems = [];
+    }
+  };
+
+  const renderInline = (str: string): React.ReactNode[] => {
+    return str.split(/(\*\*.*?\*\*|`.*?`)/).map((part, j) => {
+      if (part.startsWith("**") && part.endsWith("**")) {
+        return <strong key={j} className="font-semibold text-foreground">{part.slice(2, -2)}</strong>;
+      }
+      if (part.startsWith("`") && part.endsWith("`")) {
+        return <code key={j} className="text-[11px] bg-muted px-1 py-0.5 rounded font-mono">{part.slice(1, -1)}</code>;
+      }
+      return part;
+    });
+  };
+
+  lines.forEach((line, i) => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("- ") || trimmed.startsWith("• ")) {
+      listItems.push(trimmed.slice(2));
+    } else {
+      flushList();
+      if (trimmed === "") {
+        elements.push(<div key={`br-${i}`} className="h-1.5" />);
+      } else {
+        elements.push(
+          <p key={`p-${i}`} className="my-0">{renderInline(trimmed)}</p>
+        );
+      }
+    }
+  });
+  flushList();
+
+  return elements;
 };
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      role: "assistant",
-      content:
-        "Hello! 👋 I'm **Vera**, your AI assistant for Veritas Institute. Ask me anything about admissions, programs, campus life, athletics, dining, housing, careers, and more!",
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const chatRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -138,21 +179,53 @@ const ChatBot = () => {
 
   useEffect(() => {
     if (chatRef.current && isOpen) {
-      gsap.fromTo(
+      const tl = gsap.timeline();
+      tl.fromTo(
         chatRef.current,
-        { opacity: 0, scale: 0.9, y: 20 },
-        { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "back.out(1.7)" }
+        { opacity: 0, y: 30, scale: 0.92 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power4.out" }
       );
+      // Focus input after open
+      setTimeout(() => inputRef.current?.focus(), 400);
     }
   }, [isOpen]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  // Animate new messages
+  useEffect(() => {
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg && lastMsg.id !== "streaming") {
+      const el = messageRefs.current.get(lastMsg.id);
+      if (el) {
+        gsap.fromTo(el,
+          { opacity: 0, y: 12, scale: 0.96 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.35, ease: "power3.out" }
+        );
+      }
+    }
+  }, [messages.length]);
+
+  // Pulse animation on FAB
+  useEffect(() => {
+    if (!isOpen && buttonRef.current) {
+      const pulse = gsap.to(buttonRef.current, {
+        boxShadow: "0 0 0 8px hsla(38, 52%, 45%, 0.15)",
+        duration: 1.5,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+      return () => { pulse.kill(); };
+    }
+  }, [isOpen]);
+
+  const sendMessage = useCallback(async (text: string) => {
+    if (!text.trim() || isLoading) return;
+    setHasInteracted(true);
 
     const userMsg: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: input.trim(),
+      content: text.trim(),
     };
 
     const updatedMessages = [...messages, userMsg];
@@ -178,9 +251,7 @@ const ChatBot = () => {
     };
 
     await streamChat({
-      messages: updatedMessages
-        .filter((m) => m.id !== "welcome")
-        .map((m) => ({ role: m.role, content: m.content })),
+      messages: updatedMessages.map((m) => ({ role: m.role, content: m.content })),
       onDelta: upsertAssistant,
       onDone: () => {
         setMessages((prev) =>
@@ -196,123 +267,210 @@ const ChatBot = () => {
           {
             id: Date.now().toString(),
             role: "assistant" as const,
-            content: `I'm sorry, I encountered an issue: ${err}`,
+            content: `Sorry, something went wrong: ${err}`,
           },
         ]);
         setIsLoading(false);
       },
     });
-  };
+  }, [messages, isLoading]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      sendMessage(input);
     }
   };
 
+  const resetChat = () => {
+    setMessages([]);
+    setHasInteracted(false);
+  };
+
+  const showWelcome = !hasInteracted && messages.length === 0;
+
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50">
       {isOpen && (
         <div
           ref={chatRef}
-          className="absolute bottom-16 right-0 w-[360px] sm:w-96 h-[520px] rounded-2xl border border-border/60 bg-background/95 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden"
+          className="absolute bottom-16 right-0 w-[calc(100vw-2rem)] sm:w-[400px] h-[min(580px,calc(100vh-6rem))] rounded-3xl border border-border/40 bg-background/98 backdrop-blur-2xl shadow-[0_25px_80px_-12px_rgba(0,0,0,0.25)] flex flex-col overflow-hidden"
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 bg-accent text-accent-foreground">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-accent-foreground/20 flex items-center justify-center">
-                <Bot size={18} />
+          <div className="relative flex items-center justify-between px-5 py-4 bg-gradient-to-r from-accent to-accent/85">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,255,255,0.1),transparent_60%)]" />
+            <div className="relative flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-accent-foreground/15 backdrop-blur-sm flex items-center justify-center border border-accent-foreground/10">
+                <Sparkles size={18} className="text-accent-foreground" />
               </div>
               <div>
-                <p className="font-heading text-sm font-semibold tracking-wide">Vera</p>
+                <p className="font-heading text-base font-semibold tracking-wide text-accent-foreground">
+                  Vera
+                </p>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-[11px] opacity-80">AI-Powered</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                  <span className="text-[10px] text-accent-foreground/70 tracking-wider uppercase">
+                    AI Assistant
+                  </span>
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="p-1.5 rounded-lg hover:bg-accent-foreground/10 transition-colors"
-            >
-              <X size={18} />
-            </button>
+            <div className="relative flex items-center gap-1">
+              {hasInteracted && (
+                <button
+                  onClick={resetChat}
+                  className="p-2 rounded-xl hover:bg-accent-foreground/10 transition-colors"
+                  title="New conversation"
+                >
+                  <RotateCcw size={15} className="text-accent-foreground/80" />
+                </button>
+              )}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="p-2 rounded-xl hover:bg-accent-foreground/10 transition-colors"
+              >
+                <X size={16} className="text-accent-foreground/80" />
+              </button>
+            </div>
           </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
+          {/* Messages Area */}
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scroll-smooth">
+            {/* Welcome State */}
+            {showWelcome && (
+              <div className="flex flex-col items-center text-center pt-6 pb-4 px-2">
+                <div className="w-16 h-16 rounded-3xl bg-accent/10 flex items-center justify-center mb-4 border border-accent/20">
+                  <Sparkles size={28} className="text-accent" />
+                </div>
+                <h3 className="font-heading text-xl font-semibold text-foreground mb-1.5">
+                  Hi, I'm Vera! 👋
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-5 max-w-[260px]">
+                  Your AI guide to everything Veritas Institute. What would you like to know?
+                </p>
+                <div className="grid grid-cols-2 gap-2 w-full">
+                  {QUICK_TOPICS.map((topic) => (
+                    <button
+                      key={topic.label}
+                      onClick={() => sendMessage(topic.query)}
+                      className="group relative px-3 py-2.5 rounded-2xl border border-border/60 bg-secondary/40 hover:bg-accent/8 hover:border-accent/30 transition-all duration-300 text-left"
+                    >
+                      <span className="text-xs font-medium text-foreground group-hover:text-accent transition-colors duration-300">
+                        {topic.label}
+                      </span>
+                      <span className="block text-[10px] text-muted-foreground mt-0.5 leading-tight">
+                        {topic.query.length > 30 ? topic.query.slice(0, 30) + "…" : topic.query}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Message Bubbles */}
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                ref={(el) => {
+                  if (el) messageRefs.current.set(msg.id, el);
+                }}
+                className={`flex gap-2.5 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 {msg.role === "assistant" && (
-                  <div className="w-7 h-7 rounded-full bg-accent/15 flex items-center justify-center flex-shrink-0 mt-1">
-                    <Bot size={14} className="text-accent" />
+                  <div className="w-7 h-7 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0 mt-1 border border-accent/15">
+                    <Bot size={13} className="text-accent" />
                   </div>
                 )}
                 <div
-                  className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                  className={`max-w-[80%] rounded-2xl px-4 py-3 text-[13px] leading-relaxed ${
                     msg.role === "user"
-                      ? "bg-accent text-accent-foreground rounded-br-md"
-                      : "bg-secondary text-foreground rounded-bl-md"
+                      ? "bg-accent text-accent-foreground rounded-br-lg"
+                      : "bg-secondary/60 text-foreground rounded-bl-lg border border-border/30"
                   }`}
                 >
-                  {renderMarkdown(msg.content)}
+                  {msg.role === "assistant" ? (
+                    <div className="space-y-0.5">{renderMarkdown(msg.content)}</div>
+                  ) : (
+                    msg.content
+                  )}
                 </div>
                 {msg.role === "user" && (
-                  <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center flex-shrink-0 mt-1">
-                    <User size={14} className="text-muted-foreground" />
+                  <div className="w-7 h-7 rounded-xl bg-muted/60 flex items-center justify-center flex-shrink-0 mt-1 border border-border/30">
+                    <User size={13} className="text-muted-foreground" />
                   </div>
                 )}
               </div>
             ))}
+
+            {/* Typing Indicator */}
             {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
-              <div className="flex gap-2 justify-start">
-                <div className="w-7 h-7 rounded-full bg-accent/15 flex items-center justify-center flex-shrink-0">
-                  <Bot size={14} className="text-accent" />
+              <div className="flex gap-2.5 justify-start">
+                <div className="w-7 h-7 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0 border border-accent/15">
+                  <Bot size={13} className="text-accent" />
                 </div>
-                <div className="bg-secondary rounded-2xl rounded-bl-md px-4 py-3 flex gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: "300ms" }} />
+                <div className="bg-secondary/60 rounded-2xl rounded-bl-lg px-4 py-3.5 flex gap-1 border border-border/30">
+                  {[0, 1, 2].map((i) => (
+                    <span
+                      key={i}
+                      className="w-1.5 h-1.5 rounded-full bg-accent/50"
+                      style={{
+                        animation: "bounce 1.2s infinite",
+                        animationDelay: `${i * 0.15}s`,
+                      }}
+                    />
+                  ))}
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
-          <div className="px-4 py-3 border-t border-border/40">
-            <div className="flex items-center gap-2">
+          {/* Input Area */}
+          <div className="px-4 py-3 border-t border-border/30 bg-background/80 backdrop-blur-sm">
+            <div className="flex items-center gap-2 bg-secondary/40 border border-border/40 rounded-2xl px-4 py-1 focus-within:border-accent/40 focus-within:shadow-[0_0_0_3px_hsla(38,52%,45%,0.08)] transition-all duration-300">
               <input
+                ref={inputRef}
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask Vera anything..."
-                className="flex-1 bg-secondary/60 border border-border/30 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-accent/50"
+                placeholder="Type a message..."
+                className="flex-1 bg-transparent py-2.5 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
                 disabled={isLoading}
               />
               <button
-                onClick={handleSend}
+                onClick={() => sendMessage(input)}
                 disabled={!input.trim() || isLoading}
-                className="w-10 h-10 rounded-xl bg-accent text-accent-foreground flex items-center justify-center hover:bg-accent/90 transition-colors disabled:opacity-40"
+                className="w-8 h-8 rounded-xl bg-accent text-accent-foreground flex items-center justify-center hover:bg-accent/85 transition-all duration-200 disabled:opacity-30 disabled:hover:bg-accent shrink-0"
               >
-                <Send size={16} />
+                <Send size={14} />
               </button>
             </div>
+            <p className="text-[9px] text-muted-foreground/50 text-center mt-2 tracking-wide">
+              Powered by Veritas AI · Responses may be approximate
+            </p>
           </div>
         </div>
       )}
 
-      {/* Floating Button */}
+      {/* Floating Action Button */}
       <button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 rounded-full bg-accent text-accent-foreground shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center"
+        className="w-14 h-14 rounded-2xl bg-accent text-accent-foreground shadow-[0_8px_30px_-4px_hsla(38,52%,45%,0.4)] hover:shadow-[0_12px_40px_-4px_hsla(38,52%,45%,0.5)] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center"
       >
-        {isOpen ? <X size={22} /> : <MessageCircle size={22} />}
+        <div className="relative">
+          {isOpen ? (
+            <X size={22} />
+          ) : (
+            <>
+              <MessageCircle size={22} />
+              {!hasInteracted && (
+                <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-green-400 border-2 border-accent animate-pulse" />
+              )}
+            </>
+          )}
+        </div>
       </button>
     </div>
   );
