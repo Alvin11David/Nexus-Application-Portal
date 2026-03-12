@@ -6,15 +6,20 @@ import { studyLinks } from "@/lib/studyLinks";
 import {
   ArrowRight,
   BadgeCheck,
+  Building2,
   CalendarDays,
   CheckCircle2,
   ChevronDown,
+  Cpu,
   FileCheck2,
   FileText,
+  FlaskConical,
+  Globe2,
   GraduationCap,
   HelpCircle,
   Landmark,
   Layers3,
+  Lightbulb,
   Mail,
   MapPin,
   Phone,
@@ -184,10 +189,147 @@ const programOptions = [
   "MA Public Policy",
 ];
 
+const registrarStats = [
+  { label: "Students Served", value: "32,000+" },
+  { label: "Services", value: "18" },
+  { label: "Average Turnaround", value: "48hrs" },
+  { label: "Support Channels", value: "5" },
+];
+
+const registrarServices = [
+  {
+    title: "Academic Records",
+    description:
+      "Transcript requests, result statements, and verification letters for institutional and employer use.",
+  },
+  {
+    title: "Registration Services",
+    description:
+      "Course registration guidance, late registration support, and semester status changes.",
+  },
+  {
+    title: "Examinations Support",
+    description:
+      "Examination schedules, special exam requests, and controlled assessment policy support.",
+  },
+  {
+    title: "Graduation Clearance",
+    description:
+      "Clearance workflow, name verification, and completion audits before graduation lists are published.",
+  },
+  {
+    title: "Credit Transfer",
+    description:
+      "Guidance for transfer credits, exemptions, and progression alignment with department approval.",
+  },
+  {
+    title: "Policy & Appeals",
+    description:
+      "Academic policy clarifications, progression appeals, and official review mechanisms.",
+  },
+];
+
+const registrarDeadlines = [
+  { title: "Semester Registration Closes", date: "05 September 2026" },
+  { title: "Course Add/Drop Window Ends", date: "15 September 2026" },
+  { title: "Exam Card Verification", date: "28 October 2026" },
+  { title: "Provisional Results Released", date: "20 December 2026" },
+  { title: "Graduation Clearance Deadline", date: "10 February 2027" },
+];
+
+const registrarPolicies = [
+  "Students must complete registration within published timelines to maintain active status.",
+  "All record amendment requests require valid identity documentation and proof of claim.",
+  "Examination adjustments must be submitted with supporting documents before deadlines.",
+  "Appeals are reviewed by faculty boards and communicated through official channels.",
+];
+
+const institutesStats = [
+  { label: "Research Institutes", value: "12" },
+  { label: "Active Projects", value: "96" },
+  { label: "Industry Partners", value: "70+" },
+  { label: "Innovation Grants", value: "$8.4M" },
+];
+
+const institutesList = [
+  {
+    name: "Institute for Sustainable Cities",
+    summary:
+      "Urban resilience, transport intelligence, and climate-ready infrastructure for rapidly growing regions.",
+  },
+  {
+    name: "Institute of Digital Health Systems",
+    summary:
+      "AI-enabled diagnostics, telemedicine platforms, and health data innovation for equitable care delivery.",
+  },
+  {
+    name: "Institute for Advanced Agritech",
+    summary:
+      "Precision agriculture, food security analytics, and field-tested solutions for resilient production.",
+  },
+  {
+    name: "Institute of Policy and Governance",
+    summary:
+      "Evidence-driven policy design, public leadership development, and governance transformation labs.",
+  },
+  {
+    name: "Institute of Creative Media Futures",
+    summary:
+      "Immersive storytelling, digital journalism, and media entrepreneurship with global collaboration.",
+  },
+  {
+    name: "Institute for Frontier Engineering",
+    summary:
+      "Smart manufacturing, robotics systems, and applied engineering for industry modernization.",
+  },
+];
+
+const institutesPillars = [
+  {
+    title: "Discovery Research",
+    detail:
+      "Interdisciplinary teams advancing new knowledge through rigorous fundamental and applied science.",
+    icon: FlaskConical,
+  },
+  {
+    title: "Innovation Translation",
+    detail:
+      "From prototypes to deployable products through incubation, testing, and commercialization pathways.",
+    icon: Lightbulb,
+  },
+  {
+    title: "Global Collaboration",
+    detail:
+      "Cross-border research networks with universities, NGOs, governments, and private industry.",
+    icon: Globe2,
+  },
+  {
+    title: "Tech Infrastructure",
+    detail:
+      "Modern labs, high-performance computing, and digital platforms powering frontier research.",
+    icon: Cpu,
+  },
+];
+
+const institutesMilestones = [
+  { year: "2023", event: "Launch of multidisciplinary innovation cluster" },
+  {
+    year: "2024",
+    event: "First pan-African research commercialization summit",
+  },
+  { year: "2025", event: "75+ funded projects across all institute verticals" },
+  {
+    year: "2026",
+    event: "Global partnership framework expanded to 20 countries",
+  },
+];
+
 const StudyItemPage = () => {
   const { slug } = useParams();
   const item = studyLinks.find((entry) => entry.slug === slug);
   const isJoinAdmissions = item?.slug === "join-admissions";
+  const isAcademicRegistrar = item?.slug === "academic-registrar";
+  const isInstitutes = item?.slug === "institutes";
   const isHowToApply = item?.slug === "how-to-apply";
   const [openFaqIndex, setOpenFaqIndex] = useState<number>(0);
   const [applicationStep, setApplicationStep] = useState(1);
@@ -286,7 +428,7 @@ const StudyItemPage = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="pt-28 md:pt-36 px-6 md:px-12 lg:px-16 pb-20 relative overflow-hidden">
-        {isJoinAdmissions && (
+        {(isJoinAdmissions || isInstitutes) && (
           <>
             <div className="absolute top-16 left-[-8rem] w-80 h-80 rounded-full bg-accent/10 blur-3xl pointer-events-none" />
             <div className="absolute top-[38rem] right-[-10rem] w-96 h-96 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
@@ -327,6 +469,62 @@ const StudyItemPage = () => {
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] border border-accent/35 text-accent font-body text-xs tracking-[0.15em] uppercase hover:bg-accent/10 transition-colors duration-300"
                 >
                   Check Requirements <FileText size={14} />
+                </a>
+              </div>
+            </div>
+          ) : isAcademicRegistrar ? (
+            <div className="border border-border/60 rounded-[28px] bg-gradient-to-br from-background via-background to-secondary/30 p-7 md:p-10 lg:p-12 shadow-[0_14px_40px_rgba(0,0,0,0.06)]">
+              <p className="inline-flex items-center gap-2 font-body text-[10px] tracking-[0.2em] uppercase text-accent mb-5 border border-accent/35 px-3 py-1.5 rounded-[999px]">
+                <Sparkles size={12} /> Registrar Services Hub
+              </p>
+              <h1 className="font-heading text-5xl md:text-7xl font-light text-foreground leading-[0.95] mb-5 max-w-5xl">
+                Academic Registrar Office
+              </h1>
+              <p className="font-body text-base md:text-lg text-muted-foreground max-w-4xl leading-relaxed mb-7">
+                A centralized, student-first service center for records,
+                registration, examination workflows, progression support, and
+                graduation clearance.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <a
+                  href="#registrar-services"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] bg-accent text-accent-foreground font-body text-xs tracking-[0.15em] uppercase hover:bg-accent/90 transition-colors duration-300"
+                >
+                  Explore Services <ArrowRight size={14} />
+                </a>
+                <a
+                  href="#registrar-contact"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] border border-accent/35 text-accent font-body text-xs tracking-[0.15em] uppercase hover:bg-accent/10 transition-colors duration-300"
+                >
+                  Contact Office <Phone size={14} />
+                </a>
+              </div>
+            </div>
+          ) : isInstitutes ? (
+            <div className="border border-border/60 rounded-[28px] bg-gradient-to-br from-background via-background to-secondary/30 p-7 md:p-10 lg:p-12 shadow-[0_14px_40px_rgba(0,0,0,0.06)]">
+              <p className="inline-flex items-center gap-2 font-body text-[10px] tracking-[0.2em] uppercase text-accent mb-5 border border-accent/35 px-3 py-1.5 rounded-[999px]">
+                <Sparkles size={12} /> Institute Ecosystem
+              </p>
+              <h1 className="font-heading text-5xl md:text-7xl font-light text-foreground leading-[0.95] mb-5 max-w-5xl">
+                Institutes of Excellence
+              </h1>
+              <p className="font-body text-base md:text-lg text-muted-foreground max-w-4xl leading-relaxed mb-7">
+                A powerful ecosystem where breakthrough research, advanced
+                technology, and real-world partnerships converge to shape the
+                future across Africa and beyond.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <a
+                  href="#institutes-showcase"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] bg-accent text-accent-foreground font-body text-xs tracking-[0.15em] uppercase hover:bg-accent/90 transition-colors duration-300"
+                >
+                  Explore Institutes <ArrowRight size={14} />
+                </a>
+                <a
+                  href="#institutes-partner"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] border border-accent/35 text-accent font-body text-xs tracking-[0.15em] uppercase hover:bg-accent/10 transition-colors duration-300"
+                >
+                  Become a Partner <Building2 size={14} />
                 </a>
               </div>
             </div>
@@ -637,6 +835,350 @@ const StudyItemPage = () => {
                   </button>
                 </div>
               </article>
+            </section>
+          </>
+        ) : isAcademicRegistrar ? (
+          <>
+            <section className="relative max-w-6xl mx-auto mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+              {registrarStats.map((stat) => (
+                <article
+                  key={stat.label}
+                  className="group border border-border/60 rounded-[20px] p-5 bg-gradient-to-br from-background to-secondary/20 transition-all duration-400 hover:border-accent/45 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(0,0,0,0.08)]"
+                >
+                  <p className="font-body text-xs tracking-[0.15em] uppercase text-muted-foreground mb-2">
+                    {stat.label}
+                  </p>
+                  <p className="font-heading text-3xl md:text-4xl font-light text-foreground group-hover:text-accent transition-colors duration-300">
+                    {stat.value}
+                  </p>
+                </article>
+              ))}
+            </section>
+
+            <section
+              id="registrar-services"
+              className="relative max-w-6xl mx-auto mt-10 border border-border/60 rounded-[24px] p-6 md:p-8 bg-background/95 backdrop-blur-sm"
+            >
+              <div className="flex items-center gap-2 mb-5">
+                <Landmark size={18} className="text-accent" />
+                <p className="font-body text-xs tracking-[0.2em] uppercase text-accent">
+                  Core Services
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {registrarServices.map((service) => (
+                  <article
+                    key={service.title}
+                    className="group border border-border/50 rounded-[20px] p-5 bg-gradient-to-br from-background to-secondary/10 transition-all duration-400 hover:border-accent/40 hover:shadow-[0_12px_28px_rgba(0,0,0,0.08)]"
+                  >
+                    <div className="w-10 h-10 rounded-[12px] border border-accent/30 bg-accent/10 flex items-center justify-center mb-3 group-hover:bg-accent/18 transition-colors duration-300">
+                      <FileText size={16} className="text-accent" />
+                    </div>
+                    <h2 className="font-heading text-2xl font-light text-foreground mb-2 group-hover:text-accent transition-colors duration-300">
+                      {service.title}
+                    </h2>
+                    <p className="font-body text-sm text-muted-foreground leading-relaxed">
+                      {service.description}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="relative max-w-6xl mx-auto mt-10 grid grid-cols-1 lg:grid-cols-5 gap-6">
+              <article className="lg:col-span-3 border border-border/60 rounded-[24px] p-6 md:p-8 bg-background/95 backdrop-blur-sm">
+                <p className="font-body text-xs tracking-[0.2em] uppercase text-accent mb-4">
+                  Office Workflow
+                </p>
+                <h2 className="font-heading text-4xl md:text-5xl font-light text-foreground leading-[0.95] mb-6">
+                  How requests are processed
+                </h2>
+                <div className="space-y-4">
+                  {[
+                    "Submit request through portal, office desk, or official email.",
+                    "Verification of identity and supporting documentation.",
+                    "Faculty or department review where needed.",
+                    "Registrar processing and approval with quality checks.",
+                    "Notification to student and digital/physical collection.",
+                  ].map((step, index) => (
+                    <div
+                      key={step}
+                      className="flex items-start gap-4 border border-border/50 rounded-[18px] p-4 bg-background/90"
+                    >
+                      <span className="w-8 h-8 rounded-full border border-accent/50 bg-accent/12 text-accent flex items-center justify-center font-body text-xs shrink-0">
+                        {index + 1}
+                      </span>
+                      <p className="font-body text-sm md:text-base text-foreground leading-relaxed">
+                        {step}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </article>
+
+              <article className="lg:col-span-2 border border-border/60 rounded-[24px] p-6 md:p-8 bg-gradient-to-br from-background to-secondary/25">
+                <p className="font-body text-xs tracking-[0.2em] uppercase text-accent mb-4">
+                  Key Deadlines
+                </p>
+                <div className="space-y-4">
+                  {registrarDeadlines.map((deadline) => (
+                    <div
+                      key={deadline.title}
+                      className="border border-border/50 rounded-[16px] p-4 bg-background/80"
+                    >
+                      <p className="font-body text-[10px] tracking-[0.14em] uppercase text-muted-foreground mb-1">
+                        {deadline.title}
+                      </p>
+                      <p className="font-heading text-xl font-light text-foreground">
+                        {deadline.date}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            </section>
+
+            <section className="relative max-w-6xl mx-auto mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <article className="border border-border/60 rounded-[24px] p-6 md:p-8 bg-background/95 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <ShieldCheck size={18} className="text-accent" />
+                  <p className="font-body text-xs tracking-[0.2em] uppercase text-accent">
+                    Policy Highlights
+                  </p>
+                </div>
+                <ul className="space-y-3">
+                  {registrarPolicies.map((policy) => (
+                    <li key={policy} className="flex items-start gap-3">
+                      <BadgeCheck
+                        size={16}
+                        className="text-accent mt-0.5 shrink-0"
+                      />
+                      <span className="font-body text-sm text-foreground leading-relaxed">
+                        {policy}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+
+              <article className="border border-border/60 rounded-[24px] p-6 md:p-8 bg-background/95 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <CalendarDays size={18} className="text-accent" />
+                  <p className="font-body text-xs tracking-[0.2em] uppercase text-accent">
+                    Quick Actions
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 gap-3">
+                  {[
+                    "Request a transcript",
+                    "Check registration status",
+                    "Apply for course add/drop",
+                    "Start graduation clearance",
+                  ].map((action) => (
+                    <button
+                      key={action}
+                      className="w-full text-left border border-border/50 rounded-[14px] px-4 py-3 font-body text-sm text-foreground hover:border-accent/45 hover:bg-accent/8 transition-all duration-300 inline-flex items-center justify-between"
+                    >
+                      {action}
+                      <ArrowRight size={14} className="text-accent" />
+                    </button>
+                  ))}
+                </div>
+              </article>
+            </section>
+
+            <section
+              id="registrar-contact"
+              className="relative max-w-6xl mx-auto mt-10 border border-border/60 rounded-[24px] p-6 md:p-8 bg-gradient-to-br from-background to-secondary/25"
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                  <p className="font-body text-xs tracking-[0.2em] uppercase text-accent mb-4">
+                    Contact Registrar Office
+                  </p>
+                  <h2 className="font-heading text-4xl md:text-5xl font-light text-foreground leading-[0.95] mb-4">
+                    Talk to our academic support team
+                  </h2>
+                  <p className="font-body text-sm md:text-base text-muted-foreground leading-relaxed">
+                    Visit, call, or email for transcript requests, registration
+                    support, and official records services.
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  <p className="font-body text-sm text-foreground inline-flex items-center gap-2">
+                    <Mail size={14} className="text-accent" />
+                    registrar@institute.ac.ug
+                  </p>
+                  <p className="font-body text-sm text-foreground inline-flex items-center gap-2">
+                    <Phone size={14} className="text-accent" />
+                    +256 700 987 654
+                  </p>
+                  <p className="font-body text-sm text-foreground inline-flex items-center gap-2">
+                    <MapPin size={14} className="text-accent" />
+                    Academic Registry, Administration Block
+                  </p>
+                  <p className="font-body text-sm text-foreground inline-flex items-center gap-2">
+                    <CalendarDays size={14} className="text-accent" />
+                    Monday-Friday, 8:00 AM - 5:00 PM
+                  </p>
+                  <div className="pt-2">
+                    <Link
+                      to="/study/how-to-apply"
+                      className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] bg-accent text-accent-foreground font-body text-xs tracking-[0.14em] uppercase hover:bg-accent/90 transition-colors duration-300"
+                    >
+                      Open Application Portal <ArrowRight size={14} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </>
+        ) : isInstitutes ? (
+          <>
+            <section className="relative max-w-6xl mx-auto mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+              {institutesStats.map((stat) => (
+                <article
+                  key={stat.label}
+                  className="group border border-border/60 rounded-[20px] p-5 bg-gradient-to-br from-background to-secondary/20 transition-all duration-400 hover:border-accent/45 hover:-translate-y-1 hover:shadow-[0_14px_34px_rgba(0,0,0,0.08)]"
+                >
+                  <p className="font-body text-xs tracking-[0.15em] uppercase text-muted-foreground mb-2">
+                    {stat.label}
+                  </p>
+                  <p className="font-heading text-3xl md:text-4xl font-light text-foreground group-hover:text-accent transition-colors duration-300">
+                    {stat.value}
+                  </p>
+                </article>
+              ))}
+            </section>
+
+            <section
+              id="institutes-showcase"
+              className="relative max-w-6xl mx-auto mt-10 border border-border/60 rounded-[24px] p-6 md:p-8 bg-background/95 backdrop-blur-sm"
+            >
+              <div className="flex items-center gap-2 mb-5">
+                <Building2 size={18} className="text-accent" />
+                <p className="font-body text-xs tracking-[0.2em] uppercase text-accent">
+                  Institute Showcase
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {institutesList.map((institute) => (
+                  <article
+                    key={institute.name}
+                    className="group border border-border/50 rounded-[20px] p-5 bg-gradient-to-br from-background to-secondary/10 transition-all duration-500 hover:border-accent/45 hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(0,0,0,0.1)]"
+                  >
+                    <p className="font-body text-[10px] tracking-[0.16em] uppercase text-accent mb-2">
+                      Research Institute
+                    </p>
+                    <h2 className="font-heading text-2xl font-light text-foreground mb-3 leading-tight group-hover:text-accent transition-colors duration-300">
+                      {institute.name}
+                    </h2>
+                    <p className="font-body text-sm text-muted-foreground leading-relaxed">
+                      {institute.summary}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="relative max-w-6xl mx-auto mt-10 grid grid-cols-1 lg:grid-cols-5 gap-6">
+              <article className="lg:col-span-3 border border-border/60 rounded-[24px] p-6 md:p-8 bg-background/95 backdrop-blur-sm">
+                <p className="font-body text-xs tracking-[0.2em] uppercase text-accent mb-4">
+                  Strategic Pillars
+                </p>
+                <h2 className="font-heading text-4xl md:text-5xl font-light text-foreground leading-[0.95] mb-6">
+                  Built for future-defining impact
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {institutesPillars.map((pillar) => (
+                    <article
+                      key={pillar.title}
+                      className="group border border-border/50 rounded-[18px] p-4 bg-background/90"
+                    >
+                      <div className="w-9 h-9 rounded-[11px] border border-accent/30 bg-accent/10 flex items-center justify-center mb-3 group-hover:bg-accent/18 transition-colors duration-300">
+                        <pillar.icon size={15} className="text-accent" />
+                      </div>
+                      <h3 className="font-heading text-2xl font-light text-foreground mb-2">
+                        {pillar.title}
+                      </h3>
+                      <p className="font-body text-sm text-muted-foreground leading-relaxed">
+                        {pillar.detail}
+                      </p>
+                    </article>
+                  ))}
+                </div>
+              </article>
+
+              <article className="lg:col-span-2 border border-border/60 rounded-[24px] p-6 md:p-8 bg-gradient-to-br from-background to-secondary/25">
+                <p className="font-body text-xs tracking-[0.2em] uppercase text-accent mb-4">
+                  Milestones
+                </p>
+                <div className="space-y-4">
+                  {institutesMilestones.map((milestone) => (
+                    <div
+                      key={milestone.year}
+                      className="border border-border/50 rounded-[16px] p-4 bg-background/80"
+                    >
+                      <p className="font-heading text-xl font-light text-accent mb-1">
+                        {milestone.year}
+                      </p>
+                      <p className="font-body text-sm text-foreground leading-relaxed">
+                        {milestone.event}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            </section>
+
+            <section
+              id="institutes-partner"
+              className="relative max-w-6xl mx-auto mt-10 border border-border/60 rounded-[24px] p-6 md:p-8 bg-gradient-to-br from-background to-secondary/25"
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                  <p className="font-body text-xs tracking-[0.2em] uppercase text-accent mb-4">
+                    Collaborate With Us
+                  </p>
+                  <h2 className="font-heading text-4xl md:text-5xl font-light text-foreground leading-[0.95] mb-4">
+                    Partner with our institutes
+                  </h2>
+                  <p className="font-body text-sm md:text-base text-muted-foreground leading-relaxed">
+                    Co-create research, pilot innovation, and build impact
+                    programs with our institute network across public and
+                    private sectors.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <p className="font-body text-sm text-foreground inline-flex items-center gap-2">
+                    <Mail size={14} className="text-accent" />
+                    institutes@institute.ac.ug
+                  </p>
+                  <p className="font-body text-sm text-foreground inline-flex items-center gap-2">
+                    <Phone size={14} className="text-accent" />
+                    +256 700 654 321
+                  </p>
+                  <p className="font-body text-sm text-foreground inline-flex items-center gap-2">
+                    <MapPin size={14} className="text-accent" />
+                    Institute Cluster, Innovation District
+                  </p>
+                  <div className="pt-2 flex flex-wrap gap-3">
+                    <Link
+                      to="/study/how-to-apply"
+                      className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] bg-accent text-accent-foreground font-body text-xs tracking-[0.14em] uppercase hover:bg-accent/90 transition-colors duration-300"
+                    >
+                      Start Application <ArrowRight size={14} />
+                    </Link>
+                    <Link
+                      to="/study/recent-announcements"
+                      className="inline-flex items-center gap-2 px-5 py-3 rounded-[16px] border border-accent/35 text-accent font-body text-xs tracking-[0.14em] uppercase hover:bg-accent/10 transition-colors duration-300"
+                    >
+                      View Announcements <ArrowRight size={14} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </section>
           </>
         ) : isHowToApply ? (
