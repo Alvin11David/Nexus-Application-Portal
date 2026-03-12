@@ -384,8 +384,8 @@ const ChatBot = () => {
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-3 text-[13px] leading-relaxed ${
                     msg.role === "user"
-                      ? "bg-accent text-accent-foreground rounded-br-lg"
-                      : "bg-secondary/60 text-foreground rounded-bl-lg border border-border/30"
+                      ? "bg-accent text-white rounded-br-lg"
+                      : "bg-gray-100 text-gray-800 rounded-bl-lg border border-gray-200"
                   }`}
                 >
                   {msg.role === "assistant" ? (
