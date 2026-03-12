@@ -8,13 +8,13 @@ import { studyLinks } from "@/lib/studyLinks";
 gsap.registerPlugin(ScrollTrigger);
 
 const navItems = [
-  { label: "Home", href: "#home" },
-  { label: "Students", href: "#campus-life" },
-  { label: "Research", href: "#research" },
-  { label: "About", href: "#faculty" },
-  { label: "News", href: "#campus-updates" },
-  { label: "Quick Links", href: "#quick-links" },
-  { label: "Donate", href: "#newsletter" },
+  { label: "Home", href: "/" },
+  { label: "Students", href: "/students" },
+  { label: "Research", href: "/research" },
+  { label: "About", href: "/about" },
+  { label: "News", href: "/news" },
+  { label: "Quick Links", href: "/quick-links" },
+  { label: "Donate", href: "/donate" },
 ];
 
 const Navbar = () => {
@@ -46,25 +46,7 @@ const Navbar = () => {
 
   const handleNavClick = (href: string) => {
     setMobileOpen(false);
-
-    const scrollToTarget = () => {
-      if (href === "#home") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        return;
-      }
-      const el = document.querySelector(href);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-      }
-    };
-
-    if (location.pathname !== "/") {
-      navigate("/");
-      window.setTimeout(scrollToTarget, 120);
-      return;
-    }
-
-    scrollToTarget();
+    navigate(href);
   };
 
   const openStudyMenu = () => {
@@ -89,6 +71,8 @@ const Navbar = () => {
     };
   }, []);
 
+  const isActive = (href: string) => location.pathname === href;
+
   return (
     <>
       <nav
@@ -101,7 +85,7 @@ const Navbar = () => {
       >
         <div className="flex items-center justify-between px-8 md:px-16 py-5">
           <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            onClick={() => navigate("/")}
             className={`font-heading text-xl md:text-2xl font-light tracking-[0.3em] uppercase transition-colors duration-700 ${
               scrolled ? "text-foreground" : "text-primary-foreground"
             }`}
@@ -122,7 +106,7 @@ const Navbar = () => {
                   scrolled
                     ? "text-muted-foreground hover:text-foreground"
                     : "text-primary-foreground/70 hover:text-primary-foreground"
-                }`}
+                } ${location.pathname.startsWith("/study") ? "!text-accent" : ""}`}
               >
                 Study at Veritas
                 <ChevronDown
@@ -210,10 +194,10 @@ const Navbar = () => {
                   scrolled
                     ? "text-muted-foreground hover:text-foreground"
                     : "text-primary-foreground/70 hover:text-primary-foreground"
-                }`}
+                } ${isActive(item.href) ? "!text-accent" : ""}`}
               >
                 {item.label}
-                <span className="absolute -bottom-1 left-0 w-full h-px bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                <span className={`absolute -bottom-1 left-0 w-full h-px bg-accent transition-transform duration-500 origin-left ${isActive(item.href) ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
               </button>
             ))}
           </div>
@@ -251,7 +235,7 @@ const Navbar = () => {
           <button
             key={item.label}
             onClick={() => handleNavClick(item.href)}
-            className="font-heading text-3xl font-light text-foreground tracking-[0.15em] uppercase transition-colors duration-500 hover:text-accent"
+            className={`font-heading text-3xl font-light tracking-[0.15em] uppercase transition-colors duration-500 hover:text-accent ${isActive(item.href) ? "text-accent" : "text-foreground"}`}
             style={{
               transform: mobileOpen ? "translateY(0)" : "translateY(20px)",
               opacity: mobileOpen ? 1 : 0,
