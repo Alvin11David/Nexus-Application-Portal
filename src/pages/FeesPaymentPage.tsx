@@ -9,16 +9,44 @@ import aboutHero from "@/assets/about-hero.jpg";
 gsap.registerPlugin(ScrollTrigger);
 
 const feeBreakdown = [
-  { category: "Tuition Fee", amount: "$12,000/year", note: "Core academic instruction" },
-  { category: "Accommodation", amount: "$3,000/year", note: "On-campus residence (optional)" },
-  { category: "Technology Fee", amount: "$500/year", note: "Lab & digital resources" },
-  { category: "Student Services", amount: "$800/year", note: "Health, counseling, activities" },
+  {
+    category: "Tuition Fee",
+    amount: "$12,000/year",
+    note: "Core academic instruction",
+  },
+  {
+    category: "Accommodation",
+    amount: "$3,000/year",
+    note: "On-campus residence (optional)",
+  },
+  {
+    category: "Technology Fee",
+    amount: "$500/year",
+    note: "Lab & digital resources",
+  },
+  {
+    category: "Student Services",
+    amount: "$800/year",
+    note: "Health, counseling, activities",
+  },
 ];
 
 const paymentPlans = [
-  { name: "Full Payment", desc: "Pay entire semester upfront", discount: "5% discount" },
-  { name: "Installment Plan", desc: "4 equal monthly payments", interest: "No interest" },
-  { name: "Employer Sponsorship", desc: "Payment through employer", flexible: "Flexible terms" },
+  {
+    name: "Full Payment",
+    desc: "Pay entire semester upfront",
+    discount: "5% discount",
+  },
+  {
+    name: "Installment Plan",
+    desc: "4 equal monthly payments",
+    interest: "No interest",
+  },
+  {
+    name: "Employer Sponsorship",
+    desc: "Payment through employer",
+    flexible: "Flexible terms",
+  },
 ];
 
 const FeesPaymentPage = () => {
@@ -35,7 +63,14 @@ const FeesPaymentPage = () => {
         gsap.fromTo(
           heroTextRef.current.querySelectorAll("*"),
           { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.3 }
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.2,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.3,
+          },
         );
       }
 
@@ -44,7 +79,13 @@ const FeesPaymentPage = () => {
         gsap.fromTo(
           imageRef.current,
           { scale: 1.1, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 1.8, ease: "power2.out", delay: 0.2 }
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 1.8,
+            ease: "power2.out",
+            delay: 0.2,
+          },
         );
       }
 
@@ -60,7 +101,7 @@ const FeesPaymentPage = () => {
             stagger: 0.08,
             ease: "power2.out",
             scrollTrigger: { trigger: breakdownRef.current, start: "top 85%" },
-          }
+          },
         );
       }
 
@@ -76,7 +117,7 @@ const FeesPaymentPage = () => {
             stagger: 0.1,
             ease: "power2.out",
             scrollTrigger: { trigger: plansRef.current, start: "top 85%" },
-          }
+          },
         );
       }
     });
@@ -111,7 +152,8 @@ const FeesPaymentPage = () => {
             Fees & Payment
           </h1>
           <p className="font-body text-lg text-primary-foreground/80 max-w-2xl leading-relaxed">
-            Transparent pricing and flexible payment options to make education accessible.
+            Transparent pricing and flexible payment options to make education
+            accessible.
           </p>
         </div>
       </div>
@@ -132,7 +174,7 @@ const FeesPaymentPage = () => {
 
         <div className="max-w-3xl space-y-4 mb-12">
           {feeBreakdown.map((item) => (
-            <div key={item.category} className="fee-item">
+            <div key={item.category} className="fee-item opacity-0">
               <div className="flex items-center justify-between p-6 rounded-[20px] border border-border/40 hover:border-accent/40 bg-background transition-all duration-500 hover:shadow-lg">
                 <div className="flex items-center gap-4 flex-1">
                   <DollarSign size={24} className="text-accent flex-shrink-0" />
@@ -164,7 +206,8 @@ const FeesPaymentPage = () => {
             </p>
           </div>
           <p className="font-body text-sm text-muted-foreground mt-3">
-            *Actual costs may vary by program and residency status. International students may have different rates.
+            *Actual costs may vary by program and residency status.
+            International students may have different rates.
           </p>
         </div>
       </div>
@@ -182,7 +225,7 @@ const FeesPaymentPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {paymentPlans.map((plan) => (
-            <div key={plan.name} className="plan-card">
+            <div key={plan.name} className="plan-card opacity-0">
               <div className="h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl">
                 <CreditCard size={32} className="text-accent mb-6" />
                 <h3 className="font-heading text-2xl font-light text-foreground mb-3">
@@ -193,7 +236,9 @@ const FeesPaymentPage = () => {
                 </p>
                 <div className="pt-6 border-t border-border/50">
                   <p className="font-body text-xs tracking-[0.15em] uppercase text-accent font-semibold">
-                    {(plan as any).discount || (plan as any).interest || (plan as any).flexible}
+                    {(plan as any).discount ||
+                      (plan as any).interest ||
+                      (plan as any).flexible}
                   </p>
                 </div>
               </div>

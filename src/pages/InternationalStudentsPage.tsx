@@ -9,10 +9,26 @@ import aboutHero from "@/assets/about-hero.jpg";
 gsap.registerPlugin(ScrollTrigger);
 
 const services = [
-  { icon: Plane, title: "Visa & Immigration", desc: "Dedicated support for visa applications and documentation" },
-  { icon: Users, title: "Community Integration", desc: "Cultural orientation programs and international student clubs" },
-  { icon: Heart, title: "Support Services", desc: "Counseling, health care, and personal development" },
-  { icon: Globe, title: "Global Connections", desc: "Exchange programs and international partnerships" },
+  {
+    icon: Plane,
+    title: "Visa & Immigration",
+    desc: "Dedicated support for visa applications and documentation",
+  },
+  {
+    icon: Users,
+    title: "Community Integration",
+    desc: "Cultural orientation programs and international student clubs",
+  },
+  {
+    icon: Heart,
+    title: "Support Services",
+    desc: "Counseling, health care, and personal development",
+  },
+  {
+    icon: Globe,
+    title: "Global Connections",
+    desc: "Exchange programs and international partnerships",
+  },
 ];
 
 const stats = [
@@ -35,7 +51,14 @@ const InternationalStudentsPage = () => {
         gsap.fromTo(
           heroTextRef.current.querySelectorAll("*"),
           { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.3 }
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.2,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.3,
+          },
         );
       }
 
@@ -44,7 +67,12 @@ const InternationalStudentsPage = () => {
         gsap.fromTo(
           imageRef.current,
           { clipPath: "inset(0 0 100% 0)" },
-          { clipPath: "inset(0 0 0% 0)", duration: 1.6, ease: "power3.inOut", delay: 0.4 }
+          {
+            clipPath: "inset(0 0 0% 0)",
+            duration: 1.6,
+            ease: "power3.inOut",
+            delay: 0.4,
+          },
         );
       }
 
@@ -60,7 +88,7 @@ const InternationalStudentsPage = () => {
             stagger: 0.12,
             ease: "power2.out",
             scrollTrigger: { trigger: statsRef.current, start: "top 85%" },
-          }
+          },
         );
       }
 
@@ -76,7 +104,7 @@ const InternationalStudentsPage = () => {
             stagger: 0.1,
             ease: "power2.out",
             scrollTrigger: { trigger: servicesRef.current, start: "top 85%" },
-          }
+          },
         );
       }
     });
@@ -111,7 +139,8 @@ const InternationalStudentsPage = () => {
             International Students
           </h1>
           <p className="font-body text-lg text-primary-foreground/80 max-w-2xl leading-relaxed">
-            Join our vibrant global community and access world-class education with comprehensive support.
+            Join our vibrant global community and access world-class education
+            with comprehensive support.
           </p>
         </div>
       </div>
@@ -123,7 +152,7 @@ const InternationalStudentsPage = () => {
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {stats.map((item) => (
-            <div key={item.label} className="stat-card">
+            <div key={item.label} className="stat-card opacity-0">
               <div className="p-8 rounded-[24px] border border-border/40 bg-background hover:border-accent/40 text-center transition-all duration-500 hover:shadow-lg">
                 <p className="font-heading text-4xl font-light text-accent mb-3">
                   {item.value}
@@ -152,7 +181,7 @@ const InternationalStudentsPage = () => {
           {services.map((item) => {
             const Icon = item.icon;
             return (
-              <div key={item.title} className="service-card">
+              <div key={item.title} className="service-card opacity-0">
                 <div className="h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl">
                   <Icon size={32} className="text-accent mb-6" />
                   <h3 className="font-heading text-xl font-light text-foreground mb-3">

@@ -57,7 +57,10 @@ const AnimatedRoutes = () => {
         <Route path="/admissions/how-to-apply" element={<HowToApplyPage />} />
         <Route path="/admissions/courses" element={<CoursesListingsPage />} />
         <Route path="/admissions/fees" element={<FeesPaymentPage />} />
-        <Route path="/admissions/international" element={<InternationalStudentsPage />} />
+        <Route
+          path="/admissions/international"
+          element={<InternationalStudentsPage />}
+        />
         <Route path="/admissions/scholarships" element={<ScholarshipsPage />} />
         <Route path="/admissions/online" element={<LearningOnlinePage />} />
         <Route path="*" element={<NotFound />} />

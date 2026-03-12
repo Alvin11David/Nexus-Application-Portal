@@ -9,16 +9,47 @@ import aboutHero from "@/assets/about-hero.jpg";
 gsap.registerPlugin(ScrollTrigger);
 
 const features = [
-  { icon: Monitor, title: "Flexible Schedule", desc: "Access courses anytime, anywhere at your own pace" },
-  { icon: Users, title: "Interactive Community", desc: "Connect with peers and instructors globally" },
-  { icon: Clock, title: "Self-Paced Learning", desc: "Progress at your own speed with no fixed deadlines" },
-  { icon: Award, title: "Recognized Credentials", desc: "Earn certificates and degrees with full recognition" },
+  {
+    icon: Monitor,
+    title: "Flexible Schedule",
+    desc: "Access courses anytime, anywhere at your own pace",
+  },
+  {
+    icon: Users,
+    title: "Interactive Community",
+    desc: "Connect with peers and instructors globally",
+  },
+  {
+    icon: Clock,
+    title: "Self-Paced Learning",
+    desc: "Progress at your own speed with no fixed deadlines",
+  },
+  {
+    icon: Award,
+    title: "Recognized Credentials",
+    desc: "Earn certificates and degrees with full recognition",
+  },
 ];
 
 const programs = [
-  { name: "Online Certificates", duration: "3-6 months", students: "2,500+", desc: "Professional development programs" },
-  { name: "Online Degrees", duration: "24-36 months", students: "1,800+", desc: "Bachelor's and Master's programs" },
-  { name: "Hybrid Courses", duration: "Flexible", students: "3,200+", desc: "Blend of online and campus experiences" },
+  {
+    name: "Online Certificates",
+    duration: "3-6 months",
+    students: "2,500+",
+    desc: "Professional development programs",
+  },
+  {
+    name: "Online Degrees",
+    duration: "24-36 months",
+    students: "1,800+",
+    desc: "Bachelor's and Master's programs",
+  },
+  {
+    name: "Hybrid Courses",
+    duration: "Flexible",
+    students: "3,200+",
+    desc: "Blend of online and campus experiences",
+  },
 ];
 
 const LearningOnlinePage = () => {
@@ -35,7 +66,14 @@ const LearningOnlinePage = () => {
         gsap.fromTo(
           heroTextRef.current.querySelectorAll("*"),
           { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.3 }
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.2,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.3,
+          },
         );
       }
 
@@ -44,7 +82,13 @@ const LearningOnlinePage = () => {
         gsap.fromTo(
           imageRef.current,
           { scale: 1.1, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 1.8, ease: "power2.out", delay: 0.2 }
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 1.8,
+            ease: "power2.out",
+            delay: 0.2,
+          },
         );
       }
 
@@ -60,7 +104,7 @@ const LearningOnlinePage = () => {
             stagger: 0.1,
             ease: "power2.out",
             scrollTrigger: { trigger: featuresRef.current, start: "top 85%" },
-          }
+          },
         );
       }
 
@@ -77,7 +121,7 @@ const LearningOnlinePage = () => {
             stagger: 0.12,
             ease: "power2.out",
             scrollTrigger: { trigger: programsRef.current, start: "top 85%" },
-          }
+          },
         );
       }
     });
@@ -112,7 +156,8 @@ const LearningOnlinePage = () => {
             Learning Online
           </h1>
           <p className="font-body text-lg text-primary-foreground/80 max-w-2xl leading-relaxed">
-            Access world-class education from anywhere in the world with our comprehensive online programs.
+            Access world-class education from anywhere in the world with our
+            comprehensive online programs.
           </p>
         </div>
       </div>
@@ -135,7 +180,7 @@ const LearningOnlinePage = () => {
           {features.map((item) => {
             const Icon = item.icon;
             return (
-              <div key={item.title} className="feature-card">
+              <div key={item.title} className="feature-card opacity-0">
                 <div className="h-full p-8 rounded-[24px] border border-border/50 bg-background hover:border-accent/40 transition-all duration-500 hover:shadow-lg">
                   <Icon size={32} className="text-accent mb-6" />
                   <h3 className="font-heading text-xl font-light text-foreground mb-3">
@@ -164,7 +209,7 @@ const LearningOnlinePage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {programs.map((program) => (
-            <div key={program.name} className="program-card">
+            <div key={program.name} className="program-card opacity-0">
               <div className="h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl">
                 <h3 className="font-heading text-2xl font-light text-foreground mb-6">
                   {program.name}
@@ -226,7 +271,10 @@ const LearningOnlinePage = () => {
                   "AI-powered learning insights",
                   "Mobile app access",
                 ].map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 font-body text-sm text-muted-foreground">
+                  <li
+                    key={feature}
+                    className="flex items-center gap-3 font-body text-sm text-muted-foreground"
+                  >
                     <span className="text-accent">✓</span> {feature}
                   </li>
                 ))}
@@ -243,7 +291,10 @@ const LearningOnlinePage = () => {
                   "Peer study groups",
                   "Career services",
                 ].map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 font-body text-sm text-muted-foreground">
+                  <li
+                    key={feature}
+                    className="flex items-center gap-3 font-body text-sm text-muted-foreground"
+                  >
                     <span className="text-accent">✓</span> {feature}
                   </li>
                 ))}

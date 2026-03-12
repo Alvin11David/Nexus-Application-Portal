@@ -167,7 +167,7 @@ const VisitInstitutePage = () => {
           {highlights.map((item) => (
             <div
               key={item}
-              className="highlight-item flex items-start gap-4 p-6 rounded-[20px] border border-border/40 hover:border-accent/40 bg-background transition-all duration-500 hover:shadow-lg"
+              className="highlight-item opacity-0 flex items-start gap-4 p-6 rounded-[20px] border border-border/40 hover:border-accent/40 bg-background transition-all duration-500 hover:shadow-lg"
             >
               <MapPin size={24} className="text-accent flex-shrink-0 mt-1" />
               <p className="font-body text-muted-foreground leading-relaxed">
@@ -191,7 +191,7 @@ const VisitInstitutePage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {tours.map((tour) => (
-            <div key={tour.name} className="tour-card">
+            <div key={tour.name} className="tour-card opacity-0">
               <div className="p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl">
                 <h3 className="font-heading text-2xl font-light text-foreground mb-8">
                   {tour.name}

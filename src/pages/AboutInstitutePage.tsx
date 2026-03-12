@@ -136,7 +136,7 @@ const AboutInstitutePage = () => {
       <div ref={highlightsRef} className="px-8 md:px-16 py-20 bg-background">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {highlights.map((item) => (
-            <div key={item.title} className="highlight-card">
+            <div key={item.title} className="highlight-card opacity-0">
               <div className="p-6 rounded-[24px] border border-border/60 hover:border-accent/40 bg-gradient-to-br from-secondary/20 to-background transition-all duration-500 hover:shadow-lg">
                 <p className="font-body text-xs tracking-[0.15em] uppercase text-accent font-semibold mb-3">
                   {item.title}

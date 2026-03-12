@@ -159,7 +159,7 @@ const HistoryTimelinePage = () => {
 
           <div className="space-y-12">
             {timeline.map((item, index) => (
-              <div key={item.year} className="timeline-item">
+              <div key={item.year} className="timeline-item opacity-0">
                 <div
                   className={`flex flex-col ${index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"} gap-8 items-center`}
                 >

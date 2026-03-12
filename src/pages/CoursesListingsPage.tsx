@@ -9,14 +9,46 @@ import aboutHero from "@/assets/about-hero.jpg";
 gsap.registerPlugin(ScrollTrigger);
 
 const colleges = [
-  { name: "College of Science & Technology", programs: 28, focus: "Engineering, IT, Math, Physics" },
-  { name: "College of Business", programs: 16, focus: "Finance, Management, Economics" },
-  { name: "College of Humanities", programs: 22, focus: "Literature, History, Philosophy" },
-  { name: "College of Medicine & Health Sciences", programs: 18, focus: "Medicine, Nursing, Public Health" },
-  { name: "College of Law", programs: 12, focus: "Law, International Relations" },
-  { name: "College of Agriculture", programs: 14, focus: "Agronomy, Animal Science" },
-  { name: "College of Environmental Studies", programs: 11, focus: "Ecology, Conservation" },
-  { name: "College of Education", programs: 13, focus: "Teacher Training, Curriculum" },
+  {
+    name: "College of Science & Technology",
+    programs: 28,
+    focus: "Engineering, IT, Math, Physics",
+  },
+  {
+    name: "College of Business",
+    programs: 16,
+    focus: "Finance, Management, Economics",
+  },
+  {
+    name: "College of Humanities",
+    programs: 22,
+    focus: "Literature, History, Philosophy",
+  },
+  {
+    name: "College of Medicine & Health Sciences",
+    programs: 18,
+    focus: "Medicine, Nursing, Public Health",
+  },
+  {
+    name: "College of Law",
+    programs: 12,
+    focus: "Law, International Relations",
+  },
+  {
+    name: "College of Agriculture",
+    programs: 14,
+    focus: "Agronomy, Animal Science",
+  },
+  {
+    name: "College of Environmental Studies",
+    programs: 11,
+    focus: "Ecology, Conservation",
+  },
+  {
+    name: "College of Education",
+    programs: 13,
+    focus: "Teacher Training, Curriculum",
+  },
 ];
 
 const CoursesListingsPage = () => {
@@ -32,7 +64,14 @@ const CoursesListingsPage = () => {
         gsap.fromTo(
           heroTextRef.current.querySelectorAll("*"),
           { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.3 }
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.2,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.3,
+          },
         );
       }
 
@@ -41,7 +80,13 @@ const CoursesListingsPage = () => {
         gsap.fromTo(
           imageRef.current,
           { scale: 1.15, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 1.8, ease: "power2.out", delay: 0.2 }
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 1.8,
+            ease: "power2.out",
+            delay: 0.2,
+          },
         );
       }
 
@@ -57,7 +102,7 @@ const CoursesListingsPage = () => {
             stagger: 0.08,
             ease: "power2.out",
             scrollTrigger: { trigger: collegesRef.current, start: "top 85%" },
-          }
+          },
         );
       }
     });
@@ -81,7 +126,10 @@ const CoursesListingsPage = () => {
           <div className="absolute inset-0 bg-primary/60" />
         </div>
 
-        <div ref={heroTextRef} className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl">
+        <div
+          ref={heroTextRef}
+          className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl"
+        >
           <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-6">
             Academic Excellence
           </p>
@@ -89,7 +137,8 @@ const CoursesListingsPage = () => {
             Courses & Programs
           </h1>
           <p className="font-body text-lg text-primary-foreground/80 max-w-2xl leading-relaxed">
-            Explore 143+ programs across 10 colleges designed to prepare you for global impact.
+            Explore 143+ programs across 10 colleges designed to prepare you for
+            global impact.
           </p>
         </div>
       </div>
@@ -107,7 +156,7 @@ const CoursesListingsPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {colleges.map((college) => (
-            <div key={college.name} className="college-card">
+            <div key={college.name} className="college-card opacity-0">
               <div className="group h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl cursor-pointer">
                 <div className="flex items-start justify-between mb-6 pb-6 border-b border-border/50">
                   <div>
@@ -118,7 +167,10 @@ const CoursesListingsPage = () => {
                       {college.programs} Programs
                     </p>
                   </div>
-                  <BookOpen size={32} className="text-accent/40 group-hover:text-accent transition-colors duration-300" />
+                  <BookOpen
+                    size={32}
+                    className="text-accent/40 group-hover:text-accent transition-colors duration-300"
+                  />
                 </div>
                 <p className="font-body text-sm text-muted-foreground leading-relaxed mb-6">
                   {college.focus}
@@ -134,16 +186,24 @@ const CoursesListingsPage = () => {
         {/* Summary Stats */}
         <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="p-8 rounded-[24px] border border-border/40 bg-accent/5 border-accent/30 text-center">
-            <p className="font-heading text-5xl font-light text-accent mb-3">143+</p>
+            <p className="font-heading text-5xl font-light text-accent mb-3">
+              143+
+            </p>
             <p className="font-body text-muted-foreground">Total Programs</p>
           </div>
           <div className="p-8 rounded-[24px] border border-border/40 bg-accent/5 border-accent/30 text-center">
-            <p className="font-heading text-5xl font-light text-accent mb-3">10</p>
+            <p className="font-heading text-5xl font-light text-accent mb-3">
+              10
+            </p>
             <p className="font-body text-muted-foreground">Academic Colleges</p>
           </div>
           <div className="p-8 rounded-[24px] border border-border/40 bg-accent/5 border-accent/30 text-center">
-            <p className="font-heading text-5xl font-light text-accent mb-3">Unlimited</p>
-            <p className="font-body text-muted-foreground">Career Possibilities</p>
+            <p className="font-heading text-5xl font-light text-accent mb-3">
+              Unlimited
+            </p>
+            <p className="font-body text-muted-foreground">
+              Career Possibilities
+            </p>
           </div>
         </div>
       </div>

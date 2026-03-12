@@ -55,7 +55,14 @@ const ScholarshipsPage = () => {
         gsap.fromTo(
           heroTextRef.current.querySelectorAll("*"),
           { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.3 }
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.2,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.3,
+          },
         );
       }
 
@@ -64,7 +71,13 @@ const ScholarshipsPage = () => {
         gsap.fromTo(
           imageRef.current,
           { scale: 1.15, opacity: 0 },
-          { scale: 1, opacity: 1, duration: 1.8, ease: "power2.out", delay: 0.2 }
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 1.8,
+            ease: "power2.out",
+            delay: 0.2,
+          },
         );
       }
 
@@ -80,7 +93,7 @@ const ScholarshipsPage = () => {
             stagger: 0.12,
             ease: "power2.out",
             scrollTrigger: { trigger: statsRef.current, start: "top 85%" },
-          }
+          },
         );
       }
 
@@ -97,7 +110,7 @@ const ScholarshipsPage = () => {
             stagger: 0.1,
             ease: "power2.out",
             scrollTrigger: { trigger: typesRef.current, start: "top 85%" },
-          }
+          },
         );
       }
     });
@@ -132,7 +145,8 @@ const ScholarshipsPage = () => {
             Scholarships
           </h1>
           <p className="font-body text-lg text-primary-foreground/80 max-w-2xl leading-relaxed">
-            Make your education affordable with our comprehensive scholarship programs and financial aid options.
+            Make your education affordable with our comprehensive scholarship
+            programs and financial aid options.
           </p>
         </div>
       </div>
@@ -144,7 +158,7 @@ const ScholarshipsPage = () => {
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {stats.map((item) => (
-            <div key={item.label} className="stat-card">
+            <div key={item.label} className="stat-card opacity-0">
               <div className="p-8 rounded-[24px] border border-border/40 bg-background hover:border-accent/40 text-center transition-all duration-500 hover:shadow-lg">
                 <p className="font-heading text-4xl font-light text-accent mb-3">
                   {item.value}
@@ -152,7 +166,9 @@ const ScholarshipsPage = () => {
                 <p className="font-body text-xs tracking-[0.15em] uppercase text-accent font-semibold mb-2">
                   {item.label}
                 </p>
-                <p className="font-body text-sm text-muted-foreground">{item.desc}</p>
+                <p className="font-body text-sm text-muted-foreground">
+                  {item.desc}
+                </p>
               </div>
             </div>
           ))}
@@ -172,9 +188,12 @@ const ScholarshipsPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {scholarshipTypes.map((scholarship) => (
-            <div key={scholarship.name} className="scholarship-card">
+            <div key={scholarship.name} className="scholarship-card opacity-0">
               <div className="group h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl">
-                <Award size={32} className="text-accent mb-6 group-hover:scale-110 transition-transform" />
+                <Award
+                  size={32}
+                  className="text-accent mb-6 group-hover:scale-110 transition-transform"
+                />
                 <h3 className="font-heading text-2xl font-light text-foreground mb-4">
                   {scholarship.name}
                 </h3>
@@ -228,19 +247,25 @@ const ScholarshipsPage = () => {
               <p className="font-heading text-lg font-light text-foreground mb-2">
                 March 1, 2025
               </p>
-              <p className="font-body text-sm text-muted-foreground">Application Opens</p>
+              <p className="font-body text-sm text-muted-foreground">
+                Application Opens
+              </p>
             </div>
             <div>
               <p className="font-heading text-lg font-light text-foreground mb-2">
                 May 31, 2025
               </p>
-              <p className="font-body text-sm text-muted-foreground">Application Deadline</p>
+              <p className="font-body text-sm text-muted-foreground">
+                Application Deadline
+              </p>
             </div>
             <div>
               <p className="font-heading text-lg font-light text-foreground mb-2">
                 July 15, 2025
               </p>
-              <p className="font-body text-sm text-muted-foreground">Awards Announced</p>
+              <p className="font-body text-sm text-muted-foreground">
+                Awards Announced
+              </p>
             </div>
           </div>
         </div>

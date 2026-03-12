@@ -54,7 +54,14 @@ const HowToApplyPage = () => {
         gsap.fromTo(
           heroTextRef.current.querySelectorAll("*"),
           { y: 80, opacity: 0 },
-          { y: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.3 }
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1.2,
+            stagger: 0.15,
+            ease: "power3.out",
+            delay: 0.3,
+          },
         );
       }
 
@@ -63,7 +70,12 @@ const HowToApplyPage = () => {
         gsap.fromTo(
           imageRef.current,
           { clipPath: "inset(0 100% 0 0)" },
-          { clipPath: "inset(0 0 0 0)", duration: 1.6, ease: "power3.inOut", delay: 0.4 }
+          {
+            clipPath: "inset(0 0 0 0)",
+            duration: 1.6,
+            ease: "power3.inOut",
+            delay: 0.4,
+          },
         );
       }
 
@@ -79,7 +91,7 @@ const HowToApplyPage = () => {
             stagger: 0.12,
             ease: "power2.out",
             scrollTrigger: { trigger: stepsRef.current, start: "top 85%" },
-          }
+          },
         );
       }
     });
@@ -103,7 +115,10 @@ const HowToApplyPage = () => {
           <div className="absolute inset-0 bg-primary/60" />
         </div>
 
-        <div ref={heroTextRef} className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl">
+        <div
+          ref={heroTextRef}
+          className="relative z-10 px-8 md:px-16 pb-20 pt-40 max-w-4xl"
+        >
           <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-6">
             Application Guide
           </p>
@@ -111,7 +126,8 @@ const HowToApplyPage = () => {
             How to Apply
           </h1>
           <p className="font-body text-lg text-primary-foreground/80 max-w-2xl leading-relaxed">
-            A straightforward, step-by-step guide to your Veritas admission journey.
+            A straightforward, step-by-step guide to your Veritas admission
+            journey.
           </p>
         </div>
       </div>
@@ -129,7 +145,7 @@ const HowToApplyPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl">
           {steps.map((step, index) => (
-            <div key={step.number} className="step-card">
+            <div key={step.number} className="step-card opacity-0">
               <div className="relative p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl h-full">
                 {/* Step number background */}
                 <div className="absolute -top-6 -left-6 w-24 h-24 rounded-full bg-accent/10 border border-accent/20 flex items-center justify-center">
@@ -154,9 +170,7 @@ const HowToApplyPage = () => {
                         <ArrowRight size={16} />
                       </>
                     ) : (
-                      <>
-                        ✓ Complete
-                      </>
+                      <>✓ Complete</>
                     )}
                   </div>
                 </div>
@@ -172,23 +186,39 @@ const HowToApplyPage = () => {
           </p>
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
             <div className="text-center">
-              <p className="font-heading text-2xl font-light text-foreground">30 mins</p>
-              <p className="font-body text-sm text-muted-foreground">Register & Start</p>
+              <p className="font-heading text-2xl font-light text-foreground">
+                30 mins
+              </p>
+              <p className="font-body text-sm text-muted-foreground">
+                Register & Start
+              </p>
             </div>
             <div className="hidden md:block text-accent">→</div>
             <div className="text-center">
-              <p className="font-heading text-2xl font-light text-foreground">2 hours</p>
-              <p className="font-body text-sm text-muted-foreground">Complete Forms</p>
+              <p className="font-heading text-2xl font-light text-foreground">
+                2 hours
+              </p>
+              <p className="font-body text-sm text-muted-foreground">
+                Complete Forms
+              </p>
             </div>
             <div className="hidden md:block text-accent">→</div>
             <div className="text-center">
-              <p className="font-heading text-2xl font-light text-foreground">30 days</p>
-              <p className="font-body text-sm text-muted-foreground">Processing</p>
+              <p className="font-heading text-2xl font-light text-foreground">
+                30 days
+              </p>
+              <p className="font-body text-sm text-muted-foreground">
+                Processing
+              </p>
             </div>
             <div className="hidden md:block text-accent">→</div>
             <div className="text-center">
-              <p className="font-heading text-2xl font-light text-foreground">Instant</p>
-              <p className="font-body text-sm text-muted-foreground">Decision</p>
+              <p className="font-heading text-2xl font-light text-foreground">
+                Instant
+              </p>
+              <p className="font-body text-sm text-muted-foreground">
+                Decision
+              </p>
             </div>
           </div>
         </div>

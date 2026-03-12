@@ -169,7 +169,7 @@ const AlumniPage = () => {
           {stats.map((item) => {
             const Icon = item.icon;
             return (
-              <div key={item.label} className="stat-item">
+              <div key={item.label} className="stat-item opacity-0">
                 <div className="p-8 rounded-[24px] border border-border/40 bg-background hover:border-accent/40 text-center transition-all duration-500 hover:shadow-lg">
                   <Icon size={40} className="text-accent mx-auto mb-6" />
                   <p className="font-heading text-3xl font-light text-foreground mb-3">
@@ -201,7 +201,7 @@ const AlumniPage = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {spotlights.map((alumni) => (
-            <div key={alumni.name} className="spotlight-card">
+            <div key={alumni.name} className="spotlight-card opacity-0">
               <div className="p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 hover:shadow-xl">
                 <div className="mb-6 pb-6 border-b border-border/50">
                   <p className="font-body text-xs tracking-[0.15em] uppercase text-accent font-semibold mb-2">
