@@ -353,12 +353,12 @@ const ChatBot = () => {
                     <button
                       key={topic.label}
                       onClick={() => sendMessage(topic.query)}
-                      className="group relative px-3 py-2.5 rounded-2xl border border-border/60 bg-secondary/40 hover:bg-accent/8 hover:border-accent/30 transition-all duration-300 text-left"
+                      className="group relative px-3 py-2.5 rounded-2xl border border-gray-200 bg-gray-50 hover:bg-accent/5 hover:border-accent/30 transition-all duration-300 text-left"
                     >
-                      <span className="text-xs font-medium text-foreground group-hover:text-accent transition-colors duration-300">
+                      <span className="text-xs font-medium text-gray-800 group-hover:text-accent transition-colors duration-300">
                         {topic.label}
                       </span>
-                      <span className="block text-[10px] text-muted-foreground mt-0.5 leading-tight">
+                      <span className="block text-[10px] text-gray-400 mt-0.5 leading-tight">
                         {topic.query.length > 30 ? topic.query.slice(0, 30) + "…" : topic.query}
                       </span>
                     </button>
