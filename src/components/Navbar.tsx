@@ -74,7 +74,7 @@ const Navbar = () => {
 
   const isActive = (href: string) => location.pathname === href;
 
-  return (
+  const navbarEl = (
     <nav
       ref={navRef}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 opacity-0 ${
