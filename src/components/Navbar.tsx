@@ -233,24 +233,14 @@ const Navbar = () => {
           className={`font-heading text-2xl font-light tracking-[0.15em] uppercase transition-all duration-500 hover:text-accent ${
             location.pathname.startsWith("/study") ? "text-accent" : "text-foreground"
           }`}
-          style={{
-            transform: mobileOpen ? "translateY(0)" : "translateY(20px)",
-            opacity: mobileOpen ? 1 : 0,
-            transition: "all 0.4s ease 0s",
-          }}
         >
           Study at Veritas
         </button>
-        {navItems.map((item, i) => (
+        {navItems.map((item) => (
           <button
             key={item.label}
             onClick={() => handleNavClick(item.href)}
             className={`font-heading text-2xl font-light tracking-[0.15em] uppercase transition-all duration-500 hover:text-accent ${isActive(item.href) ? "text-accent" : "text-foreground"}`}
-            style={{
-              transform: mobileOpen ? "translateY(0)" : "translateY(20px)",
-              opacity: mobileOpen ? 1 : 0,
-              transition: `all 0.4s ease ${(i + 1) * 0.06}s`,
-            }}
           >
             {item.label}
           </button>
