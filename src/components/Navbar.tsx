@@ -217,7 +217,7 @@ const Navbar = () => {
 
       {/* Mobile Menu - inside nav to share stacking context */}
       {mobileOpen && (
-        <div className="fixed inset-0 top-[68px] bg-background flex flex-col items-center justify-center gap-6 md:hidden">
+        <div className="fixed inset-0 bg-background flex flex-col items-center justify-center gap-6 md:hidden" style={{ zIndex: 1 }}>
           <button
             onClick={() => {
               setMobileOpen(false);
