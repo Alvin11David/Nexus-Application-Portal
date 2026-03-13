@@ -216,9 +216,23 @@ const Navbar = () => {
         </button>
       </div>
 
-      {/* Mobile Menu - inside nav to share stacking context */}
-      {mobileOpen && (
-        <div className="fixed inset-0 flex flex-col items-center justify-center gap-6 md:hidden" style={{ zIndex: 1, backgroundColor: 'hsl(60, 7%, 95%)' }}>
+    </nav>
+  );
+
+  const mobileMenu = mobileOpen
+    ? createPortal(
+        <div
+          className="fixed inset-0 flex flex-col items-center justify-center gap-6 md:hidden"
+          style={{ zIndex: 9999, backgroundColor: 'hsl(60, 7%, 95%)' }}
+        >
+          {/* Close button inside overlay */}
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="absolute top-5 right-8 text-foreground"
+            aria-label="Close menu"
+          >
+            <X size={24} />
+          </button>
           <button
             onClick={() => {
               setMobileOpen(false);
@@ -239,9 +253,16 @@ const Navbar = () => {
               {item.label}
             </button>
           ))}
-        </div>
-      )}
-    </nav>
+        </div>,
+        document.body
+      )
+    : null;
+
+  return (
+    <>
+      {navbar}
+      {mobileMenu}
+    </>
   );
 };
 
