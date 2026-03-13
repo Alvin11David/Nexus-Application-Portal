@@ -260,7 +260,7 @@ const Navbar = () => {
 
   return (
     <>
-      {navbar}
+      {navbarEl}
       {mobileMenu}
     </>
   );
