@@ -30,11 +30,35 @@ import ScholarshipsPage from "./pages/ScholarshipsPage.tsx";
 import LearningOnlinePage from "./pages/LearningOnlinePage.tsx";
 import FAQPage from "./pages/FAQPage.tsx";
 import ChatBot from "@/components/ChatBot";
+// Admin
+import AdminLoginPage from "./pages/AdminLoginPage.tsx";
+import AdminLayout from "@/components/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
+import AdminNewsPage from "./pages/admin/AdminNewsPage.tsx";
+import AdminFacultyPage from "./pages/admin/AdminFacultyPage.tsx";
+import AdminCoursesPage from "./pages/admin/AdminCoursesPage.tsx";
+import AdminPagesPage from "./pages/admin/AdminPagesPage.tsx";
 
 const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
   const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/admin");
+
+  if (isAdmin) {
+    return (
+      <Routes location={location}>
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="news" element={<AdminNewsPage />} />
+          <Route path="faculty" element={<AdminFacultyPage />} />
+          <Route path="courses" element={<AdminCoursesPage />} />
+          <Route path="pages" element={<AdminPagesPage />} />
+        </Route>
+      </Routes>
+    );
+  }
 
   return (
     <PageTransition key={location.pathname}>
@@ -59,10 +83,7 @@ const AnimatedRoutes = () => {
         <Route path="/admissions/how-to-apply" element={<HowToApplyPage />} />
         <Route path="/admissions/courses" element={<CoursesListingsPage />} />
         <Route path="/admissions/fees" element={<FeesPaymentPage />} />
-        <Route
-          path="/admissions/international"
-          element={<InternationalStudentsPage />}
-        />
+        <Route path="/admissions/international" element={<InternationalStudentsPage />} />
         <Route path="/admissions/scholarships" element={<ScholarshipsPage />} />
         <Route path="/admissions/online" element={<LearningOnlinePage />} />
         <Route path="/admissions/faq" element={<FAQPage />} />
