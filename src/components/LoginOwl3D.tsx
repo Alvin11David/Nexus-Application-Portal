@@ -1,194 +1,7 @@
-import { useRef, useState, useEffect, Suspense } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { useGLTF } from "@react-three/drei";
-import * as THREE from "three";
+import { useEffect, useRef, useState } from "react";
 
-type AnimalState = "idle" | "watching" | "hiding" | "sad" | "alert";
+type MascotState = "watching" | "typing" | "sad" | "alert";
 
-function Elephant({
-  mousePos,
-  state,
-}: {
-  mousePos: { x: number; y: number };
-  state: AnimalState;
-}) {
-  const groupRef = useRef<THREE.Group>(null);
-  const innerRef = useRef<THREE.Group>(null);
-  const { scene } = useGLTF("/models/admin-duck.glb");
-  const [clonedScene, setClonedScene] = useState<THREE.Group | null>(null);
-
-  const targetRotation = useRef({ x: 0, y: 0 });
-  const bodyBob = useRef(0);
-  const sadAmount = useRef(0);
-  const alertAmount = useRef(0);
-  const expressiveness = useRef(0.25);
-  const scaleTarget = useRef(1);
-
-  useEffect(() => {
-    const clone = scene.clone(true);
-    // Improve materials
-    clone.traverse((child) => {
-      if (child instanceof THREE.Mesh && child.material) {
-        if (child.material instanceof THREE.MeshStandardMaterial) {
-          child.material = child.material.clone();
-          child.material.roughness = 0.78;
-          child.material.metalness = 0.02;
-          child.material.envMapIntensity = 0.9;
-        }
-      }
-    });
-
-    // Auto-center and scale to fit
-    const box = new THREE.Box3().setFromObject(clone);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const scale = 2.2 / maxDim; // Fit in ~2.2 units
-    clone.scale.multiplyScalar(scale);
-    clone.position.sub(center.multiplyScalar(scale));
-
-    setClonedScene(clone);
-  }, [scene]);
-
-  useEffect(() => {
-    if (state === "watching" || state === "idle") {
-      targetRotation.current = {
-        x: -mousePos.y * 0.08,
-        y: mousePos.x * 0.24,
-      };
-      sadAmount.current = 0;
-      alertAmount.current = 0;
-      expressiveness.current = 0.2;
-      scaleTarget.current = 1;
-    } else if (state === "hiding") {
-      sadAmount.current = 0;
-      alertAmount.current = 0;
-      expressiveness.current = 0.34;
-      scaleTarget.current = 0.96;
-      targetRotation.current = { x: 0.14, y: 0 }; // Look down shyly
-    } else if (state === "sad") {
-      sadAmount.current = 1;
-      alertAmount.current = 0;
-      expressiveness.current = 0.7;
-      scaleTarget.current = 0.9;
-      targetRotation.current = { x: 0.16, y: 0 };
-    } else if (state === "alert") {
-      sadAmount.current = 0.6;
-      alertAmount.current = 1;
-      expressiveness.current = 1;
-      scaleTarget.current = 0.88;
-      targetRotation.current = { x: 0.08, y: 0 };
-    }
-  }, [mousePos, state]);
-
-  useFrame((_, delta) => {
-    if (!groupRef.current || !innerRef.current) return;
-    const speed = THREE.MathUtils.lerp(2.2, 4.1, expressiveness.current);
-
-    // Smooth rotation toward target
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(
-      groupRef.current.rotation.x,
-      targetRotation.current.x,
-      delta * speed,
-    );
-    groupRef.current.rotation.y = THREE.MathUtils.lerp(
-      groupRef.current.rotation.y,
-      targetRotation.current.y,
-      delta * speed,
-    );
-
-    // Idle feels grounded; reactive states add character.
-    const bobFrequency = THREE.MathUtils.lerp(1.2, 3.6, expressiveness.current);
-    const bobAmplitude = THREE.MathUtils.lerp(
-      0.018,
-      0.055,
-      expressiveness.current,
-    );
-    bodyBob.current += delta * bobFrequency;
-    const bob = Math.sin(bodyBob.current) * bobAmplitude;
-    groupRef.current.position.y = bob;
-
-    if (alertAmount.current > 0.5) {
-      groupRef.current.position.x = Math.sin(bodyBob.current * 6) * 0.04;
-    } else {
-      groupRef.current.position.x = THREE.MathUtils.lerp(
-        groupRef.current.position.x,
-        0,
-        delta * speed,
-      );
-    }
-
-    // Scale (shrink when hiding/sad)
-    const s = THREE.MathUtils.lerp(
-      groupRef.current.scale.x,
-      scaleTarget.current,
-      delta * speed,
-    );
-    groupRef.current.scale.set(s, s, s);
-
-    // Mild squash/stretch sells expression without getting cartoony all the time.
-    const squash =
-      alertAmount.current > 0.5
-        ? 0.89
-        : sadAmount.current > 0.5
-          ? 0.92
-          : state === "hiding"
-            ? 0.97
-            : 0.985;
-    innerRef.current.scale.y = THREE.MathUtils.lerp(
-      innerRef.current.scale.y,
-      squash,
-      delta * speed,
-    );
-    const width = THREE.MathUtils.lerp(
-      innerRef.current.scale.x,
-      2 - squash,
-      delta * speed,
-    );
-    innerRef.current.scale.x = width;
-    innerRef.current.scale.z = width;
-
-    // Sad sway
-    if (alertAmount.current > 0.5) {
-      groupRef.current.rotation.z = Math.sin(bodyBob.current * 1.2) * 0.11;
-    } else if (sadAmount.current > 0.5) {
-      groupRef.current.rotation.z = Math.sin(bodyBob.current * 0.65) * 0.08;
-    } else {
-      groupRef.current.rotation.z = THREE.MathUtils.lerp(
-        groupRef.current.rotation.z,
-        0,
-        delta * speed,
-      );
-    }
-  });
-
-  if (!clonedScene) return null;
-
-  return (
-    <group ref={groupRef}>
-      <group ref={innerRef}>
-        <primitive object={clonedScene} />
-      </group>
-    </group>
-  );
-}
-
-/* Read mouse ref inside Canvas render loop */
-function ElephantInner({
-  mousePos,
-  state,
-}: {
-  mousePos: React.MutableRefObject<{ x: number; y: number }>;
-  state: AnimalState;
-}) {
-  const pos = useRef({ x: 0, y: 0 });
-  useFrame(() => {
-    pos.current = mousePos.current;
-  });
-  return <Elephant mousePos={pos.current} state={state} />;
-}
-
-/* ── Main export ── */
 interface LoginOwl3DProps {
   isTyping: boolean;
   isSad: boolean;
@@ -201,61 +14,141 @@ export default function LoginOwl3D({
   errorPulse = 0,
 }: LoginOwl3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mousePos = useRef({ x: 0, y: 0 });
+  const rafRef = useRef<number>();
+  const [uiMousePos, setUiMousePos] = useState({ x: 0, y: 0 });
   const [isAlerting, setIsAlerting] = useState(false);
+  const [introVisible, setIntroVisible] = useState(false);
 
   useEffect(() => {
+    const clamp = (value: number, min: number, max: number) =>
+      Math.min(max, Math.max(min, value));
+
     const handleMouseMove = (e: MouseEvent) => {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      mousePos.current = {
-        x: (e.clientX - centerX) / (window.innerWidth / 2),
-        y: -((e.clientY - centerY) / (window.innerHeight / 2)),
+      const nextMouse = {
+        x: clamp((e.clientX - centerX) / (rect.width / 2), -1, 1),
+        y: clamp(-((e.clientY - centerY) / (rect.height / 2)), -1, 1),
       };
+
+      if (typeof rafRef.current === "number") {
+        window.cancelAnimationFrame(rafRef.current);
+      }
+      rafRef.current = window.requestAnimationFrame(() => {
+        setUiMousePos(nextMouse);
+      });
     };
+
     window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      if (typeof rafRef.current === "number") {
+        window.cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIntroVisible(true), 90);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
     if (!errorPulse) return;
     setIsAlerting(true);
-    const timer = window.setTimeout(() => setIsAlerting(false), 1050);
+    const timer = window.setTimeout(() => setIsAlerting(false), 900);
     return () => window.clearTimeout(timer);
   }, [errorPulse]);
 
-  const animalState: AnimalState = isSad
+  const mascotState: MascotState = isSad
     ? isAlerting
       ? "alert"
       : "sad"
     : isTyping
-      ? "hiding"
+      ? "typing"
       : "watching";
 
+  const textShiftX = uiMousePos.x * 8;
+  const textShiftY = -uiMousePos.y * 6;
+  const glowShiftX = uiMousePos.x * 18;
+  const glowShiftY = -uiMousePos.y * 14;
+  const mascotShiftX = uiMousePos.x * 12;
+  const mascotShiftY = -uiMousePos.y * 10;
+  const mascotEmoji =
+    mascotState === "alert"
+      ? "😵"
+      : mascotState === "sad"
+        ? "😔"
+        : mascotState === "typing"
+          ? "🙈"
+          : "🦆";
+  const statusLabel =
+    mascotState === "alert"
+      ? "Access denied"
+      : mascotState === "sad"
+        ? "Try again"
+        : mascotState === "typing"
+          ? "Typing..."
+          : "Secure mode";
+
   return (
-    <div ref={containerRef} className="w-full h-52 sm:h-60">
-      <Canvas
-        camera={{ position: [0, 0.55, 4.2], fov: 32 }}
-        gl={{ antialias: true, alpha: true }}
-        style={{ background: "transparent" }}
-      >
-        <ambientLight intensity={0.58} />
-        <hemisphereLight args={["#f7f8ff", "#e9d9bf", 0.45]} />
-        <directionalLight position={[3, 5, 4]} intensity={1.05} />
-        <directionalLight
-          position={[-3, 3, 2]}
-          intensity={0.35}
-          color="#ffd7ae"
-        />
-        <pointLight position={[0, 2, 5]} intensity={0.24} color="#fff5e6" />
-        <Suspense fallback={null}>
-          <ElephantInner mousePos={mousePos} state={animalState} />
-        </Suspense>
-      </Canvas>
+    <div
+      ref={containerRef}
+      className="relative w-full h-52 sm:h-60 overflow-hidden rounded-2xl"
+    >
+      <div
+        className="pointer-events-none absolute left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/20 blur-2xl transition-transform duration-300"
+        style={{
+          transform: `translate(calc(-50% + ${glowShiftX}px), calc(-50% + ${glowShiftY}px))`,
+        }}
+      />
+
+      <div className="absolute inset-0 bg-gradient-to-b from-muted/30 via-background/50 to-background" />
+
+      <div className="pointer-events-none absolute inset-x-0 top-3 z-10 flex justify-center">
+        <p
+          className="font-body text-[10px] tracking-[0.34em] uppercase text-muted-foreground/80 transition-all duration-700"
+          style={{
+            opacity: introVisible ? 1 : 0,
+            transform: `translate3d(${textShiftX * 0.35}px, ${textShiftY * 0.35 - (introVisible ? 0 : 8)}px, 0)`,
+          }}
+        >
+          Veritas Secure Access
+        </p>
+      </div>
+
+      <div className="absolute inset-0 z-10 flex items-center justify-center">
+        <div
+          className="rounded-full border border-border/60 bg-background/85 shadow-[0_12px_32px_rgba(0,0,0,0.18)] px-8 py-5 transition-all duration-300"
+          style={{
+            transform: `translate3d(${mascotShiftX}px, ${mascotShiftY}px, 0) rotate(${uiMousePos.x * 7}deg) scale(${mascotState === "alert" ? 1.06 : mascotState === "typing" ? 0.96 : 1})`,
+          }}
+        >
+          <p
+            className="text-5xl leading-none transition-transform duration-300"
+            style={{
+              transform: `translateY(${mascotState === "typing" ? 5 : mascotState === "sad" ? 3 : 0}px)`,
+            }}
+          >
+            {mascotEmoji}
+          </p>
+        </div>
+      </div>
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-4 z-10 flex justify-center">
+        <p
+          className="font-heading text-xs tracking-[0.22em] uppercase text-foreground/75 transition-all duration-700"
+          style={{
+            opacity: introVisible ? 1 : 0,
+            transform: `translate3d(${textShiftX * 0.55}px, ${textShiftY * 0.55 + (introVisible ? 0 : 10)}px, 0)`,
+            textShadow: "0 6px 18px rgba(0,0,0,0.22)",
+          }}
+        >
+          {statusLabel}
+        </p>
+      </div>
     </div>
   );
 }
-
-useGLTF.preload("/models/admin-duck.glb");
