@@ -14,7 +14,7 @@ function Elephant({
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const innerRef = useRef<THREE.Group>(null);
-  const { scene } = useGLTF("/models/elephant.glb");
+  const { scene } = useGLTF("/models/admin-duck.glb");
   const [clonedScene, setClonedScene] = useState<THREE.Group | null>(null);
 
   const targetRotation = useRef({ x: 0, y: 0 });
@@ -195,7 +195,11 @@ interface LoginOwl3DProps {
   errorPulse?: number;
 }
 
-export default function LoginOwl3D({ isTyping, isSad, errorPulse = 0 }: LoginOwl3DProps) {
+export default function LoginOwl3D({
+  isTyping,
+  isSad,
+  errorPulse = 0,
+}: LoginOwl3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mousePos = useRef({ x: 0, y: 0 });
   const [isAlerting, setIsAlerting] = useState(false);
@@ -254,4 +258,4 @@ export default function LoginOwl3D({ isTyping, isSad, errorPulse = 0 }: LoginOwl
   );
 }
 
-useGLTF.preload("/models/elephant.glb");
+useGLTF.preload("/models/admin-duck.glb");
