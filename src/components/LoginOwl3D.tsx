@@ -36,7 +36,7 @@ function Elephant({
         }
       }
     });
-    
+
     // Auto-center and scale to fit
     const box = new THREE.Box3().setFromObject(clone);
     const size = box.getSize(new THREE.Vector3());
@@ -45,7 +45,7 @@ function Elephant({
     const scale = 2.2 / maxDim; // Fit in ~2.2 units
     clone.scale.multiplyScalar(scale);
     clone.position.sub(center.multiplyScalar(scale));
-    
+
     setClonedScene(clone);
   }, [scene]);
 
@@ -79,17 +79,21 @@ function Elephant({
     groupRef.current.rotation.x = THREE.MathUtils.lerp(
       groupRef.current.rotation.x,
       targetRotation.current.x,
-      delta * speed
+      delta * speed,
     );
     groupRef.current.rotation.y = THREE.MathUtils.lerp(
       groupRef.current.rotation.y,
       targetRotation.current.y,
-      delta * speed
+      delta * speed,
     );
 
     // Idle feels grounded; reactive states add character.
     const bobFrequency = THREE.MathUtils.lerp(1.2, 3.6, expressiveness.current);
-    const bobAmplitude = THREE.MathUtils.lerp(0.018, 0.055, expressiveness.current);
+    const bobAmplitude = THREE.MathUtils.lerp(
+      0.018,
+      0.055,
+      expressiveness.current,
+    );
     bodyBob.current += delta * bobFrequency;
     const bob = Math.sin(bodyBob.current) * bobAmplitude;
     groupRef.current.position.y = bob;
@@ -98,14 +102,23 @@ function Elephant({
     const s = THREE.MathUtils.lerp(
       groupRef.current.scale.x,
       scaleTarget.current,
-      delta * speed
+      delta * speed,
     );
     groupRef.current.scale.set(s, s, s);
 
     // Mild squash/stretch sells expression without getting cartoony all the time.
-    const squash = sadAmount.current > 0.5 ? 0.92 : state === "hiding" ? 0.95 : 0.985;
-    innerRef.current.scale.y = THREE.MathUtils.lerp(innerRef.current.scale.y, squash, delta * speed);
-    const width = THREE.MathUtils.lerp(innerRef.current.scale.x, 2 - squash, delta * speed);
+    const squash =
+      sadAmount.current > 0.5 ? 0.92 : state === "hiding" ? 0.95 : 0.985;
+    innerRef.current.scale.y = THREE.MathUtils.lerp(
+      innerRef.current.scale.y,
+      squash,
+      delta * speed,
+    );
+    const width = THREE.MathUtils.lerp(
+      innerRef.current.scale.x,
+      2 - squash,
+      delta * speed,
+    );
     innerRef.current.scale.x = width;
     innerRef.current.scale.z = width;
 
@@ -114,7 +127,9 @@ function Elephant({
       groupRef.current.rotation.z = Math.sin(bodyBob.current * 0.65) * 0.08;
     } else {
       groupRef.current.rotation.z = THREE.MathUtils.lerp(
-        groupRef.current.rotation.z, 0, delta * speed
+        groupRef.current.rotation.z,
+        0,
+        delta * speed,
       );
     }
   });
@@ -170,7 +185,11 @@ export default function LoginOwl3D({ isTyping, isSad }: LoginOwl3DProps) {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  const animalState: AnimalState = isSad ? "sad" : isTyping ? "hiding" : "watching";
+  const animalState: AnimalState = isSad
+    ? "sad"
+    : isTyping
+      ? "hiding"
+      : "watching";
 
   return (
     <div ref={containerRef} className="w-full h-52 sm:h-60">
@@ -182,7 +201,11 @@ export default function LoginOwl3D({ isTyping, isSad }: LoginOwl3DProps) {
         <ambientLight intensity={0.58} />
         <hemisphereLight args={["#f7f8ff", "#e9d9bf", 0.45]} />
         <directionalLight position={[3, 5, 4]} intensity={1.05} />
-        <directionalLight position={[-3, 3, 2]} intensity={0.35} color="#ffd7ae" />
+        <directionalLight
+          position={[-3, 3, 2]}
+          intensity={0.35}
+          color="#ffd7ae"
+        />
         <pointLight position={[0, 2, 5]} intensity={0.24} color="#fff5e6" />
         <Suspense fallback={null}>
           <ElephantInner mousePos={mousePos} state={animalState} />
