@@ -86,7 +86,9 @@ const Navbar = () => {
         <button
           onClick={() => navigate("/")}
           className={`font-heading text-xl md:text-2xl font-light tracking-[0.3em] uppercase transition-colors duration-700 ${
-            scrolled || mobileOpen ? "text-foreground" : "text-primary-foreground"
+            scrolled || mobileOpen
+              ? "text-foreground"
+              : "text-primary-foreground"
           }`}
         >
           Veritas
@@ -166,8 +168,8 @@ const Navbar = () => {
                     Learn by doing, guided by global standards.
                   </h3>
                   <p className="font-body text-sm text-muted-foreground leading-relaxed mb-6">
-                    With over 143 programs across 10 colleges, Veritas
-                    combines critical scholarship with practical outcomes.
+                    With over 143 programs across 10 colleges, Veritas combines
+                    critical scholarship with practical outcomes.
                   </p>
                   <button
                     onClick={() => {
@@ -207,14 +209,15 @@ const Navbar = () => {
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className={`md:hidden relative z-10 transition-colors duration-500 ${
-            scrolled || mobileOpen ? "text-foreground" : "text-primary-foreground"
+            scrolled || mobileOpen
+              ? "text-foreground"
+              : "text-primary-foreground"
           }`}
           aria-label="Toggle menu"
         >
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
-
     </nav>
   );
 
@@ -222,7 +225,7 @@ const Navbar = () => {
     ? createPortal(
         <div
           className="fixed inset-0 flex flex-col items-center justify-center gap-6 md:hidden"
-          style={{ zIndex: 9999, backgroundColor: 'hsl(60, 7%, 95%)' }}
+          style={{ zIndex: 9999, backgroundColor: "hsl(60, 7%, 95%)" }}
         >
           {/* Close button inside overlay */}
           <button
@@ -238,7 +241,9 @@ const Navbar = () => {
               navigate("/study");
             }}
             className={`font-heading text-2xl font-light tracking-[0.15em] uppercase transition-all duration-500 hover:text-accent ${
-              location.pathname.startsWith("/study") ? "text-accent" : "text-foreground"
+              location.pathname.startsWith("/study")
+                ? "text-accent"
+                : "text-foreground"
             }`}
           >
             Study at Veritas
@@ -253,7 +258,7 @@ const Navbar = () => {
             </button>
           ))}
         </div>,
-        document.body
+        document.body,
       )
     : null;
 

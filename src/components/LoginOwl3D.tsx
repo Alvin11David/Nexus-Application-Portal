@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useGLTF, Center } from "@react-three/drei";
+import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
 type AnimalState = "idle" | "watching" | "hiding" | "sad";
@@ -20,6 +20,7 @@ function Elephant({
   const targetRotation = useRef({ x: 0, y: 0 });
   const bodyBob = useRef(0);
   const sadAmount = useRef(0);
+  const expressiveness = useRef(0.25);
   const scaleTarget = useRef(1);
 
   useEffect(() => {
@@ -29,8 +30,9 @@ function Elephant({
       if (child instanceof THREE.Mesh && child.material) {
         if (child.material instanceof THREE.MeshStandardMaterial) {
           child.material = child.material.clone();
-          child.material.roughness = 0.65;
-          child.material.metalness = 0.05;
+          child.material.roughness = 0.78;
+          child.material.metalness = 0.02;
+          child.material.envMapIntensity = 0.9;
         }
       }
     });
@@ -50,25 +52,28 @@ function Elephant({
   useEffect(() => {
     if (state === "watching" || state === "idle") {
       targetRotation.current = {
-        x: -mousePos.y * 0.15,
-        y: mousePos.x * 0.4,
+        x: -mousePos.y * 0.08,
+        y: mousePos.x * 0.24,
       };
       sadAmount.current = 0;
+      expressiveness.current = 0.2;
       scaleTarget.current = 1;
     } else if (state === "hiding") {
       sadAmount.current = 0;
-      scaleTarget.current = 0.85;
-      targetRotation.current = { x: 0.25, y: 0 }; // Look down shyly
+      expressiveness.current = 0.55;
+      scaleTarget.current = 0.9;
+      targetRotation.current = { x: 0.2, y: 0 }; // Look down shyly
     } else if (state === "sad") {
       sadAmount.current = 1;
-      scaleTarget.current = 0.92;
-      targetRotation.current = { x: 0.12, y: 0 };
+      expressiveness.current = 0.7;
+      scaleTarget.current = 0.9;
+      targetRotation.current = { x: 0.16, y: 0 };
     }
   }, [mousePos, state]);
 
   useFrame((_, delta) => {
-    if (!groupRef.current) return;
-    const speed = 3.5;
+    if (!groupRef.current || !innerRef.current) return;
+    const speed = THREE.MathUtils.lerp(2.2, 4.1, expressiveness.current);
 
     // Smooth rotation toward target
     groupRef.current.rotation.x = THREE.MathUtils.lerp(
@@ -82,11 +87,11 @@ function Elephant({
       delta * speed
     );
 
-    // Body bob — faster and shakier when sad
-    bodyBob.current += delta * (sadAmount.current > 0.5 ? 4 : 1.5);
-    const bob = sadAmount.current > 0.5
-      ? Math.sin(bodyBob.current) * 0.06
-      : Math.sin(bodyBob.current) * 0.03;
+    // Idle feels grounded; reactive states add character.
+    const bobFrequency = THREE.MathUtils.lerp(1.2, 3.6, expressiveness.current);
+    const bobAmplitude = THREE.MathUtils.lerp(0.018, 0.055, expressiveness.current);
+    bodyBob.current += delta * bobFrequency;
+    const bob = Math.sin(bodyBob.current) * bobAmplitude;
     groupRef.current.position.y = bob;
 
     // Scale (shrink when hiding/sad)
@@ -97,9 +102,16 @@ function Elephant({
     );
     groupRef.current.scale.set(s, s, s);
 
+    // Mild squash/stretch sells expression without getting cartoony all the time.
+    const squash = sadAmount.current > 0.5 ? 0.92 : state === "hiding" ? 0.95 : 0.985;
+    innerRef.current.scale.y = THREE.MathUtils.lerp(innerRef.current.scale.y, squash, delta * speed);
+    const width = THREE.MathUtils.lerp(innerRef.current.scale.x, 2 - squash, delta * speed);
+    innerRef.current.scale.x = width;
+    innerRef.current.scale.z = width;
+
     // Sad sway
     if (sadAmount.current > 0.5) {
-      groupRef.current.rotation.z = Math.sin(bodyBob.current * 0.6) * 0.06;
+      groupRef.current.rotation.z = Math.sin(bodyBob.current * 0.65) * 0.08;
     } else {
       groupRef.current.rotation.z = THREE.MathUtils.lerp(
         groupRef.current.rotation.z, 0, delta * speed
@@ -163,14 +175,15 @@ export default function LoginOwl3D({ isTyping, isSad }: LoginOwl3DProps) {
   return (
     <div ref={containerRef} className="w-full h-52 sm:h-60">
       <Canvas
-        camera={{ position: [0, 0.5, 3.8], fov: 35 }}
+        camera={{ position: [0, 0.55, 4.2], fov: 32 }}
         gl={{ antialias: true, alpha: true }}
         style={{ background: "transparent" }}
       >
-        <ambientLight intensity={0.8} />
-        <directionalLight position={[3, 5, 4]} intensity={1.2} />
-        <directionalLight position={[-3, 3, 2]} intensity={0.4} color="#ffd4a0" />
-        <pointLight position={[0, 2, 5]} intensity={0.3} color="#fff5e6" />
+        <ambientLight intensity={0.58} />
+        <hemisphereLight args={["#f7f8ff", "#e9d9bf", 0.45]} />
+        <directionalLight position={[3, 5, 4]} intensity={1.05} />
+        <directionalLight position={[-3, 3, 2]} intensity={0.35} color="#ffd7ae" />
+        <pointLight position={[0, 2, 5]} intensity={0.24} color="#fff5e6" />
         <Suspense fallback={null}>
           <ElephantInner mousePos={mousePos} state={animalState} />
         </Suspense>
