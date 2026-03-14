@@ -15,7 +15,6 @@ const navItems = [
   { label: "About", href: "/about", badge: "Heritage" },
   { label: "News", href: "/news", badge: "Updates" },
   { label: "Quick Links", href: "/quick-links", badge: "Tools" },
-  { label: "Donate", href: "/donate", badge: "Support" },
 ];
 
 const Navbar = () => {

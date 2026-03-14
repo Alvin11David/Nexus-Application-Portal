@@ -12,7 +12,6 @@ import ResearchPage from "./pages/ResearchPage.tsx";
 import AboutPage from "./pages/AboutPage.tsx";
 import NewsPage from "./pages/NewsPage.tsx";
 import QuickLinksPage from "./pages/QuickLinksPage.tsx";
-import DonatePage from "./pages/DonatePage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 // About Section
 import AboutInstitutePage from "./pages/AboutInstitutePage.tsx";
@@ -71,7 +70,6 @@ const AnimatedRoutes = () => {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/quick-links" element={<QuickLinksPage />} />
-        <Route path="/donate" element={<DonatePage />} />
         {/* About Section */}
         <Route path="/about/institute" element={<AboutInstitutePage />} />
         <Route path="/about/facts-figures" element={<FactsFiguresPage />} />
