@@ -17,8 +17,15 @@ const AdminLoginPage = () => {
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [isSad, setIsSad] = useState(false);
+  const [errorPulse, setErrorPulse] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const triggerSadReaction = useCallback(() => {
+    setIsSad(true);
+    setErrorPulse((prev) => prev + 1);
+    setTimeout(() => setIsSad(false), 2500);
+  }, []);
 
   const handleFocus = useCallback(() => {
     setIsTyping(true);
@@ -30,18 +37,16 @@ const AdminLoginPage = () => {
     e.preventDefault();
 
     if (!email.trim() || !password.trim()) {
-      setIsSad(true);
+      triggerSadReaction();
       toast({ title: "Missing fields", description: "Please fill in all fields", variant: "destructive" });
-      setTimeout(() => setIsSad(false), 2500);
       return;
     }
 
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      setIsSad(true);
+      triggerSadReaction();
       toast({ title: "Login failed", description: error.message, variant: "destructive" });
-      setTimeout(() => setIsSad(false), 2500);
     } else {
       navigate("/admin");
     }
@@ -54,13 +59,12 @@ const AdminLoginPage = () => {
       redirect_uri: window.location.origin + "/admin",
     });
     if (error) {
-      setIsSad(true);
+      triggerSadReaction();
       toast({
         title: `${provider === "google" ? "Google" : "Apple"} login failed`,
         description: String(error),
         variant: "destructive",
       });
-      setTimeout(() => setIsSad(false), 2500);
     }
     setOauthLoading(null);
   };
@@ -117,7 +121,7 @@ const AdminLoginPage = () => {
                 </div>
               }
             >
-              <LoginOwl3D isTyping={isTyping} isSad={isSad} />
+              <LoginOwl3D isTyping={isTyping} isSad={isSad} errorPulse={errorPulse} />
             </Suspense>
           </div>
 

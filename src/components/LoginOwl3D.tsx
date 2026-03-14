@@ -3,7 +3,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
-type AnimalState = "idle" | "watching" | "hiding" | "sad";
+type AnimalState = "idle" | "watching" | "hiding" | "sad" | "alert";
 
 function Elephant({
   mousePos,
@@ -20,6 +20,7 @@ function Elephant({
   const targetRotation = useRef({ x: 0, y: 0 });
   const bodyBob = useRef(0);
   const sadAmount = useRef(0);
+  const alertAmount = useRef(0);
   const expressiveness = useRef(0.25);
   const scaleTarget = useRef(1);
 
@@ -56,18 +57,27 @@ function Elephant({
         y: mousePos.x * 0.24,
       };
       sadAmount.current = 0;
+      alertAmount.current = 0;
       expressiveness.current = 0.2;
       scaleTarget.current = 1;
     } else if (state === "hiding") {
       sadAmount.current = 0;
-      expressiveness.current = 0.55;
-      scaleTarget.current = 0.9;
-      targetRotation.current = { x: 0.2, y: 0 }; // Look down shyly
+      alertAmount.current = 0;
+      expressiveness.current = 0.34;
+      scaleTarget.current = 0.96;
+      targetRotation.current = { x: 0.14, y: 0 }; // Look down shyly
     } else if (state === "sad") {
       sadAmount.current = 1;
+      alertAmount.current = 0;
       expressiveness.current = 0.7;
       scaleTarget.current = 0.9;
       targetRotation.current = { x: 0.16, y: 0 };
+    } else if (state === "alert") {
+      sadAmount.current = 0.6;
+      alertAmount.current = 1;
+      expressiveness.current = 1;
+      scaleTarget.current = 0.88;
+      targetRotation.current = { x: 0.08, y: 0 };
     }
   }, [mousePos, state]);
 
@@ -98,6 +108,16 @@ function Elephant({
     const bob = Math.sin(bodyBob.current) * bobAmplitude;
     groupRef.current.position.y = bob;
 
+    if (alertAmount.current > 0.5) {
+      groupRef.current.position.x = Math.sin(bodyBob.current * 6) * 0.04;
+    } else {
+      groupRef.current.position.x = THREE.MathUtils.lerp(
+        groupRef.current.position.x,
+        0,
+        delta * speed,
+      );
+    }
+
     // Scale (shrink when hiding/sad)
     const s = THREE.MathUtils.lerp(
       groupRef.current.scale.x,
@@ -108,7 +128,13 @@ function Elephant({
 
     // Mild squash/stretch sells expression without getting cartoony all the time.
     const squash =
-      sadAmount.current > 0.5 ? 0.92 : state === "hiding" ? 0.95 : 0.985;
+      alertAmount.current > 0.5
+        ? 0.89
+        : sadAmount.current > 0.5
+          ? 0.92
+          : state === "hiding"
+            ? 0.97
+            : 0.985;
     innerRef.current.scale.y = THREE.MathUtils.lerp(
       innerRef.current.scale.y,
       squash,
@@ -123,7 +149,9 @@ function Elephant({
     innerRef.current.scale.z = width;
 
     // Sad sway
-    if (sadAmount.current > 0.5) {
+    if (alertAmount.current > 0.5) {
+      groupRef.current.rotation.z = Math.sin(bodyBob.current * 1.2) * 0.11;
+    } else if (sadAmount.current > 0.5) {
       groupRef.current.rotation.z = Math.sin(bodyBob.current * 0.65) * 0.08;
     } else {
       groupRef.current.rotation.z = THREE.MathUtils.lerp(
@@ -164,11 +192,13 @@ function ElephantInner({
 interface LoginOwl3DProps {
   isTyping: boolean;
   isSad: boolean;
+  errorPulse?: number;
 }
 
-export default function LoginOwl3D({ isTyping, isSad }: LoginOwl3DProps) {
+export default function LoginOwl3D({ isTyping, isSad, errorPulse = 0 }: LoginOwl3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mousePos = useRef({ x: 0, y: 0 });
+  const [isAlerting, setIsAlerting] = useState(false);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -185,8 +215,17 @@ export default function LoginOwl3D({ isTyping, isSad }: LoginOwl3DProps) {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
+  useEffect(() => {
+    if (!errorPulse) return;
+    setIsAlerting(true);
+    const timer = window.setTimeout(() => setIsAlerting(false), 1050);
+    return () => window.clearTimeout(timer);
+  }, [errorPulse]);
+
   const animalState: AnimalState = isSad
-    ? "sad"
+    ? isAlerting
+      ? "alert"
+      : "sad"
     : isTyping
       ? "hiding"
       : "watching";
