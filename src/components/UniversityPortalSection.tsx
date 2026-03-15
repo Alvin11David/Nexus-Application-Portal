@@ -492,7 +492,10 @@ const UniversityPortalSection = () => {
                 Stories worth sharing
               </h3>
             </div>
-            <Link to="/news" className="font-body text-xs tracking-[0.2em] uppercase text-accent border border-accent/40 px-6 py-3 rounded-[16px] hover:bg-accent/8 transition-all duration-300">
+            <Link
+              to="/news"
+              className="font-body text-xs tracking-[0.2em] uppercase text-accent border border-accent/40 px-6 py-3 rounded-[16px] hover:bg-accent/8 transition-all duration-300"
+            >
               View All Stories
             </Link>
           </div>
@@ -670,7 +673,10 @@ const UniversityPortalSection = () => {
               event updates, and institutional news delivered to your inbox.
             </p>
           </div>
-          <form onSubmit={handleNewsletterSubmit} className="newsletter-form space-y-3">
+          <form
+            onSubmit={handleNewsletterSubmit}
+            className="newsletter-form space-y-3"
+          >
             <input
               type="email"
               placeholder="Enter your email"

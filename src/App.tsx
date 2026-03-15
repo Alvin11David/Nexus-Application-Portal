@@ -26,10 +26,16 @@ const AboutInstitutePage = lazy(() => import("./pages/AboutInstitutePage.tsx"));
 const FactsFiguresPage = lazy(() => import("./pages/FactsFiguresPage.tsx"));
 const VisitInstitutePage = lazy(() => import("./pages/VisitInstitutePage.tsx"));
 const AlumniPage = lazy(() => import("./pages/AlumniPage.tsx"));
-const HistoryTimelinePage = lazy(() => import("./pages/HistoryTimelinePage.tsx"));
-const AdmissionsListsPage = lazy(() => import("./pages/AdmissionsListsPage.tsx"));
+const HistoryTimelinePage = lazy(
+  () => import("./pages/HistoryTimelinePage.tsx"),
+);
+const AdmissionsListsPage = lazy(
+  () => import("./pages/AdmissionsListsPage.tsx"),
+);
 const HowToApplyPage = lazy(() => import("./pages/HowToApplyPage.tsx"));
-const CoursesListingsPage = lazy(() => import("./pages/CoursesListingsPage.tsx"));
+const CoursesListingsPage = lazy(
+  () => import("./pages/CoursesListingsPage.tsx"),
+);
 const FeesPaymentPage = lazy(() => import("./pages/FeesPaymentPage.tsx"));
 const InternationalStudentsPage = lazy(
   () => import("./pages/InternationalStudentsPage.tsx"),
@@ -42,8 +48,12 @@ const AdminLoginPage = lazy(() => import("./pages/AdminLoginPage.tsx"));
 import AdminLayout from "@/components/AdminLayout";
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.tsx"));
 const AdminNewsPage = lazy(() => import("./pages/admin/AdminNewsPage.tsx"));
-const AdminFacultyPage = lazy(() => import("./pages/admin/AdminFacultyPage.tsx"));
-const AdminCoursesPage = lazy(() => import("./pages/admin/AdminCoursesPage.tsx"));
+const AdminFacultyPage = lazy(
+  () => import("./pages/admin/AdminFacultyPage.tsx"),
+);
+const AdminCoursesPage = lazy(
+  () => import("./pages/admin/AdminCoursesPage.tsx"),
+);
 const AdminPagesPage = lazy(() => import("./pages/admin/AdminPagesPage.tsx"));
 
 const queryClient = new QueryClient();
@@ -106,8 +116,14 @@ const AnimatedRoutes = () => {
             <Route path="/about/alumni" element={<AlumniPage />} />
             <Route path="/about/history" element={<HistoryTimelinePage />} />
             <Route path="/admissions/lists" element={<AdmissionsListsPage />} />
-            <Route path="/admissions/how-to-apply" element={<HowToApplyPage />} />
-            <Route path="/admissions/courses" element={<CoursesListingsPage />} />
+            <Route
+              path="/admissions/how-to-apply"
+              element={<HowToApplyPage />}
+            />
+            <Route
+              path="/admissions/courses"
+              element={<CoursesListingsPage />}
+            />
             <Route path="/admissions/fees" element={<FeesPaymentPage />} />
             <Route
               path="/admissions/international"

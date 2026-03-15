@@ -208,10 +208,10 @@ const Footer = () => {
                   s.label === "Instagram"
                     ? Instagram
                     : s.label === "Twitter"
-                    ? Twitter
-                    : s.label === "LinkedIn"
-                    ? Linkedin
-                    : Youtube;
+                      ? Twitter
+                      : s.label === "LinkedIn"
+                        ? Linkedin
+                        : Youtube;
                 return (
                   <a
                     key={s.label}
@@ -245,7 +245,10 @@ const Footer = () => {
                 required
                 className="flex-1 bg-transparent font-body text-sm text-primary-foreground py-3 placeholder:text-primary-foreground/30 focus:outline-none"
               />
-              <button type="submit" className="px-3 text-primary-foreground/40 hover:text-accent transition-colors duration-500">
+              <button
+                type="submit"
+                className="px-3 text-primary-foreground/40 hover:text-accent transition-colors duration-500"
+              >
                 <ArrowUpRight size={18} />
               </button>
             </form>
