@@ -221,13 +221,14 @@ const Navbar = () => {
     </nav>
   );
 
+  const [mobileStudyOpen, setMobileStudyOpen] = useState(false);
+
   const mobileMenu = mobileOpen
     ? createPortal(
         <div
-          className="fixed inset-0 flex flex-col items-center justify-center gap-6 md:hidden"
-          style={{ zIndex: 9999, backgroundColor: "hsl(60, 7%, 95%)" }}
+          className="fixed inset-0 md:hidden overflow-y-auto"
+          style={{ zIndex: 9999, backgroundColor: "hsl(var(--background))" }}
         >
-          {/* Close button inside overlay */}
           <button
             onClick={() => setMobileOpen(false)}
             className="absolute top-5 right-8 text-foreground"
@@ -235,28 +236,68 @@ const Navbar = () => {
           >
             <X size={24} />
           </button>
-          <button
-            onClick={() => {
-              setMobileOpen(false);
-              navigate("/study");
-            }}
-            className={`font-heading text-2xl font-light tracking-[0.15em] uppercase transition-all duration-500 hover:text-accent ${
-              location.pathname.startsWith("/study")
-                ? "text-accent"
-                : "text-foreground"
-            }`}
-          >
-            Study at Veritas
-          </button>
-          {navItems.map((item) => (
-            <button
-              key={item.label}
-              onClick={() => handleNavClick(item.href)}
-              className={`font-heading text-2xl font-light tracking-[0.15em] uppercase transition-all duration-500 hover:text-accent ${isActive(item.href) ? "text-accent" : "text-foreground"}`}
-            >
-              {item.label}
-            </button>
-          ))}
+
+          <div className="flex flex-col items-center pt-20 pb-12 gap-4">
+            {/* Study at Veritas with expandable sub-links */}
+            <div className="flex flex-col items-center w-full">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setMobileOpen(false);
+                    navigate("/study");
+                  }}
+                  className={`font-heading text-2xl font-light tracking-[0.15em] uppercase transition-all duration-500 hover:text-accent ${
+                    location.pathname.startsWith("/study")
+                      ? "text-accent"
+                      : "text-foreground"
+                  }`}
+                >
+                  Study at Veritas
+                </button>
+                <button
+                  onClick={() => setMobileStudyOpen(!mobileStudyOpen)}
+                  aria-label="Toggle study links"
+                >
+                  <ChevronDown
+                    size={20}
+                    className={`text-muted-foreground transition-transform duration-300 ${mobileStudyOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+              </div>
+
+              <div
+                className={`overflow-hidden transition-all duration-500 w-full px-8 ${
+                  mobileStudyOpen ? "max-h-[600px] opacity-100 mt-3" : "max-h-0 opacity-0"
+                }`}
+              >
+                <div className="flex flex-col items-center gap-2">
+                  {studyLinks.map((item) => (
+                    <button
+                      key={item.slug}
+                      onClick={() => {
+                        setMobileOpen(false);
+                        setMobileStudyOpen(false);
+                        navigate(`/study/${item.slug}`);
+                      }}
+                      className="font-body text-sm tracking-[0.1em] uppercase text-muted-foreground hover:text-accent transition-colors duration-300 py-1"
+                    >
+                      {item.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {navItems.map((item) => (
+              <button
+                key={item.label}
+                onClick={() => handleNavClick(item.href)}
+                className={`font-heading text-2xl font-light tracking-[0.15em] uppercase transition-all duration-500 hover:text-accent ${isActive(item.href) ? "text-accent" : "text-foreground"}`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>,
         document.body,
       )
