@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
@@ -16,12 +17,12 @@ const stats = [
 ];
 
 const services = [
-  { icon: Home, title: "Housing & Residence", desc: "Modern halls with single and shared rooms, dining facilities, and 24/7 security across 8 residential complexes." },
-  { icon: BookOpen, title: "Academic Support", desc: "Tutoring centers, writing labs, and peer mentoring programs to help every student thrive academically." },
-  { icon: Globe, title: "International Office", desc: "Visa support, cultural integration programs, and a dedicated team for our global student community." },
-  { icon: Award, title: "Scholarships & Aid", desc: "Over $18M in annual scholarships covering merit-based, need-based, and specialized program awards." },
-  { icon: Heart, title: "Health & Wellness", desc: "On-campus clinic, counseling services, fitness center, and wellness workshops for holistic well-being." },
-  { icon: Users, title: "Career Services", desc: "Resume workshops, internship placements, employer networking events, and alumni mentorship programs." },
+  { icon: Home, title: "Housing & Residence", desc: "Modern halls with single and shared rooms, dining facilities, and 24/7 security across 8 residential complexes.", href: "/about/visit" },
+  { icon: BookOpen, title: "Academic Support", desc: "Tutoring centers, writing labs, and peer mentoring programs to help every student thrive academically.", href: "/admissions/faq" },
+  { icon: Globe, title: "International Office", desc: "Visa support, cultural integration programs, and a dedicated team for our global student community.", href: "/admissions/international" },
+  { icon: Award, title: "Scholarships & Aid", desc: "Over $18M in annual scholarships covering merit-based, need-based, and specialized program awards.", href: "/admissions/scholarships" },
+  { icon: Heart, title: "Health & Wellness", desc: "On-campus clinic, counseling services, fitness center, and wellness workshops for holistic well-being.", href: "/quick-links/health-safety" },
+  { icon: Users, title: "Career Services", desc: "Resume workshops, internship placements, employer networking events, and alumni mentorship programs.", href: "/quick-links/jobs-careers" },
 ];
 
 const testimonials = [
@@ -126,10 +127,10 @@ const StudentsPage = () => {
                 </div>
                 <h3 className="font-heading text-2xl font-light text-foreground mb-3">{s.title}</h3>
                 <p className="font-body text-sm text-muted-foreground leading-relaxed mb-6">{s.desc}</p>
-                <span className="group/link inline-flex items-center gap-2 font-body text-xs tracking-[0.15em] uppercase text-accent cursor-pointer">
+                <Link to={s.href} className="group/link inline-flex items-center gap-2 font-body text-xs tracking-[0.15em] uppercase text-accent">
                   Learn More
                   <ArrowRight size={14} className="transition-transform duration-300 group-hover/link:translate-x-1" />
-                </span>
+                </Link>
               </div>
             );
           })}

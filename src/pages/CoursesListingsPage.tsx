@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
@@ -157,7 +158,10 @@ const CoursesListingsPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {colleges.map((college) => (
             <div key={college.name} className="college-card opacity-0">
-              <div className="group card-hover h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500 cursor-pointer">
+              <Link
+                to="/study/courses-programs"
+                className="group card-hover block h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500"
+              >
                 <div className="flex items-start justify-between mb-6 pb-6 border-b border-border/50">
                   <div>
                     <h3 className="font-heading text-xl font-light text-foreground mb-2 leading-tight">
@@ -178,7 +182,7 @@ const CoursesListingsPage = () => {
                 <button className="text-accent hover:text-accent/80 transition-colors font-body text-xs tracking-[0.15em] uppercase font-semibold">
                   Explore All →
                 </button>
-              </div>
+              </Link>
             </div>
           ))}
         </div>

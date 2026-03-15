@@ -2,10 +2,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import {
-  getResourceGuideBySlug,
-  quickLinkGroups,
-} from "@/lib/resourceContent";
+import { getResourceGuideBySlug, quickLinkGroups } from "@/lib/resourceContent";
 
 const QuickLinkDetailPage = () => {
   const { slug } = useParams();

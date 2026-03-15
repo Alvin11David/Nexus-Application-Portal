@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
@@ -94,7 +95,11 @@ const ResearchPage = () => {
           {areas.map((a) => {
             const Icon = a.icon;
             return (
-              <div key={a.title} className="area-card group opacity-0 flex items-start gap-8 p-8 border border-border rounded-[20px] transition-all duration-500 hover:border-accent/40 hover:shadow-[0_20px_60px_-20px_hsl(var(--accent)/0.12)] cursor-pointer">
+              <Link
+                key={a.title}
+                to="/research/opportunities"
+                className="area-card group opacity-0 flex items-start gap-8 p-8 border border-border rounded-[20px] transition-all duration-500 hover:border-accent/40 hover:shadow-[0_20px_60px_-20px_hsl(var(--accent)/0.12)]"
+              >
                 <div className="w-14 h-14 rounded-[14px] bg-secondary flex items-center justify-center shrink-0 group-hover:bg-accent/10 transition-colors duration-500">
                   <Icon size={22} className="text-muted-foreground group-hover:text-accent transition-colors duration-500" />
                 </div>
@@ -106,7 +111,7 @@ const ResearchPage = () => {
                   <p className="font-body text-sm text-muted-foreground leading-relaxed">{a.desc}</p>
                 </div>
                 <ArrowRight size={18} className="text-muted-foreground/30 group-hover:text-accent group-hover:translate-x-1 transition-all duration-500 mt-2 shrink-0" />
-              </div>
+              </Link>
             );
           })}
         </div>
@@ -120,9 +125,12 @@ const ResearchPage = () => {
         <p className="font-body text-lg text-primary-foreground/60 max-w-xl mx-auto mb-10">
           Explore funded opportunities, postdoctoral positions, and collaborative projects.
         </p>
-        <button className="px-10 py-4 border border-accent text-accent font-body text-xs tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:bg-accent hover:text-primary-foreground">
+        <Link
+          to="/research/opportunities"
+          className="inline-flex px-10 py-4 border border-accent text-accent font-body text-xs tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:bg-accent hover:text-primary-foreground"
+        >
           Explore Opportunities
-        </button>
+        </Link>
       </div>
 
       <Footer />

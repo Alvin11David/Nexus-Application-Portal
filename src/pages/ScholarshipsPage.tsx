@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
@@ -227,11 +228,14 @@ const ScholarshipsPage = () => {
                   </div>
                 </div>
 
-                <button className="w-full py-2 px-4 rounded-[12px] border border-accent/50 hover:bg-accent/10 transition-all duration-300">
+                <Link
+                  to="/study/scholarships"
+                  className="flex w-full items-center justify-center py-2 px-4 rounded-[12px] border border-accent/50 hover:bg-accent/10 transition-all duration-300"
+                >
                   <span className="font-body text-xs tracking-[0.15em] uppercase text-accent font-semibold">
                     Learn More
                   </span>
-                </button>
+                </Link>
               </div>
             </div>
           ))}

@@ -1,41 +1,36 @@
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowUpRight, BookOpen, Calendar, FileText, GraduationCap, HelpCircle, Library, Mail, Map, Phone, Shield, Users } from "lucide-react";
+import { quickLinkGroups } from "@/lib/resourceContent";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const linkGroups = [
-  {
-    title: "Academics",
-    links: [
-      { icon: BookOpen, label: "Course Catalog", desc: "Browse all undergraduate and graduate programs" },
-      { icon: Calendar, label: "Academic Calendar", desc: "Key dates, exam periods, and holidays" },
-      { icon: Library, label: "Library Portal", desc: "Access digital resources, journals, and databases" },
-      { icon: FileText, label: "Exam Results", desc: "View your grades and transcripts online" },
-    ],
-  },
-  {
-    title: "Student Services",
-    links: [
-      { icon: GraduationCap, label: "Student Portal", desc: "Registration, enrollment, and course management" },
-      { icon: Users, label: "Student Organizations", desc: "Clubs, societies, and extracurricular activities" },
-      { icon: Shield, label: "Health & Safety", desc: "Campus clinic, emergency contacts, and safety info" },
-      { icon: HelpCircle, label: "IT Help Desk", desc: "Technical support for students and staff" },
-    ],
-  },
-  {
-    title: "Contact & Directions",
-    links: [
-      { icon: Mail, label: "Contact Us", desc: "General inquiries and department contacts" },
-      { icon: Phone, label: "Directory", desc: "Find faculty, staff, and department phone numbers" },
-      { icon: Map, label: "Campus Map", desc: "Interactive map of buildings, parking, and facilities" },
-      { icon: FileText, label: "Forms & Documents", desc: "Download official forms and application documents" },
-    ],
-  },
-];
+const iconMap = {
+  "Course Catalog": BookOpen,
+  "Academic Calendar": Calendar,
+  "Library Portal": Library,
+  "Exam Results": FileText,
+  "Student Portal": GraduationCap,
+  "Student Organizations": Users,
+  "Health & Safety": Shield,
+  "IT Help Desk": HelpCircle,
+  "Contact Us": Mail,
+  Directory: Phone,
+  "Campus Map": Map,
+  "Forms & Documents": FileText,
+} as const;
+
+const linkGroups = quickLinkGroups.map((group) => ({
+  ...group,
+  links: group.links.map((link) => ({
+    ...link,
+    icon: iconMap[link.label as keyof typeof iconMap],
+  })),
+}));
 
 const QuickLinksPage = () => {
   const gridRef = useRef<HTMLDivElement>(null);
@@ -80,7 +75,11 @@ const QuickLinksPage = () => {
               {group.links.map((link) => {
                 const Icon = link.icon;
                 return (
-                  <a key={link.label} href="#" className="group flex items-start gap-5 p-6 border border-border rounded-[20px] transition-all duration-500 hover:border-accent/40 hover:shadow-[0_15px_50px_-15px_hsl(var(--accent)/0.12)]">
+                  <Link
+                    key={link.label}
+                    to={`/quick-links/${link.slug}`}
+                    className="group flex items-start gap-5 p-6 border border-border rounded-[20px] transition-all duration-500 hover:border-accent/40 hover:shadow-[0_15px_50px_-15px_hsl(var(--accent)/0.12)]"
+                  >
                     <div className="w-12 h-12 rounded-[12px] bg-secondary flex items-center justify-center shrink-0 group-hover:bg-accent/10 transition-colors duration-500">
                       <Icon size={20} className="text-muted-foreground group-hover:text-accent transition-colors duration-500" />
                     </div>
@@ -91,7 +90,7 @@ const QuickLinksPage = () => {
                       </div>
                       <p className="font-body text-sm text-muted-foreground mt-1">{link.desc}</p>
                     </div>
-                  </a>
+                  </Link>
                 );
               })}
             </div>
