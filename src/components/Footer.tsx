@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -11,16 +12,10 @@ import {
   Youtube,
   ArrowUpRight,
 } from "lucide-react";
+import { footerQuickLinks, socialLinks } from "@/lib/resourceContent";
+import { toast } from "@/hooks/use-toast";
 
 gsap.registerPlugin(ScrollTrigger);
-
-const quickLinks = [
-  { label: "Get in Touch", href: "#" },
-  { label: "Upcoming Events", href: "#events" },
-  { label: "Jobs & Careers", href: "#" },
-  { label: "Campus Map", href: "#" },
-  { label: "Emergency Contacts", href: "#" },
-];
 
 const resources = [
   { label: "About Institute", href: "/about/institute" },
@@ -38,17 +33,11 @@ const resources = [
   { label: "FAQ", href: "/admissions/faq" },
 ];
 
-const socials = [
-  { icon: Instagram, label: "Instagram", href: "#" },
-  { icon: Twitter, label: "Twitter", href: "#" },
-  { icon: Linkedin, label: "LinkedIn", href: "#" },
-  { icon: Youtube, label: "YouTube", href: "#" },
-];
-
 const Footer = () => {
   const footerRef = useRef<HTMLElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -92,11 +81,18 @@ const Footer = () => {
     return () => ctx.revert();
   }, []);
 
-  const handleNavClick = (href: string) => {
-    if (href.startsWith("#")) {
-      const el = document.querySelector(href);
-      if (el) el.scrollIntoView({ behavior: "smooth" });
+  const handleNewsletterSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!email.trim()) {
+      return;
     }
+
+    toast({
+      title: "Subscribed",
+      description: `Updates will be sent to ${email.trim()}.`,
+    });
+    setEmail("");
   };
 
   return (
@@ -163,15 +159,15 @@ const Footer = () => {
               Quick Links
             </p>
             <ul className="space-y-4">
-              {quickLinks.map((link) => (
+              {footerQuickLinks.map((link) => (
                 <li key={link.label}>
-                  <button
-                    onClick={() => handleNavClick(link.href)}
+                  <Link
+                    to={link.href}
                     className="group flex items-center gap-2 font-body text-sm text-primary-foreground/70 transition-all duration-500 hover:text-primary-foreground hover:translate-x-1"
                   >
                     <span className="w-0 h-px bg-accent group-hover:w-4 transition-all duration-500" />
                     {link.label}
-                  </button>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -185,8 +181,8 @@ const Footer = () => {
             <ul className="space-y-4">
               {resources.map((link) => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
+                  <Link
+                    to={link.href}
                     className="group flex items-center gap-2 font-body text-sm text-primary-foreground/70 transition-all duration-500 hover:text-primary-foreground hover:translate-x-1"
                   >
                     <span className="w-0 h-px bg-accent group-hover:w-4 transition-all duration-500" />
@@ -195,7 +191,7 @@ const Footer = () => {
                       size={12}
                       className="opacity-0 group-hover:opacity-60 transition-opacity duration-500 -ml-1"
                     />
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -207,13 +203,22 @@ const Footer = () => {
               Connect
             </p>
             <div className="flex gap-3 mb-10">
-              {socials.map((s) => {
-                const Icon = s.icon;
+              {socialLinks.map((s) => {
+                const Icon =
+                  s.label === "Instagram"
+                    ? Instagram
+                    : s.label === "Twitter"
+                    ? Twitter
+                    : s.label === "LinkedIn"
+                    ? Linkedin
+                    : Youtube;
                 return (
                   <a
                     key={s.label}
                     href={s.href}
                     aria-label={s.label}
+                    target="_blank"
+                    rel="noreferrer"
                     className="group w-10 h-10 border border-primary-foreground/20 flex items-center justify-center transition-all duration-500 hover:border-accent hover:bg-accent/10"
                   >
                     <Icon
@@ -228,16 +233,22 @@ const Footer = () => {
             <p className="font-body text-xs tracking-[0.2em] uppercase text-primary-foreground/40 mb-4">
               Stay Informed
             </p>
-            <div className="flex border-b border-primary-foreground/20 group focus-within:border-accent transition-colors duration-500">
+            <form
+              onSubmit={handleNewsletterSubmit}
+              className="flex border-b border-primary-foreground/20 group focus-within:border-accent transition-colors duration-500"
+            >
               <input
                 type="email"
                 placeholder="Your email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
                 className="flex-1 bg-transparent font-body text-sm text-primary-foreground py-3 placeholder:text-primary-foreground/30 focus:outline-none"
               />
-              <button className="px-3 text-primary-foreground/40 hover:text-accent transition-colors duration-500">
+              <button type="submit" className="px-3 text-primary-foreground/40 hover:text-accent transition-colors duration-500">
                 <ArrowUpRight size={18} />
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>
@@ -251,15 +262,19 @@ const Footer = () => {
           © {new Date().getFullYear()} Veritas Institute. All rights reserved.
         </p>
         <div className="flex items-center gap-8">
-          {["Privacy Policy", "Terms of Use", "Accessibility"].map((item) => (
-            <a
-              key={item}
-              href="#"
+          {[
+            { label: "Privacy Policy", href: "/legal/privacy-policy" },
+            { label: "Terms of Use", href: "/legal/terms-of-use" },
+            { label: "Accessibility", href: "/legal/accessibility" },
+          ].map((item) => (
+            <Link
+              key={item.label}
+              to={item.href}
               className="group font-body text-xs text-primary-foreground/30 tracking-wider transition-colors duration-500 hover:text-primary-foreground/70 relative"
             >
-              {item}
+              {item.label}
               <span className="absolute -bottom-0.5 left-0 w-full h-px bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-            </a>
+            </Link>
           ))}
         </div>
       </div>

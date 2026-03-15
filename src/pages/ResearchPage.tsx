@@ -4,18 +4,56 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Microscope, Cpu, Leaf, Brain, Atom, Globe, ArrowRight } from "lucide-react";
+import {
+  Microscope,
+  Cpu,
+  Leaf,
+  Brain,
+  Atom,
+  Globe,
+  ArrowRight,
+} from "lucide-react";
 import researchHero from "@/assets/research-hero.jpg";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const areas = [
-  { icon: Brain, title: "Artificial Intelligence & Data Science", desc: "Pioneering ethical AI, machine learning, and data-driven solutions for healthcare, agriculture, and governance.", papers: "340+ papers" },
-  { icon: Leaf, title: "Climate & Environmental Science", desc: "Investigating sustainable energy, biodiversity conservation, and climate resilience across East Africa.", papers: "210+ papers" },
-  { icon: Microscope, title: "Biomedical Research", desc: "Advancing diagnostics, drug discovery, and public health interventions for tropical diseases.", papers: "280+ papers" },
-  { icon: Cpu, title: "Engineering & Technology", desc: "Developing smart infrastructure, IoT systems, and renewable energy technologies for emerging markets.", papers: "190+ papers" },
-  { icon: Atom, title: "Quantum & Materials Science", desc: "Exploring quantum computing applications and novel materials for next-generation electronics.", papers: "120+ papers" },
-  { icon: Globe, title: "Social Sciences & Policy", desc: "Informing governance, economic development, and social justice through rigorous interdisciplinary research.", papers: "260+ papers" },
+  {
+    icon: Brain,
+    title: "Artificial Intelligence & Data Science",
+    desc: "Pioneering ethical AI, machine learning, and data-driven solutions for healthcare, agriculture, and governance.",
+    papers: "340+ papers",
+  },
+  {
+    icon: Leaf,
+    title: "Climate & Environmental Science",
+    desc: "Investigating sustainable energy, biodiversity conservation, and climate resilience across East Africa.",
+    papers: "210+ papers",
+  },
+  {
+    icon: Microscope,
+    title: "Biomedical Research",
+    desc: "Advancing diagnostics, drug discovery, and public health interventions for tropical diseases.",
+    papers: "280+ papers",
+  },
+  {
+    icon: Cpu,
+    title: "Engineering & Technology",
+    desc: "Developing smart infrastructure, IoT systems, and renewable energy technologies for emerging markets.",
+    papers: "190+ papers",
+  },
+  {
+    icon: Atom,
+    title: "Quantum & Materials Science",
+    desc: "Exploring quantum computing applications and novel materials for next-generation electronics.",
+    papers: "120+ papers",
+  },
+  {
+    icon: Globe,
+    title: "Social Sciences & Policy",
+    desc: "Informing governance, economic development, and social justice through rigorous interdisciplinary research.",
+    papers: "260+ papers",
+  },
 ];
 
 const stats = [
@@ -32,19 +70,55 @@ const ResearchPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     const ctx = gsap.context(() => {
-      gsap.fromTo(".res-hero-text > *", { y: 80, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, stagger: 0.15, ease: "power3.out", delay: 0.3 });
+      gsap.fromTo(
+        ".res-hero-text > *",
+        { y: 80, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1.2,
+          stagger: 0.15,
+          ease: "power3.out",
+          delay: 0.3,
+        },
+      );
       if (imageRef.current) {
-        gsap.fromTo(imageRef.current, { clipPath: "inset(100% 0 0 0)" }, { clipPath: "inset(0% 0 0 0)", duration: 1.6, ease: "power3.inOut", delay: 0.4 });
+        gsap.fromTo(
+          imageRef.current,
+          { clipPath: "inset(100% 0 0 0)" },
+          {
+            clipPath: "inset(0% 0 0 0)",
+            duration: 1.6,
+            ease: "power3.inOut",
+            delay: 0.4,
+          },
+        );
       }
-      gsap.fromTo(".res-stat", { y: 40, opacity: 0 }, {
-        y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power2.out",
-        scrollTrigger: { trigger: ".res-stats", start: "top 80%" },
-      });
+      gsap.fromTo(
+        ".res-stat",
+        { y: 40, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: "power2.out",
+          scrollTrigger: { trigger: ".res-stats", start: "top 80%" },
+        },
+      );
       if (areasRef.current) {
-        gsap.fromTo(areasRef.current.querySelectorAll(".area-card"), { x: -60, opacity: 0 }, {
-          x: 0, opacity: 1, duration: 0.9, stagger: 0.1, ease: "power3.out",
-          scrollTrigger: { trigger: areasRef.current, start: "top 80%" },
-        });
+        gsap.fromTo(
+          areasRef.current.querySelectorAll(".area-card"),
+          { x: -60, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 0.9,
+            stagger: 0.1,
+            ease: "power3.out",
+            scrollTrigger: { trigger: areasRef.current, start: "top 80%" },
+          },
+        );
       }
     });
     return () => ctx.revert();
@@ -57,16 +131,26 @@ const ResearchPage = () => {
       {/* Hero */}
       <div className="relative min-h-screen flex items-end">
         <div className="absolute inset-0 overflow-hidden rounded-none">
-          <img ref={imageRef} src={researchHero} alt="Research laboratory" className="w-full h-full object-cover rounded-none" />
+          <img
+            ref={imageRef}
+            src={researchHero}
+            alt="Research laboratory"
+            className="w-full h-full object-cover rounded-none"
+          />
           <div className="absolute inset-0 bg-primary/70 rounded-none" />
         </div>
         <div className="relative z-10 px-8 md:px-16 pb-24 pt-40 res-hero-text max-w-4xl">
-          <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-6 opacity-0">Research & Innovation</p>
+          <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-6 opacity-0">
+            Research & Innovation
+          </p>
           <h1 className="font-heading text-5xl md:text-8xl font-light text-primary-foreground leading-[0.9] mb-8 opacity-0">
-            Advancing<br />Knowledge
+            Advancing
+            <br />
+            Knowledge
           </h1>
           <p className="font-body text-lg text-primary-foreground/70 max-w-xl leading-relaxed opacity-0">
-            Tackling humanity's greatest challenges through interdisciplinary research, global collaboration, and bold inquiry.
+            Tackling humanity's greatest challenges through interdisciplinary
+            research, global collaboration, and bold inquiry.
           </p>
         </div>
       </div>
@@ -76,8 +160,12 @@ const ResearchPage = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
           {stats.map((s) => (
             <div key={s.label} className="res-stat text-center opacity-0">
-              <p className="font-heading text-5xl md:text-6xl font-light text-foreground mb-2">{s.value}</p>
-              <p className="font-body text-xs tracking-[0.2em] uppercase text-muted-foreground">{s.label}</p>
+              <p className="font-heading text-5xl md:text-6xl font-light text-foreground mb-2">
+                {s.value}
+              </p>
+              <p className="font-body text-xs tracking-[0.2em] uppercase text-muted-foreground">
+                {s.label}
+              </p>
             </div>
           ))}
         </div>
@@ -86,7 +174,9 @@ const ResearchPage = () => {
       {/* Research Areas */}
       <div ref={areasRef} className="px-8 md:px-16 py-32">
         <div className="max-w-2xl mb-20">
-          <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">Focus Areas</p>
+          <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">
+            Focus Areas
+          </p>
           <h2 className="font-heading text-4xl md:text-6xl font-light text-foreground leading-tight">
             Research That Shapes the Future
           </h2>
@@ -101,16 +191,28 @@ const ResearchPage = () => {
                 className="area-card group opacity-0 flex items-start gap-8 p-8 border border-border rounded-[20px] transition-all duration-500 hover:border-accent/40 hover:shadow-[0_20px_60px_-20px_hsl(var(--accent)/0.12)]"
               >
                 <div className="w-14 h-14 rounded-[14px] bg-secondary flex items-center justify-center shrink-0 group-hover:bg-accent/10 transition-colors duration-500">
-                  <Icon size={22} className="text-muted-foreground group-hover:text-accent transition-colors duration-500" />
+                  <Icon
+                    size={22}
+                    className="text-muted-foreground group-hover:text-accent transition-colors duration-500"
+                  />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-heading text-2xl font-light text-foreground group-hover:text-accent transition-colors duration-500">{a.title}</h3>
-                    <span className="font-body text-xs tracking-[0.15em] uppercase text-muted-foreground">{a.papers}</span>
+                    <h3 className="font-heading text-2xl font-light text-foreground group-hover:text-accent transition-colors duration-500">
+                      {a.title}
+                    </h3>
+                    <span className="font-body text-xs tracking-[0.15em] uppercase text-muted-foreground">
+                      {a.papers}
+                    </span>
                   </div>
-                  <p className="font-body text-sm text-muted-foreground leading-relaxed">{a.desc}</p>
+                  <p className="font-body text-sm text-muted-foreground leading-relaxed">
+                    {a.desc}
+                  </p>
                 </div>
-                <ArrowRight size={18} className="text-muted-foreground/30 group-hover:text-accent group-hover:translate-x-1 transition-all duration-500 mt-2 shrink-0" />
+                <ArrowRight
+                  size={18}
+                  className="text-muted-foreground/30 group-hover:text-accent group-hover:translate-x-1 transition-all duration-500 mt-2 shrink-0"
+                />
               </Link>
             );
           })}
@@ -123,7 +225,8 @@ const ResearchPage = () => {
           Join Our Research Community
         </h2>
         <p className="font-body text-lg text-primary-foreground/60 max-w-xl mx-auto mb-10">
-          Explore funded opportunities, postdoctoral positions, and collaborative projects.
+          Explore funded opportunities, postdoctoral positions, and
+          collaborative projects.
         </p>
         <Link
           to="/research/opportunities"

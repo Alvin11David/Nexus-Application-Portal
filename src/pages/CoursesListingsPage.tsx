@@ -179,9 +179,9 @@ const CoursesListingsPage = () => {
                 <p className="font-body text-sm text-muted-foreground leading-relaxed mb-6">
                   {college.focus}
                 </p>
-                <button className="text-accent hover:text-accent/80 transition-colors font-body text-xs tracking-[0.15em] uppercase font-semibold">
+                <span className="text-accent hover:text-accent/80 transition-colors font-body text-xs tracking-[0.15em] uppercase font-semibold">
                   Explore All →
-                </button>
+                </span>
               </Link>
             </div>
           ))}

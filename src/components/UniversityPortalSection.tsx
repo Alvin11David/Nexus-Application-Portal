@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -12,6 +13,8 @@ import {
   Newspaper,
   Sparkles,
 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import { newsArticles } from "@/lib/newsContent";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,27 +24,6 @@ const quickOptions = [
   "Parent/guardian: tuition and campus life",
   "Research partner: labs and innovation",
   "Alumni: events and giving",
-];
-
-const stories = [
-  {
-    date: "11 March, 2026",
-    title: "Engineering students complete climate-tech field challenge",
-    excerpt:
-      "A cross-disciplinary cohort tested water and soil sensing systems with local communities in a week-long practicum.",
-  },
-  {
-    date: "10 March, 2026",
-    title: "Scholars encouraged to build mentorship networks early",
-    excerpt:
-      "Career services and faculty leaders launched a new mentorship track focused on career readiness and confidence.",
-  },
-  {
-    date: "10 March, 2026",
-    title: "Institute team wins national conservation innovation challenge",
-    excerpt:
-      "Students designed a low-cost biodiversity monitoring kit that impressed judges for impact and scalability.",
-  },
 ];
 
 const events = [
@@ -79,43 +61,65 @@ const innovationArticles = [
 
 const audienceGuides: Record<
   string,
-  { title: string; note: string; cta: string }
+  { title: string; note: string; cta: string; href: string }
 > = {
   "Prospective student: admissions and programs": {
     title: "Your next step starts here",
     note: "Compare programs, application timelines, and entry pathways with advisor-ready checklists.",
     cta: "Explore Admissions",
+    href: "/admissions/how-to-apply",
   },
   "Current student: timetable and support": {
     title: "Everything for your semester",
     note: "Access timetables, learning support, and key student services in one guided track.",
     cta: "Open Student Hub",
+    href: "/quick-links/student-portal",
   },
   "Parent/guardian: tuition and campus life": {
     title: "Support with confidence",
     note: "Find tuition guidance, accommodation insights, and safety resources for informed planning.",
     cta: "View Parent Resources",
+    href: "/admissions/fees",
   },
   "Research partner: labs and innovation": {
     title: "Collaborate on impact",
     note: "Discover labs, grant-ready partnerships, and translational research opportunities.",
     cta: "See Research Partnerships",
+    href: "/research/opportunities",
   },
   "Alumni: events and giving": {
     title: "Stay part of the story",
     note: "Reconnect through alumni events, mentorship programs, and strategic giving channels.",
     cta: "Open Alumni Network",
+    href: "/about/alumni",
   },
 };
 
 const UniversityPortalSection = () => {
   const [selectedAudience, setSelectedAudience] = useState(quickOptions[0]);
+  const [email, setEmail] = useState("");
   const sectionRef = useRef<HTMLElement>(null);
   const quickLinksRef = useRef<HTMLDivElement>(null);
   const storiesRef = useRef<HTMLDivElement>(null);
   const eventsRef = useRef<HTMLDivElement>(null);
   const innovationRef = useRef<HTMLDivElement>(null);
   const newsletterRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const stories = newsArticles.slice(0, 3);
+
+  const handleNewsletterSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!email.trim()) {
+      return;
+    }
+
+    toast({
+      title: "Subscribed",
+      description: `Campus updates will be sent to ${email.trim()}.`,
+    });
+    setEmail("");
+  };
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -414,10 +418,13 @@ const UniversityPortalSection = () => {
               <p className="font-body text-sm text-muted-foreground leading-relaxed mb-4">
                 {audienceGuides[selectedAudience].note}
               </p>
-              <button className="inline-flex items-center gap-2 font-body text-xs tracking-[0.15em] uppercase text-accent border border-accent/35 px-4 py-2.5 rounded-[12px] hover:bg-accent/10 transition-all duration-300">
+              <Link
+                to={audienceGuides[selectedAudience].href}
+                className="inline-flex items-center gap-2 font-body text-xs tracking-[0.15em] uppercase text-accent border border-accent/35 px-4 py-2.5 rounded-[12px] hover:bg-accent/10 transition-all duration-300"
+              >
                 {audienceGuides[selectedAudience].cta}
                 <ArrowRight size={13} />
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -427,20 +434,24 @@ const UniversityPortalSection = () => {
                 title: "Join",
                 text: "Begin your admission journey and discover scholarship routes.",
                 icon: GraduationCap,
+                href: "/admissions/how-to-apply",
               },
               {
                 title: "Visit",
                 text: "Book a campus tour, open lecture, or faculty meet-and-greet.",
                 icon: Compass,
+                href: "/about/visit",
               },
               {
                 title: "Give",
                 text: "Support student success, research, and community impact.",
                 icon: HandHeart,
+                href: "/about/alumni",
               },
             ].map((item) => (
               <button
                 key={item.title}
+                onClick={() => navigate(item.href)}
                 className="action-card text-left border border-border/50 rounded-[20px] p-5 md:p-6 bg-background group relative overflow-hidden transition-all duration-500 hover:border-accent/50 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)]"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent -translate-x-full group-hover:translate-x-0 transition-transform duration-700" />
@@ -481,9 +492,9 @@ const UniversityPortalSection = () => {
                 Stories worth sharing
               </h3>
             </div>
-            <button className="font-body text-xs tracking-[0.2em] uppercase text-accent border border-accent/40 px-6 py-3 rounded-[16px] hover:bg-accent/8 transition-all duration-300">
+            <Link to="/news" className="font-body text-xs tracking-[0.2em] uppercase text-accent border border-accent/40 px-6 py-3 rounded-[16px] hover:bg-accent/8 transition-all duration-300">
               View All Stories
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -503,8 +514,8 @@ const UniversityPortalSection = () => {
               <p className="font-body text-sm text-muted-foreground mb-6 leading-relaxed">
                 {story.excerpt}
               </p>
-              <a
-                href="#"
+              <Link
+                to={`/news/${story.slug}`}
                 className="inline-flex items-center gap-2.5 font-body text-xs tracking-[0.16em] uppercase text-foreground group-hover:text-accent transition-all duration-300"
               >
                 Read More
@@ -512,7 +523,7 @@ const UniversityPortalSection = () => {
                   size={14}
                   className="group-hover:translate-x-1 transition-transform duration-300"
                 />
-              </a>
+              </Link>
             </article>
           ))}
         </div>
@@ -533,12 +544,12 @@ const UniversityPortalSection = () => {
               Events & activities
             </h3>
           </div>
-          <a
-            href="#"
+          <Link
+            to="/quick-links/upcoming-events"
             className="font-body text-xs tracking-[0.2em] uppercase text-accent border border-accent/40 px-6 py-3 rounded-[16px] hover:bg-accent/8 transition-all duration-300"
           >
             Full Calendar
-          </a>
+          </Link>
         </div>
 
         <div className="space-y-4 md:space-y-5">
@@ -571,13 +582,16 @@ const UniversityPortalSection = () => {
                   </p>
                 </div>
                 <div className="md:col-span-3 md:text-right">
-                  <button className="w-full md:w-auto inline-flex items-center justify-center md:justify-end gap-2 font-body text-xs tracking-[0.15em] uppercase text-accent border border-accent/30 px-4 py-2.5 rounded-[12px] group-hover:bg-accent/10 transition-all duration-300">
+                  <Link
+                    to="/quick-links/upcoming-events"
+                    className="w-full md:w-auto inline-flex items-center justify-center md:justify-end gap-2 font-body text-xs tracking-[0.15em] uppercase text-accent border border-accent/30 px-4 py-2.5 rounded-[12px] group-hover:bg-accent/10 transition-all duration-300"
+                  >
                     View Details
                     <ArrowRight
                       size={13}
                       className="group-hover:translate-x-1 transition-transform duration-300"
                     />
-                  </button>
+                  </Link>
                 </div>
               </div>
             </article>
@@ -609,9 +623,9 @@ const UniversityPortalSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
           {innovationArticles.map((article) => (
-            <a
+            <Link
               key={article}
-              href="#"
+              to="/research/opportunities"
               className="article-card group relative border border-border/50 rounded-[20px] p-6 bg-background overflow-hidden transition-all duration-500 hover:border-accent/50 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)]"
             >
               <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-transparent -translate-x-1/2 -translate-y-1/2 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700" />
@@ -631,7 +645,7 @@ const UniversityPortalSection = () => {
                   {article}
                 </p>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </div>
@@ -656,12 +670,14 @@ const UniversityPortalSection = () => {
               event updates, and institutional news delivered to your inbox.
             </p>
           </div>
-          <form className="newsletter-form space-y-3">
+          <form onSubmit={handleNewsletterSubmit} className="newsletter-form space-y-3">
             <input
               type="email"
               placeholder="Enter your email"
               required
               aria-label="Email address"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
               className="w-full border border-border/50 rounded-[16px] px-5 py-3.5 bg-background font-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-transparent transition-all duration-300"
             />
             <button
