@@ -146,6 +146,7 @@ const AnimatedRoutes = () => {
             <Route path="/donate" element={<DonatePage />} />
             <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/not-found" element={<NotFound />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
