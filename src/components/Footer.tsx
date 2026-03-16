@@ -6,31 +6,33 @@ import {
   Mail,
   Phone,
   MapPin,
-  Instagram,
-  Twitter,
-  Linkedin,
-  Youtube,
+  MessageCircle,
+  Heart,
   ArrowUpRight,
 } from "lucide-react";
-import { footerQuickLinks, socialLinks } from "@/lib/resourceContent";
 import { toast } from "@/hooks/use-toast";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const resources = [
-  { label: "About Institute", href: "/about/institute" },
-  { label: "Facts & Figures", href: "/about/facts-figures" },
-  { label: "Visit Institute", href: "/about/visit" },
-  { label: "Alumni", href: "/about/alumni" },
-  { label: "History Timeline", href: "/about/history" },
-  { label: "Admissions Lists", href: "/admissions/lists" },
-  { label: "How to Apply", href: "/admissions/how-to-apply" },
-  { label: "Courses Listings", href: "/admissions/courses" },
-  { label: "Fees & Payment", href: "/admissions/fees" },
-  { label: "International Students", href: "/admissions/international" },
-  { label: "Scholarships", href: "/admissions/scholarships" },
-  { label: "Learning Online", href: "/admissions/online" },
-  { label: "FAQ", href: "/admissions/faq" },
+const quickLinks = [
+  { label: "Home", href: "/" },
+  { label: "About", href: "/about" },
+  { label: "Programs", href: "/programs" },
+  { label: "Impact & Stories", href: "/impact" },
+  { label: "Gallery", href: "/gallery" },
+  { label: "Donate", href: "/donate" },
+  { label: "Contact", href: "/contact" },
+];
+
+const programLinks = [
+  { label: "Tailoring & Design", href: "/programs" },
+  { label: "Plumbing", href: "/programs" },
+  { label: "Electrical Installation", href: "/programs" },
+  { label: "Welding & Fabrication", href: "/programs" },
+  { label: "Hairdressing", href: "/programs" },
+  { label: "Beauty Therapy", href: "/programs" },
+  { label: "Auto Mechanics", href: "/programs" },
+  { label: "Soap Making", href: "/programs" },
 ];
 
 const Footer = () => {
@@ -60,7 +62,6 @@ const Footer = () => {
           },
         );
       }
-
       gsap.fromTo(
         bottomRef.current,
         { opacity: 0 },
@@ -77,17 +78,12 @@ const Footer = () => {
         },
       );
     }, footerRef);
-
     return () => ctx.revert();
   }, []);
 
   const handleNewsletterSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    if (!email.trim()) {
-      return;
-    }
-
+    if (!email.trim()) return;
     toast({
       title: "Subscribed",
       description: `Updates will be sent to ${email.trim()}.`,
@@ -102,17 +98,17 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 lg:gap-8">
           {/* Brand & Contact */}
           <div className="footer-col lg:col-span-1 opacity-0">
-            <h3 className="font-heading text-3xl font-light tracking-[0.2em] uppercase mb-6">
-              Institute University
+            <h3 className="font-heading text-2xl font-light tracking-[0.2em] uppercase mb-4">
+              Veritas Institute
             </h3>
             <p className="font-body text-sm text-primary-foreground/60 leading-relaxed mb-8">
-              A community of inquiry, innovation, and service, where students
-              and faculty build solutions for society.
+              Empowering single mothers and vulnerable youth through practical
+              vocational skills — building dignified livelihoods one graduate at
+              a time.
             </p>
-
             <div className="space-y-4">
               <a
-                href="mailto:admissions@instituteuniversity.edu"
+                href="mailto:info@instituteuganda.org"
                 className="group flex items-center gap-3 font-body text-sm text-primary-foreground/70 transition-colors duration-500 hover:text-primary-foreground"
               >
                 <Mail
@@ -120,12 +116,12 @@ const Footer = () => {
                   className="text-primary-foreground/40 group-hover:text-accent transition-colors duration-500"
                 />
                 <span className="relative">
-                  admissions@instituteuniversity.edu
+                  info@instituteuganda.org
                   <span className="absolute -bottom-0.5 left-0 w-full h-px bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                 </span>
               </a>
               <a
-                href="tel:+12125551847"
+                href="tel:+256700000000"
                 className="group flex items-center gap-3 font-body text-sm text-primary-foreground/70 transition-colors duration-500 hover:text-primary-foreground"
               >
                 <Phone
@@ -133,7 +129,22 @@ const Footer = () => {
                   className="text-primary-foreground/40 group-hover:text-accent transition-colors duration-500"
                 />
                 <span className="relative">
-                  +1 (212) 555-1847
+                  +256 700 000 000
+                  <span className="absolute -bottom-0.5 left-0 w-full h-px bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
+                </span>
+              </a>
+              <a
+                href="https://wa.me/256700000000"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-3 font-body text-sm text-primary-foreground/70 transition-colors duration-500 hover:text-primary-foreground"
+              >
+                <MessageCircle
+                  size={16}
+                  className="text-primary-foreground/40 group-hover:text-accent transition-colors duration-500"
+                />
+                <span className="relative">
+                  WhatsApp Us
                   <span className="absolute -bottom-0.5 left-0 w-full h-px bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                 </span>
               </a>
@@ -143,9 +154,7 @@ const Footer = () => {
                   className="text-primary-foreground/40 mt-0.5 shrink-0"
                 />
                 <p className="font-body text-sm text-primary-foreground/70 leading-relaxed">
-                  P.O. Box 7062
-                  <br />
-                  Institute Hill Road
+                  Plot 7, Nakawa Road
                   <br />
                   Kampala, Uganda
                 </p>
@@ -159,7 +168,7 @@ const Footer = () => {
               Quick Links
             </p>
             <ul className="space-y-4">
-              {footerQuickLinks.map((link) => (
+              {quickLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     to={link.href}
@@ -173,13 +182,13 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Resources */}
+          {/* Programs */}
           <div className="footer-col opacity-0">
             <p className="font-body text-xs tracking-[0.3em] uppercase text-primary-foreground/40 mb-8">
-              About & Admissions
+              Our Programs
             </p>
             <ul className="space-y-4">
-              {resources.map((link) => (
+              {programLinks.map((link) => (
                 <li key={link.label}>
                   <Link
                     to={link.href}
@@ -197,41 +206,25 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Social & Newsletter */}
+          {/* Donate & Newsletter */}
           <div className="footer-col opacity-0">
             <p className="font-body text-xs tracking-[0.3em] uppercase text-primary-foreground/40 mb-8">
-              Connect
+              Support Our Mission
             </p>
-            <div className="flex gap-3 mb-10">
-              {socialLinks.map((s) => {
-                const Icon =
-                  s.label === "Instagram"
-                    ? Instagram
-                    : s.label === "Twitter"
-                      ? Twitter
-                      : s.label === "LinkedIn"
-                        ? Linkedin
-                        : Youtube;
-                return (
-                  <a
-                    key={s.label}
-                    href={s.href}
-                    aria-label={s.label}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group w-10 h-10 border border-primary-foreground/20 flex items-center justify-center transition-all duration-500 hover:border-accent hover:bg-accent/10"
-                  >
-                    <Icon
-                      size={16}
-                      className="text-primary-foreground/60 group-hover:text-accent transition-colors duration-500"
-                    />
-                  </a>
-                );
-              })}
-            </div>
+            <p className="font-body text-sm text-primary-foreground/60 leading-relaxed mb-6">
+              Your support changes lives. Every donation directly funds a
+              student's training.
+            </p>
+            <Link
+              to="/donate"
+              className="group inline-flex items-center gap-2 px-6 py-3 bg-accent text-accent-foreground font-body text-xs tracking-[0.2em] uppercase rounded-[16px] transition-all duration-500 hover:bg-accent/90 mb-10"
+            >
+              <Heart size={14} className="fill-current" />
+              Donate Now
+            </Link>
 
             <p className="font-body text-xs tracking-[0.2em] uppercase text-primary-foreground/40 mb-4">
-              Stay Informed
+              Get Updates
             </p>
             <form
               onSubmit={handleNewsletterSubmit}
@@ -268,7 +261,6 @@ const Footer = () => {
           {[
             { label: "Privacy Policy", href: "/legal/privacy-policy" },
             { label: "Terms of Use", href: "/legal/terms-of-use" },
-            { label: "Accessibility", href: "/legal/accessibility" },
           ].map((item) => (
             <Link
               key={item.label}

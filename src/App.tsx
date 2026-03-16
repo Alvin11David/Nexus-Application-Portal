@@ -43,6 +43,11 @@ const InternationalStudentsPage = lazy(
 const ScholarshipsPage = lazy(() => import("./pages/ScholarshipsPage.tsx"));
 const LearningOnlinePage = lazy(() => import("./pages/LearningOnlinePage.tsx"));
 const FAQPage = lazy(() => import("./pages/FAQPage.tsx"));
+const ProgramsPage = lazy(() => import("./pages/ProgramsPage.tsx"));
+const ImpactPage = lazy(() => import("./pages/ImpactPage.tsx"));
+const DonatePage = lazy(() => import("./pages/DonatePage.tsx"));
+const GalleryPage = lazy(() => import("./pages/GalleryPage.tsx"));
+const ContactPage = lazy(() => import("./pages/ContactPage.tsx"));
 const ChatBot = lazy(() => import("@/components/ChatBot"));
 const AdminLoginPage = lazy(() => import("./pages/AdminLoginPage.tsx"));
 import AdminLayout from "@/components/AdminLayout";
@@ -135,6 +140,11 @@ const AnimatedRoutes = () => {
             />
             <Route path="/admissions/online" element={<LearningOnlinePage />} />
             <Route path="/admissions/faq" element={<FAQPage />} />
+            <Route path="/programs" element={<ProgramsPage />} />
+            <Route path="/impact" element={<ImpactPage />} />
+            <Route path="/donate" element={<DonatePage />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/contact" element={<ContactPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

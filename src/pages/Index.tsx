@@ -1,70 +1,144 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import {
+  Heart,
+  ArrowRight,
+  Scissors,
+  Zap,
+  Wrench,
+  Sparkles,
+  Users,
+  BookOpen,
+} from "lucide-react";
 import LoadingWrapper from "@/components/LoadingScreen";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
-import AcademicsSection from "@/components/AcademicsSection";
-import ResearchSection from "@/components/ResearchSection";
-import FacultySection from "@/components/FacultySection";
-import CampusLifeSection from "@/components/CampusLifeSection";
-import UniversityPortalSection from "@/components/UniversityPortalSection";
-import QuoteSection from "@/components/QuoteSection";
-import ApplicationCTA from "@/components/ApplicationCTA";
-import FAQSection from "@/components/FAQSection";
-import ApplicationForm from "@/components/ApplicationForm";
-import FloatingApplyButton from "@/components/FloatingApplyButton";
 import Footer from "@/components/Footer";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const programPreviews = [
+  {
+    icon: Scissors,
+    title: "Tailoring & Design",
+    duration: "6 months",
+    outcome: "Start your own clothing business",
+  },
+  {
+    icon: Zap,
+    title: "Electrical Installation",
+    duration: "8 months",
+    outcome: "Become a certified electrician",
+  },
+  {
+    icon: Wrench,
+    title: "Plumbing",
+    duration: "8 months",
+    outcome: "Run a plumbing contracting business",
+  },
+  {
+    icon: Sparkles,
+    title: "Beauty Therapy",
+    duration: "4 months",
+    outcome: "Open your own beauty salon",
+  },
+  {
+    icon: Users,
+    title: "Hairdressing",
+    duration: "4 months",
+    outcome: "Work in salons or self-employment",
+  },
+  {
+    icon: BookOpen,
+    title: "Soap Making",
+    duration: "3 months",
+    outcome: "Sell locally or to retailers",
+  },
+];
+
+const storyFeature = {
+  name: "Mary Nakato",
+  program: "Tailoring Program",
+  quote:
+    "I joined the tailoring program as a single mother with no income. Today I run a small clothing business and can support my three children. This school changed my life.",
+  outcome: "Now runs a tailoring shop in Kampala, employing 2 other women.",
+};
+
+const donationTiers = [
+  { amount: "$10", impact: "Provides learning materials for one student" },
+  { amount: "$25", impact: "Covers essential training tools" },
+  { amount: "$50", impact: "Sponsors a student for one month" },
+  { amount: "$200", impact: "Covers full training support" },
+];
+
 const Index = () => {
-  const [applicationOpen, setApplicationOpen] = useState(false);
-  const mainContentRef = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLDivElement>(null);
-
-  const openApplication = () => {
-    if (!mainContentRef.current || applicationOpen) return;
-
-    setApplicationOpen(true);
-
-    gsap.to(mainContentRef.current, {
-      height: 64,
-      overflow: "hidden",
-      duration: 1.2,
-      ease: "power3.inOut",
-      onComplete: () => {
-        window.scrollTo({ top: 0, behavior: "instant" });
-        if (formRef.current) {
-          gsap.fromTo(
-            formRef.current,
-            { opacity: 0, y: 40 },
-            { opacity: 1, y: 0, duration: 0.8, ease: "power2.out", delay: 0.2 },
-          );
-        }
-      },
-    });
-  };
-
-  const closeApplication = () => {
-    if (!mainContentRef.current) return;
-
-    gsap.to(mainContentRef.current, {
-      height: "auto",
-      overflow: "visible",
-      duration: 1.2,
-      ease: "power3.inOut",
-      onComplete: () => {
-        setApplicationOpen(false);
-        ScrollTrigger.refresh();
-      },
-    });
-  };
+  const navigate = useNavigate();
+  const programsRef = useRef<HTMLDivElement>(null);
+  const storyRef = useRef<HTMLDivElement>(null);
+  const donateRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const timeout = setTimeout(() => ScrollTrigger.refresh(), 100);
+    window.scrollTo(0, 0);
+    const ctx = gsap.context(() => {
+      if (programsRef.current) {
+        gsap.fromTo(
+          programsRef.current.querySelectorAll(".program-card"),
+          { y: 50, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: programsRef.current,
+              start: "top 80%",
+              toggleActions: "play none none reverse",
+            },
+          },
+        );
+      }
+      if (storyRef.current) {
+        gsap.fromTo(
+          storyRef.current.querySelectorAll(".story-anim"),
+          { x: -50, opacity: 0 },
+          {
+            x: 0,
+            opacity: 1,
+            duration: 1,
+            stagger: 0.15,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: storyRef.current,
+              start: "top 80%",
+              toggleActions: "play none none reverse",
+            },
+          },
+        );
+      }
+      if (donateRef.current) {
+        gsap.fromTo(
+          donateRef.current.querySelectorAll(".donate-card"),
+          { y: 40, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.7,
+            stagger: 0.1,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: donateRef.current,
+              start: "top 80%",
+              toggleActions: "play none none reverse",
+            },
+          },
+        );
+      }
+    });
     return () => {
-      clearTimeout(timeout);
+      ctx.revert();
       ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, []);
@@ -78,52 +152,177 @@ const Index = () => {
         >
           Skip to main content
         </a>
-        {/* Navbar - hidden when application form is open */}
-        {!applicationOpen && <Navbar />}
+        <Navbar />
+        <div id="main-content">
+          <HeroSection />
 
-        {/* Compressed content bar when application is open */}
-        <div
-          ref={mainContentRef}
-          id="main-content"
-          className={`relative ${applicationOpen ? "cursor-pointer" : ""}`}
-          onClick={applicationOpen ? closeApplication : undefined}
-        >
-          {applicationOpen && (
-            <div className="h-16 flex items-center justify-between px-8 md:px-16 bg-primary">
-              <span className="font-heading text-lg text-primary-foreground tracking-widest uppercase">
-                Veritas Institute
-              </span>
-              <span className="font-body text-xs text-primary-foreground/60 tracking-wider uppercase">
-                Click to return to site
-              </span>
+          {/* Programs Preview Section */}
+          <section className="py-24 md:py-32 px-8 md:px-16 bg-background">
+            <div className="max-w-2xl mb-16">
+              <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">
+                What We Teach
+              </p>
+              <h2 className="font-heading text-4xl md:text-6xl font-light text-foreground leading-tight">
+                Practical Skills That
+                <br />
+                Create Real Livelihoods
+              </h2>
+              <p className="font-body text-sm text-muted-foreground leading-relaxed mt-6 max-w-lg">
+                Our vocational programs are designed for immediate employment
+                and entrepreneurship. Each graduate leaves with the skills to
+                earn income from day one.
+              </p>
             </div>
-          )}
+            <div
+              ref={programsRef}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"
+            >
+              {programPreviews.map(
+                ({ icon: Icon, title, duration, outcome }) => (
+                  <div
+                    key={title}
+                    className="program-card opacity-0 group p-8 border border-border rounded-[20px] transition-all duration-500 hover:border-accent/40 hover:shadow-[0_20px_60px_-20px_hsl(var(--accent)/0.15)] cursor-pointer"
+                    onClick={() => navigate("/programs")}
+                  >
+                    <Icon size={24} className="text-accent mb-5" />
+                    <h3 className="font-heading text-2xl font-light text-foreground mb-2 group-hover:text-accent transition-colors duration-500">
+                      {title}
+                    </h3>
+                    <p className="font-body text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">
+                      {duration}
+                    </p>
+                    <p className="font-body text-sm text-muted-foreground leading-relaxed">
+                      {outcome}
+                    </p>
+                  </div>
+                ),
+              )}
+            </div>
+            <button
+              onClick={() => navigate("/programs")}
+              className="group flex items-center gap-2 font-body text-sm tracking-[0.2em] uppercase text-accent transition-all duration-300 hover:gap-4"
+            >
+              View All Programs
+              <ArrowRight
+                size={16}
+                className="group-hover:translate-x-1 transition-transform duration-300"
+              />
+            </button>
+          </section>
 
-          {!applicationOpen && (
-            <>
-              <HeroSection />
-              <AcademicsSection />
-              <ResearchSection />
-              <FacultySection />
-              <CampusLifeSection />
-              <UniversityPortalSection />
-              <QuoteSection />
-              <FAQSection />
-              <ApplicationCTA onApply={openApplication} />
-              <Footer />
-            </>
-          )}
+          {/* Featured Success Story */}
+          <section
+            ref={storyRef}
+            className="py-24 md:py-32 px-8 md:px-16 bg-primary text-primary-foreground overflow-hidden"
+          >
+            <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <p className="story-anim opacity-0 font-body text-xs tracking-[0.3em] uppercase text-accent mb-6">
+                  Student Success Story
+                </p>
+                <blockquote className="story-anim opacity-0 font-heading text-3xl md:text-5xl font-light text-primary-foreground leading-tight mb-8">
+                  "{storyFeature.quote}"
+                </blockquote>
+                <p className="story-anim opacity-0 font-body text-sm text-primary-foreground/60 mb-2">
+                  — {storyFeature.name}, {storyFeature.program}
+                </p>
+                <p className="story-anim opacity-0 font-body text-sm text-accent mb-10">
+                  {storyFeature.outcome}
+                </p>
+                <button
+                  onClick={() => navigate("/impact")}
+                  className="story-anim opacity-0 group flex items-center gap-2 px-8 py-4 border border-primary-foreground/40 text-primary-foreground font-body text-sm tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:border-accent hover:text-accent"
+                >
+                  Read More Stories
+                  <ArrowRight
+                    size={16}
+                    className="group-hover:translate-x-1 transition-transform duration-300"
+                  />
+                </button>
+              </div>
+              <div className="hidden lg:flex flex-col gap-6">
+                <div className="p-8 bg-primary-foreground/5 border border-primary-foreground/15 rounded-[20px]">
+                  <p className="font-heading text-5xl font-light text-accent mb-2">
+                    1,200+
+                  </p>
+                  <p className="font-body text-sm text-primary-foreground/60 uppercase tracking-[0.2em]">
+                    Lives Changed
+                  </p>
+                </div>
+                <div className="p-8 bg-primary-foreground/5 border border-primary-foreground/15 rounded-[20px]">
+                  <p className="font-heading text-5xl font-light text-accent mb-2">
+                    300+
+                  </p>
+                  <p className="font-body text-sm text-primary-foreground/60 uppercase tracking-[0.2em]">
+                    Businesses Started
+                  </p>
+                </div>
+                <div className="p-8 bg-primary-foreground/5 border border-primary-foreground/15 rounded-[20px]">
+                  <p className="font-heading text-5xl font-light text-accent mb-2">
+                    12+
+                  </p>
+                  <p className="font-body text-sm text-primary-foreground/60 uppercase tracking-[0.2em]">
+                    Communities Reached
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Donate / Support Section */}
+          <section
+            ref={donateRef}
+            className="py-24 md:py-32 px-8 md:px-16 bg-background"
+          >
+            <div className="max-w-2xl mx-auto text-center mb-16">
+              <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">
+                Make A Difference
+              </p>
+              <h2 className="font-heading text-4xl md:text-6xl font-light text-foreground leading-tight">
+                Your Support Changes
+                <br />A Life
+              </h2>
+              <p className="font-body text-sm text-muted-foreground leading-relaxed mt-6">
+                Every contribution — large or small — directly funds training,
+                materials, and opportunity for those who need it most.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto mb-12">
+              {donationTiers.map(({ amount, impact }) => (
+                <div
+                  key={amount}
+                  className="donate-card opacity-0 group p-8 border border-border rounded-[20px] text-center transition-all duration-500 hover:border-accent hover:shadow-[0_20px_60px_-20px_hsl(var(--accent)/0.2)] cursor-pointer"
+                  onClick={() => navigate("/donate")}
+                >
+                  <p className="font-heading text-4xl font-light text-accent mb-4 group-hover:scale-110 transition-transform duration-300">
+                    {amount}
+                  </p>
+                  <p className="font-body text-sm text-muted-foreground leading-relaxed">
+                    {impact}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap justify-center gap-4">
+              <button
+                onClick={() => navigate("/donate")}
+                className="group flex items-center gap-2 px-10 py-4 bg-accent text-accent-foreground font-body text-sm tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:bg-accent/90 hover:scale-105"
+              >
+                <Heart size={16} className="fill-current" />
+                Donate Now
+              </button>
+              <button
+                onClick={() => navigate("/donate#sponsor")}
+                className="group flex items-center gap-2 px-10 py-4 border border-foreground/30 text-foreground font-body text-sm tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:border-accent hover:text-accent"
+              >
+                <Users size={16} />
+                Sponsor a Student
+              </button>
+            </div>
+          </section>
+
+          <Footer />
         </div>
-
-        {/* Application Form */}
-        {applicationOpen && (
-          <div ref={formRef} className="opacity-0">
-            <ApplicationForm onClose={closeApplication} />
-          </div>
-        )}
-
-        {/* Floating Apply Button */}
-        {!applicationOpen && <FloatingApplyButton onClick={openApplication} />}
       </div>
     </LoadingWrapper>
   );
