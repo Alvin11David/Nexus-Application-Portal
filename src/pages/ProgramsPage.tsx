@@ -19,6 +19,14 @@ import {
   ArrowRight,
 } from "lucide-react";
 import aboutHero from "@/assets/about-hero.jpg";
+import academicsImage from "@/assets/academics.jpg";
+import campusLifeImage from "@/assets/campus-life.jpg";
+import donateHeroImage from "@/assets/donate-hero.jpg";
+import researchHeroImage from "@/assets/research-hero.jpg";
+import researchImage from "@/assets/research.jpg";
+import studentsHeroImage from "@/assets/students-hero.jpg";
+import heroCampusImage from "@/assets/hero-campus.jpg";
+import newsHeroImage from "@/assets/news-hero.jpg";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -28,6 +36,7 @@ const programs = [
     icon: Scissors,
     title: "Tailoring & Garment Design",
     duration: "6 months",
+    image: academicsImage,
     skills: [
       "Sewing techniques",
       "Pattern making",
@@ -47,6 +56,7 @@ const programs = [
     icon: Wrench,
     title: "Plumbing",
     duration: "8 months",
+    image: campusLifeImage,
     skills: [
       "Pipe fitting & installation",
       "Drainage systems",
@@ -66,6 +76,7 @@ const programs = [
     icon: Zap,
     title: "Electrical Installation",
     duration: "8 months",
+    image: donateHeroImage,
     skills: [
       "Wiring & circuitry",
       "Safety standards",
@@ -85,6 +96,7 @@ const programs = [
     icon: Flame,
     title: "Welding & Fabrication",
     duration: "6 months",
+    image: researchHeroImage,
     skills: [
       "Arc welding",
       "Gas welding",
@@ -104,6 +116,7 @@ const programs = [
     icon: Users,
     title: "Hairdressing",
     duration: "4 months",
+    image: studentsHeroImage,
     skills: [
       "Cutting & styling",
       "Braiding & weaves",
@@ -123,6 +136,7 @@ const programs = [
     icon: Sparkles,
     title: "Beauty Therapy",
     duration: "4 months",
+    image: newsHeroImage,
     skills: [
       "Skincare & facials",
       "Manicure & pedicure",
@@ -142,6 +156,7 @@ const programs = [
     icon: Car,
     title: "Auto Mechanics",
     duration: "9 months",
+    image: researchImage,
     skills: [
       "Engine repair & maintenance",
       "Brake & suspension systems",
@@ -161,6 +176,7 @@ const programs = [
     icon: BookOpen,
     title: "Soap & Cosmetics Making",
     duration: "3 months",
+    image: heroCampusImage,
     skills: [
       "Soap formulation",
       "Packaging & branding",
@@ -277,6 +293,7 @@ const ProgramsPage = () => {
               icon: Icon,
               title,
               duration,
+              image,
               skills,
               careers,
               description,
@@ -285,18 +302,27 @@ const ProgramsPage = () => {
               return (
                 <div
                   key={id}
-                  className="prog-card opacity-0 border border-border rounded-[20px] overflow-hidden transition-all duration-500 hover:border-accent/40"
+                  className="prog-card opacity-0 border border-border rounded-[20px] overflow-hidden transition-all duration-500 hover:border-accent/40 hover:shadow-[0_26px_60px_-28px_hsl(var(--accent)/0.45)]"
                 >
                   <button
                     onClick={() => toggle(id)}
-                    className="w-full flex items-center justify-between p-8 text-left group"
+                    className="w-full flex items-center justify-between p-5 md:p-6 text-left group"
                   >
-                    <div className="flex items-center gap-6">
-                      <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center shrink-0 group-hover:bg-accent/20 transition-colors duration-300">
+                    <div className="flex items-center gap-4 md:gap-6 min-w-0">
+                      <div className="relative h-20 w-24 md:h-24 md:w-32 shrink-0 overflow-hidden rounded-[14px]">
+                        <img
+                          src={image}
+                          alt={title}
+                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-tr from-primary/35 via-primary/10 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-60" />
+                        <div className="absolute inset-0 ring-1 ring-primary-foreground/20 rounded-[14px]" />
+                      </div>
+                      <div className="w-11 h-11 rounded-full bg-accent/10 flex items-center justify-center shrink-0 group-hover:bg-accent/20 group-hover:scale-110 transition-all duration-300">
                         <Icon size={20} className="text-accent" />
                       </div>
-                      <div>
-                        <h3 className="font-heading text-2xl font-light text-foreground group-hover:text-accent transition-colors duration-300">
+                      <div className="min-w-0">
+                        <h3 className="font-heading text-xl md:text-2xl font-light text-foreground group-hover:text-accent transition-colors duration-300">
                           {title}
                         </h3>
                         <p className="font-body text-xs tracking-[0.2em] uppercase text-muted-foreground mt-1">
@@ -305,11 +331,14 @@ const ProgramsPage = () => {
                       </div>
                     </div>
                     {isOpen ? (
-                      <ChevronUp size={20} className="text-accent shrink-0" />
+                      <ChevronUp
+                        size={20}
+                        className="text-accent shrink-0 transition-transform duration-300"
+                      />
                     ) : (
                       <ChevronDown
                         size={20}
-                        className="text-muted-foreground shrink-0"
+                        className="text-muted-foreground shrink-0 transition-transform duration-300 group-hover:translate-y-0.5"
                       />
                     )}
                   </button>
