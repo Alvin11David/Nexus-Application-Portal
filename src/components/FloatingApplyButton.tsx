@@ -12,7 +12,9 @@ const FloatingApplyButton = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollPercent = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+      const scrollPercent =
+        window.scrollY /
+        (document.documentElement.scrollHeight - window.innerHeight);
       setVisible(scrollPercent > 0.3);
     };
 
