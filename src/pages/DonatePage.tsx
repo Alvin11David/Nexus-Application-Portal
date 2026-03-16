@@ -3,7 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Heart, Users, Check, ChevronDown, ChevronUp } from "lucide-react";
+import { Heart, Users, Check, ChevronDown } from "lucide-react";
 import heroCampus from "@/assets/hero-campus.jpg";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -74,8 +74,14 @@ const faqs = [
 
 const DonatePage = () => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [selectedTierUsd, setSelectedTierUsd] = useState<number>(50);
   const tiersRef = useRef<HTMLDivElement>(null);
   const faqRef = useRef<HTMLDivElement>(null);
+  const faqAnswerRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  const selectedTier =
+    donationTiers.find((tier) => tier.usd === selectedTierUsd) ??
+    donationTiers[0];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -110,15 +116,52 @@ const DonatePage = () => {
           },
         );
       }
+      if (faqRef.current) {
+        gsap.fromTo(
+          faqRef.current.querySelectorAll(".faq-anim"),
+          { y: 28, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            stagger: 0.08,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: faqRef.current,
+              start: "top 80%",
+              toggleActions: "play none none reverse",
+            },
+          },
+        );
+      }
     });
     return () => ctx.revert();
   }, []);
 
-  const handleDonate = (amount: number) => {
+  useEffect(() => {
+    if (openFaq === null) return;
+
+    const answerEl = faqAnswerRefs.current[openFaq];
+    if (!answerEl) return;
+
+    gsap.fromTo(
+      answerEl,
+      { height: 0, autoAlpha: 0, y: -8 },
+      {
+        height: "auto",
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.42,
+        ease: "power2.out",
+      },
+    );
+  }, [openFaq]);
+
+  const handleDonate = (amount: number, label?: string) => {
     // In a real implementation, this would connect to a payment processor
     // For now, direct to contact/WhatsApp
     const message = encodeURIComponent(
-      `Hello, I would like to donate $${amount} to support a student. Please send me the payment details.`,
+      `Hello, I would like to donate $${amount}${label ? ` for ${label}` : ""} to support a student. Please send me the payment details.`,
     );
     window.open(
       `https://wa.me/256700000000?text=${message}`,
@@ -173,13 +216,25 @@ const DonatePage = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           {donationTiers.map(
-            ({ amount, usd, label, description, impact, color, featured }) => (
+            ({ amount, usd, label, description, impact, featured }) => (
               <div
                 key={amount}
-                className={`tier-card opacity-0 flex flex-col p-8 border rounded-[20px] transition-all duration-500 ${color} ${featured ? "relative" : ""}`}
+                role="button"
+                tabIndex={0}
+                aria-pressed={selectedTierUsd === usd}
+                onClick={() => setSelectedTierUsd(usd)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setSelectedTierUsd(usd);
+                  }
+                }}
+                className={`tier-card opacity-0 flex flex-col p-8 border rounded-[20px] transition-all duration-500 cursor-pointer ${featured ? "relative" : ""} ${selectedTierUsd === usd ? "border-accent bg-accent/10 shadow-[0_24px_60px_-26px_hsl(var(--accent)/0.42)]" : "border-border hover:border-accent/40"}`}
               >
                 {featured && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-accent-foreground font-body text-xs tracking-[0.2em] uppercase px-4 py-1 rounded-full">
+                  <div
+                    className={`absolute -top-3 left-1/2 -translate-x-1/2 font-body text-xs tracking-[0.2em] uppercase px-4 py-1 rounded-full transition-colors duration-300 ${selectedTierUsd === usd ? "bg-accent text-accent-foreground" : "bg-secondary text-muted-foreground border border-border"}`}
+                  >
                     Most Popular
                   </div>
                 )}
@@ -197,18 +252,43 @@ const DonatePage = () => {
                   <span>{impact}</span>
                 </div>
                 <button
-                  onClick={() => handleDonate(usd)}
-                  className={`w-full py-3 font-body text-sm tracking-[0.2em] uppercase rounded-[16px] transition-all duration-300 ${
-                    featured
-                      ? "bg-accent text-accent-foreground hover:bg-accent/90"
-                      : "border border-foreground/20 text-foreground hover:border-accent hover:text-accent"
-                  }`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setSelectedTierUsd(usd);
+                    handleDonate(usd, label);
+                  }}
+                  className={`w-full py-3 font-body text-sm tracking-[0.2em] uppercase rounded-[16px] transition-all duration-300 ${selectedTierUsd === usd ? "bg-accent text-accent-foreground hover:bg-accent/90" : "border border-foreground/20 text-foreground hover:border-accent hover:text-accent"}`}
                 >
                   Donate {amount}
                 </button>
               </div>
             ),
           )}
+        </div>
+
+        <div className="mt-10 max-w-3xl mx-auto p-6 md:p-8 border border-accent/30 bg-accent/5 rounded-[20px]">
+          <p className="font-body text-xs tracking-[0.24em] uppercase text-accent mb-3">
+            Selected Donation
+          </p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <p className="font-heading text-4xl font-light text-foreground mb-1">
+                ${selectedTier.usd}
+              </p>
+              <p className="font-body text-sm font-medium text-foreground mb-1">
+                {selectedTier.label}
+              </p>
+              <p className="font-body text-sm text-muted-foreground">
+                {selectedTier.impact}
+              </p>
+            </div>
+            <button
+              onClick={() => handleDonate(selectedTier.usd, selectedTier.label)}
+              className="shrink-0 px-8 py-4 bg-accent text-accent-foreground font-body text-sm tracking-[0.2em] uppercase rounded-[18px] transition-all duration-300 hover:bg-accent/90"
+            >
+              Pay ${selectedTier.usd}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -300,13 +380,18 @@ const DonatePage = () => {
       </div>
 
       {/* FAQ */}
-      <div ref={faqRef} className="px-8 md:px-16 py-24 md:py-32">
+      <div
+        ref={faqRef}
+        className="relative px-8 md:px-16 py-24 md:py-32 overflow-hidden"
+      >
+        <div className="pointer-events-none absolute -top-16 -right-24 h-72 w-72 rounded-full bg-accent/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-12 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
         <div className="max-w-3xl mx-auto">
           <div className="mb-16">
-            <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">
+            <p className="faq-anim font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">
               Questions
             </p>
-            <h2 className="font-heading text-4xl md:text-5xl font-light text-foreground leading-tight">
+            <h2 className="faq-anim font-heading text-4xl md:text-5xl font-light text-foreground leading-tight">
               Frequently Asked Questions
             </h2>
           </div>
@@ -314,7 +399,7 @@ const DonatePage = () => {
             {faqs.map(({ q, a }, i) => (
               <div
                 key={i}
-                className="border border-border rounded-[16px] overflow-hidden"
+                className={`faq-anim border rounded-[16px] overflow-hidden transition-all duration-300 ${openFaq === i ? "border-accent/40 bg-accent/5 shadow-[0_18px_40px_-24px_hsl(var(--accent)/0.4)]" : "border-border hover:border-accent/25"}`}
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
@@ -323,17 +408,18 @@ const DonatePage = () => {
                   <span className="font-body text-sm font-medium text-foreground pr-8">
                     {q}
                   </span>
-                  {openFaq === i ? (
-                    <ChevronUp size={18} className="text-accent shrink-0" />
-                  ) : (
-                    <ChevronDown
-                      size={18}
-                      className="text-muted-foreground shrink-0"
-                    />
-                  )}
+                  <ChevronDown
+                    size={18}
+                    className={`shrink-0 transition-all duration-300 ${openFaq === i ? "text-accent rotate-180" : "text-muted-foreground"}`}
+                  />
                 </button>
                 {openFaq === i && (
-                  <div className="px-6 pb-6 border-t border-border/50">
+                  <div
+                    ref={(el) => {
+                      faqAnswerRefs.current[i] = el;
+                    }}
+                    className="px-6 pb-6 border-t border-border/50"
+                  >
                     <p className="font-body text-sm text-muted-foreground leading-relaxed mt-4">
                       {a}
                     </p>
