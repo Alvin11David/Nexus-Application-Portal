@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import PageTransition from "@/components/PageTransition";
+import useSmoothScroll from "@/hooks/useSmoothScroll";
 const Index = lazy(() => import("./pages/Index.tsx"));
 const StudyAtVeritas = lazy(() => import("./pages/StudyAtVeritas.tsx"));
 const StudyItemPage = lazy(() => import("./pages/StudyItemPage.tsx"));
@@ -156,16 +157,20 @@ const AnimatedRoutes = () => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AnimatedRoutes />
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  useSmoothScroll();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AnimatedRoutes />
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

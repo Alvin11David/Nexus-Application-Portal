@@ -20,11 +20,16 @@ const HeroSection = () => {
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
+  const heroContentRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const heroGlowRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
+    let handleMouseMove: ((event: MouseEvent) => void) | null = null;
+    let handleMouseLeave: (() => void) | null = null;
+
     const ctx = gsap.context(() => {
       gsap.fromTo(
         titleRef.current,
@@ -68,9 +73,90 @@ const HeroSection = () => {
           scrub: true,
         },
       });
+
+      gsap.to(".hero-orb", {
+        y: -24,
+        x: 16,
+        duration: 4,
+        ease: "sine.inOut",
+        repeat: -1,
+        yoyo: true,
+        stagger: 0.45,
+      });
+
+      const imageX = gsap.quickTo(imageRef.current, "x", {
+        duration: 1,
+        ease: "power3.out",
+      });
+      const imageY = gsap.quickTo(imageRef.current, "y", {
+        duration: 1,
+        ease: "power3.out",
+      });
+      const contentX = gsap.quickTo(heroContentRef.current, "x", {
+        duration: 0.9,
+        ease: "power3.out",
+      });
+      const contentY = gsap.quickTo(heroContentRef.current, "y", {
+        duration: 0.9,
+        ease: "power3.out",
+      });
+      const glowX = gsap.quickTo(heroGlowRef.current, "x", {
+        duration: 0.7,
+        ease: "power2.out",
+      });
+      const glowY = gsap.quickTo(heroGlowRef.current, "y", {
+        duration: 0.7,
+        ease: "power2.out",
+      });
+
+      handleMouseMove = (event: MouseEvent) => {
+        if (!sectionRef.current) return;
+        const rect = sectionRef.current.getBoundingClientRect();
+        const offsetX = (event.clientX - rect.left) / rect.width - 0.5;
+        const offsetY = (event.clientY - rect.top) / rect.height - 0.5;
+
+        imageX(offsetX * 26);
+        imageY(offsetY * 18);
+        contentX(offsetX * 16);
+        contentY(offsetY * 10);
+        glowX(offsetX * 180);
+        glowY(offsetY * 130);
+
+        gsap.to(overlayRef.current, {
+          opacity: 0.52 + Math.abs(offsetX) * 0.14 + Math.abs(offsetY) * 0.1,
+          duration: 0.35,
+          overwrite: true,
+        });
+      };
+
+      handleMouseLeave = () => {
+        imageX(0);
+        imageY(0);
+        contentX(0);
+        contentY(0);
+        glowX(0);
+        glowY(0);
+
+        gsap.to(overlayRef.current, {
+          opacity: 0.55,
+          duration: 0.45,
+          overwrite: true,
+        });
+      };
+
+      if (sectionRef.current && handleMouseMove && handleMouseLeave) {
+        sectionRef.current.addEventListener("mousemove", handleMouseMove);
+        sectionRef.current.addEventListener("mouseleave", handleMouseLeave);
+      }
     }, sectionRef);
 
-    return () => ctx.revert();
+    return () => {
+      if (sectionRef.current && handleMouseMove && handleMouseLeave) {
+        sectionRef.current.removeEventListener("mousemove", handleMouseMove);
+        sectionRef.current.removeEventListener("mouseleave", handleMouseLeave);
+      }
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -87,9 +173,18 @@ const HeroSection = () => {
         />
         <div ref={overlayRef} className="absolute inset-0 bg-foreground/55" />
       </div>
+      <div
+        ref={heroGlowRef}
+        className="absolute left-1/2 top-1/2 z-[1] h-[34rem] w-[34rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,hsl(var(--accent)/0.25)_0%,transparent_68%)] blur-3xl pointer-events-none"
+      />
+      <div className="hero-orb absolute top-24 right-[8%] z-[1] h-28 w-28 rounded-full bg-accent/20 blur-2xl pointer-events-none" />
+      <div className="hero-orb absolute bottom-28 left-[7%] z-[1] h-24 w-24 rounded-full bg-primary-foreground/25 blur-2xl pointer-events-none" />
 
       {/* Hero Content */}
-      <div className="relative z-10 flex flex-col justify-end flex-1 px-8 md:px-16 pt-40 pb-16 md:pb-24">
+      <div
+        ref={heroContentRef}
+        className="relative z-10 flex flex-col justify-end flex-1 px-8 md:px-16 pt-40 pb-16 md:pb-24"
+      >
         <div className="max-w-5xl">
           <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-6 flex items-center gap-2">
             <Heart size={12} className="fill-accent" />

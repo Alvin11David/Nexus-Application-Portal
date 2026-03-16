@@ -81,6 +81,8 @@ const Index = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    const cardCleanup: Array<() => void> = [];
+
     const ctx = gsap.context(() => {
       if (programsRef.current) {
         gsap.fromTo(
@@ -136,10 +138,78 @@ const Index = () => {
           },
         );
       }
+
+      gsap.utils
+        .toArray<HTMLElement>(".ambient-layer")
+        .forEach((layer, index) => {
+          gsap.to(layer, {
+            y: index % 2 === 0 ? -80 : 70,
+            x: index % 2 === 0 ? 40 : -45,
+            ease: "none",
+            scrollTrigger: {
+              trigger: layer.closest("section"),
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true,
+            },
+          });
+        });
+
+      gsap.utils.toArray<HTMLElement>(".interactive-card").forEach((card) => {
+        const rotateX = gsap.quickTo(card, "rotationX", {
+          duration: 0.45,
+          ease: "power3.out",
+        });
+        const rotateY = gsap.quickTo(card, "rotationY", {
+          duration: 0.45,
+          ease: "power3.out",
+        });
+        const translateY = gsap.quickTo(card, "y", {
+          duration: 0.45,
+          ease: "power3.out",
+        });
+
+        gsap.set(card, {
+          transformPerspective: 1000,
+          transformStyle: "preserve-3d",
+        });
+
+        const move = (event: MouseEvent) => {
+          const rect = card.getBoundingClientRect();
+          const px = (event.clientX - rect.left) / rect.width;
+          const py = (event.clientY - rect.top) / rect.height;
+          const offsetX = px - 0.5;
+          const offsetY = py - 0.5;
+
+          rotateX(-offsetY * 12);
+          rotateY(offsetX * 14);
+          translateY(-8);
+
+          card.style.setProperty("--spotlight-x", `${px * 100}%`);
+          card.style.setProperty("--spotlight-y", `${py * 100}%`);
+        };
+
+        const leave = () => {
+          rotateX(0);
+          rotateY(0);
+          translateY(0);
+          card.style.setProperty("--spotlight-x", "50%");
+          card.style.setProperty("--spotlight-y", "50%");
+        };
+
+        card.addEventListener("mousemove", move);
+        card.addEventListener("mouseleave", leave);
+
+        cardCleanup.push(() => {
+          card.removeEventListener("mousemove", move);
+          card.removeEventListener("mouseleave", leave);
+        });
+      });
     });
+
     return () => {
+      cardCleanup.forEach((cleanup) => cleanup());
       ctx.revert();
-      ScrollTrigger.getAll().forEach((t) => t.kill());
     };
   }, []);
 
@@ -157,7 +227,9 @@ const Index = () => {
           <HeroSection />
 
           {/* Programs Preview Section */}
-          <section className="py-24 md:py-32 px-8 md:px-16 bg-background">
+          <section className="relative py-24 md:py-32 px-8 md:px-16 bg-background overflow-hidden">
+            <div className="ambient-layer pointer-events-none absolute -top-24 -left-28 h-72 w-72 rounded-full bg-accent/10 blur-3xl" />
+            <div className="ambient-layer pointer-events-none absolute -bottom-32 right-0 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
             <div className="max-w-2xl mb-16">
               <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">
                 What We Teach
@@ -181,9 +253,20 @@ const Index = () => {
                 ({ icon: Icon, title, duration, outcome }) => (
                   <div
                     key={title}
-                    className="program-card opacity-0 group p-8 border border-border rounded-[20px] transition-all duration-500 hover:border-accent/40 hover:shadow-[0_20px_60px_-20px_hsl(var(--accent)/0.15)] cursor-pointer"
+                    className="program-card interactive-card relative isolate overflow-hidden opacity-0 group p-8 border border-border rounded-[20px] transition-all duration-500 hover:border-accent/40 hover:shadow-[0_26px_70px_-28px_hsl(var(--accent)/0.35)] cursor-pointer"
                     onClick={() => navigate("/programs")}
+                    style={{
+                      transformOrigin: "center",
+                      willChange: "transform",
+                    }}
                   >
+                    <div
+                      className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                      style={{
+                        background:
+                          "radial-gradient(circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), hsl(var(--accent) / 0.22), transparent 55%)",
+                      }}
+                    />
                     <Icon size={24} className="text-accent mb-5" />
                     <h3 className="font-heading text-2xl font-light text-foreground mb-2 group-hover:text-accent transition-colors duration-500">
                       {title}
@@ -213,8 +296,9 @@ const Index = () => {
           {/* Featured Success Story */}
           <section
             ref={storyRef}
-            className="py-24 md:py-32 px-8 md:px-16 bg-primary text-primary-foreground overflow-hidden"
+            className="relative py-24 md:py-32 px-8 md:px-16 bg-primary text-primary-foreground overflow-hidden"
           >
+            <div className="ambient-layer pointer-events-none absolute -left-24 top-8 h-64 w-64 rounded-full bg-accent/15 blur-3xl" />
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div>
                 <p className="story-anim opacity-0 font-body text-xs tracking-[0.3em] uppercase text-accent mb-6">
@@ -241,7 +325,7 @@ const Index = () => {
                 </button>
               </div>
               <div className="hidden lg:flex flex-col gap-6">
-                <div className="p-8 bg-primary-foreground/5 border border-primary-foreground/15 rounded-[20px]">
+                <div className="interactive-card p-8 bg-primary-foreground/5 border border-primary-foreground/15 rounded-[20px]">
                   <p className="font-heading text-5xl font-light text-accent mb-2">
                     1,200+
                   </p>
@@ -249,7 +333,7 @@ const Index = () => {
                     Lives Changed
                   </p>
                 </div>
-                <div className="p-8 bg-primary-foreground/5 border border-primary-foreground/15 rounded-[20px]">
+                <div className="interactive-card p-8 bg-primary-foreground/5 border border-primary-foreground/15 rounded-[20px]">
                   <p className="font-heading text-5xl font-light text-accent mb-2">
                     300+
                   </p>
@@ -257,7 +341,7 @@ const Index = () => {
                     Businesses Started
                   </p>
                 </div>
-                <div className="p-8 bg-primary-foreground/5 border border-primary-foreground/15 rounded-[20px]">
+                <div className="interactive-card p-8 bg-primary-foreground/5 border border-primary-foreground/15 rounded-[20px]">
                   <p className="font-heading text-5xl font-light text-accent mb-2">
                     12+
                   </p>
@@ -272,8 +356,9 @@ const Index = () => {
           {/* Donate / Support Section */}
           <section
             ref={donateRef}
-            className="py-24 md:py-32 px-8 md:px-16 bg-background"
+            className="relative py-24 md:py-32 px-8 md:px-16 bg-background overflow-hidden"
           >
+            <div className="ambient-layer pointer-events-none absolute top-10 right-[-6rem] h-80 w-80 rounded-full bg-accent/12 blur-3xl" />
             <div className="max-w-2xl mx-auto text-center mb-16">
               <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">
                 Make A Difference
@@ -291,9 +376,20 @@ const Index = () => {
               {donationTiers.map(({ amount, impact }) => (
                 <div
                   key={amount}
-                  className="donate-card opacity-0 group p-8 border border-border rounded-[20px] text-center transition-all duration-500 hover:border-accent hover:shadow-[0_20px_60px_-20px_hsl(var(--accent)/0.2)] cursor-pointer"
+                  className="donate-card interactive-card relative isolate overflow-hidden opacity-0 group p-8 border border-border rounded-[20px] text-center transition-all duration-500 hover:border-accent hover:shadow-[0_26px_70px_-28px_hsl(var(--accent)/0.38)] cursor-pointer"
                   onClick={() => navigate("/donate")}
+                  style={{
+                    transformOrigin: "center",
+                    willChange: "transform",
+                  }}
                 >
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    style={{
+                      background:
+                        "radial-gradient(circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), hsl(var(--accent) / 0.2), transparent 58%)",
+                    }}
+                  />
                   <p className="font-heading text-4xl font-light text-accent mb-4 group-hover:scale-110 transition-transform duration-300">
                     {amount}
                   </p>
