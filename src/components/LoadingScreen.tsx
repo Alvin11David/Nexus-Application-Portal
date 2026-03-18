@@ -299,10 +299,25 @@ const LoadingScreen = ({
 
 LoadingScreen.displayName = "LoadingScreen";
 
-const LoadingWrapper = ({ children }: { children: React.ReactNode }) => {
+const LoadingWrapper = ({
+  children,
+  motto,
+  statusMessages,
+  duration,
+  skipInDev = false,
+  onLoadComplete,
+  forceLoading = false,
+  organizationName,
+  acronym,
+}: LoadingWrapperProps) => {
   const [loading, setLoading] = useState(() => {
     if (typeof window === "undefined") {
       return true;
+    }
+
+    // Skip in development if enabled
+    if (skipInDev && import.meta.env.DEV) {
+      return false;
     }
 
     try {
@@ -312,6 +327,8 @@ const LoadingWrapper = ({ children }: { children: React.ReactNode }) => {
     }
   });
 
+  const [error, setError] = useState<Error | null>(null);
+
   const handleComplete = () => {
     try {
       window.sessionStorage.setItem(SPLASH_KEY, "1");
@@ -319,14 +336,53 @@ const LoadingWrapper = ({ children }: { children: React.ReactNode }) => {
       // Ignore storage errors and continue UX flow.
     }
     setLoading(false);
+    onLoadComplete?.();
   };
+
+  const handleError = (error: Error) => {
+    console.error("Loading screen error:", error);
+    setError(error);
+    // Gracefully proceed even if there's an error
+    setTimeout(() => handleComplete(), 1000);
+  };
+
+  // Show error state briefly before proceeding
+  if (error && loading) {
+    return (
+      <>
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-primary">
+          <div className="text-center">
+            <p className="font-body text-primary-foreground/70">Loading experience...</p>
+          </div>
+        </div>
+        <div
+          style={{
+            opacity: 0,
+            transition: "opacity 0.5s ease",
+          }}
+        >
+          {children}
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
-      {loading && <LoadingScreen onComplete={handleComplete} />}
+      {(loading || forceLoading) && (
+        <LoadingScreen
+          onComplete={handleComplete}
+          motto={motto}
+          statusMessages={statusMessages}
+          duration={duration}
+          onError={handleError}
+          organizationName={organizationName}
+          acronym={acronym}
+        />
+      )}
       <div
         style={{
-          opacity: loading ? 0 : 1,
+          opacity: loading || forceLoading ? 0 : 1,
           transition: "opacity 0.5s ease",
         }}
       >
