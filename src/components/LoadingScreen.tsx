@@ -2,8 +2,62 @@ import { memo, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 const SPLASH_KEY = "institute-splash-seen";
+const MAX_LOADING_TIME = 15000; // 15 seconds max
 
-const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
+/**
+ * Props for the LoadingScreen component
+ */
+export interface LoadingScreenProps {
+  onComplete: () => void;
+  motto?: string;
+  statusMessages?: string[];
+  duration?: number;
+  onProgress?: (progress: number) => void;
+  onError?: (error: Error) => void;
+  organizationName?: string;
+  acronym?: string;
+}
+
+/**
+ * Props for the LoadingWrapper component
+ */
+export interface LoadingWrapperProps {
+  children: React.ReactNode;
+  motto?: string;
+  statusMessages?: string[];
+  duration?: number;
+  skipInDev?: boolean;
+  onLoadComplete?: () => void;
+  forceLoading?: boolean;
+  organizationName?: string;
+  acronym?: string;
+}
+
+const DEFAULT_STATUS_MESSAGES = [
+  "Preparing Experience",
+  "Loading Resources",
+  "Initializing",
+];
+
+const DEFAULT_LOADING_TIPS = [
+  "Did you know? We offer scholarship programs",
+  "Join our vibrant student community",
+  "Explore our world-class research facilities",
+  "Discover internship opportunities",
+];
+
+const LoadingScreen = (
+  {
+    onComplete,
+    motto = "Empowering Through Vocational Skills",
+    statusMessages = DEFAULT_STATUS_MESSAGES,
+    duration = 3.2,
+    onProgress,
+    onError,
+    organizationName = "Institute Uganda",
+    acronym = "IU",
+  }: LoadingScreenProps,
+) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const brandBlockRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLDivElement>(null);
@@ -12,6 +66,9 @@ const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   const progressTextRef = useRef<HTMLSpanElement>(null);
   const statusRef = useRef<HTMLParagraphElement>(null);
   const haloRef = useRef<HTMLDivElement>(null);
+  const tipsRef = useRef<HTMLParagraphElement>(null);
+  const currentStatusIndexRef = useRef(0);
+  const currentTipIndexRef = useRef(0);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
