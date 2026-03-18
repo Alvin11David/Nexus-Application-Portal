@@ -352,7 +352,9 @@ const LoadingWrapper = ({
       <>
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-primary">
           <div className="text-center">
-            <p className="font-body text-primary-foreground/70">Loading experience...</p>
+            <p className="font-body text-primary-foreground/70">
+              Loading experience...
+            </p>
           </div>
         </div>
         <div
