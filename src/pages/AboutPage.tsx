@@ -197,7 +197,7 @@ const AboutPage = () => {
           {values.map((v) => (
             <div
               key={v.title}
-              className="value-card opacity-0 group p-10 border border-border bg-background rounded-[20px] transition-all duration-500 hover:border-accent/40 hover:shadow-[0_20px_60px_-20px_hsl(var(--accent)/0.12)]"
+              className="value-card opacity-0 group card-lift p-10 border border-border bg-background rounded-[20px] hover:border-accent/40"
             >
               <h3 className="font-heading text-3xl font-light text-foreground mb-4 group-hover:text-accent transition-colors duration-500">
                 {v.title}
