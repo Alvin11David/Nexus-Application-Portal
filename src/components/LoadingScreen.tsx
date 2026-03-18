@@ -46,18 +46,16 @@ const DEFAULT_LOADING_TIPS = [
   "Discover internship opportunities",
 ];
 
-const LoadingScreen = (
-  {
-    onComplete,
-    motto = "Empowering Through Vocational Skills",
-    statusMessages = DEFAULT_STATUS_MESSAGES,
-    duration = 3.2,
-    onProgress,
-    onError,
-    organizationName = "Institute Uganda",
-    acronym = "IU",
-  }: LoadingScreenProps,
-) => {
+const LoadingScreen = ({
+  onComplete,
+  motto = "Empowering Through Vocational Skills",
+  statusMessages = DEFAULT_STATUS_MESSAGES,
+  duration = 3.2,
+  onProgress,
+  onError,
+  organizationName = "Institute Uganda",
+  acronym = "IU",
+}: LoadingScreenProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const brandBlockRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLDivElement>(null);
@@ -71,99 +69,146 @@ const LoadingScreen = (
   const currentTipIndexRef = useRef(0);
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    try {
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
 
-    if (prefersReducedMotion) {
-      const timeoutId = window.setTimeout(() => {
-        onComplete();
-      }, 550);
+      // Safety timeout to prevent infinite loading
+      const safetyTimeoutId = window.setTimeout(() => {
+        try {
+          onComplete();
+        } catch (error) {
+          onError?.(error instanceof Error ? error : new Error("Unknown error"));
+        }
+      }, MAX_LOADING_TIME);
 
-      return () => {
-        window.clearTimeout(timeoutId);
-      };
-    }
+      if (prefersReducedMotion) {
+        const timeoutId = window.setTimeout(() => {
+          try {
+            onComplete();
+          } catch (error) {
+            onError?.(error instanceof Error ? error : new Error("Unknown error"));
+          }
+        }, 550);
 
-    const progressState = { value: 0 };
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+        return () => {
+          window.clearTimeout(timeoutId);
+          window.clearTimeout(safetyTimeoutId);
+        };
+      }
 
-      tl.set(containerRef.current, { opacity: 1 })
-        .fromTo(
-          haloRef.current,
-          { scale: 0.75, opacity: 0 },
-          { scale: 1, opacity: 0.35, duration: 1.1, ease: "power2.out" },
-        )
-        .fromTo(
-          brandBlockRef.current,
-          { y: 28, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.9 },
-          "-=0.8",
-        )
-        .fromTo(
-          nameRef.current,
-          { letterSpacing: "0.42em" },
-          { letterSpacing: "0.26em", duration: 0.8, ease: "power2.out" },
-          "<",
-        )
-        .fromTo(
-          mottoRef.current,
-          { y: 8, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.7 },
-          "-=0.55",
-        )
-        .fromTo(
-          progressBarRef.current,
-          { scaleX: 0 },
-          { scaleX: 1, duration: 1.45, ease: "power2.inOut" },
-          "-=0.2",
-        )
-        .to(
-          progressState,
-          {
-            value: 100,
-            duration: 1.45,
-            ease: "power2.inOut",
-            onUpdate: () => {
-              if (progressTextRef.current) {
-                progressTextRef.current.textContent = `${Math.round(progressState.value)}%`;
+      // Cycle through status messages
+      const statusMessageInterval = window.setInterval(() => {
+        if (statusRef.current && statusMessages.length > 0) {
+          currentStatusIndexRef.current = (currentStatusIndexRef.current + 1) % statusMessages.length;
+          statusRef.current.textContent = statusMessages[currentStatusIndexRef.current];
+        }
+      }, 1200);
+
+      // Cycle through tips
+      const tipsInterval = window.setInterval(() => {
+        if (tipsRef.current && DEFAULT_LOADING_TIPS.length > 0) {
+          currentTipIndexRef.current = (currentTipIndexRef.current + 1) % DEFAULT_LOADING_TIPS.length;
+          tipsRef.current.textContent = DEFAULT_LOADING_TIPS[currentTipIndexRef.current];
+        }
+      }, 4000);
+
+      const progressState = { value: 0 };
+      const ctx = gsap.context(() => {
+        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+        tl.set(containerRef.current, { opacity: 1 })
+          .fromTo(
+            haloRef.current,
+            { scale: 0.75, opacity: 0 },
+            { scale: 1, opacity: 0.35, duration: 1.1, ease: "power2.out" },
+          )
+          .fromTo(
+            brandBlockRef.current,
+            { y: 28, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.9 },
+            "-=0.8",
+          )
+          .fromTo(
+            nameRef.current,
+            { letterSpacing: "0.42em" },
+            { letterSpacing: "0.26em", duration: 0.8, ease: "power2.out" },
+            "<",
+          )
+          .fromTo(
+            mottoRef.current,
+            { y: 8, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.7 },
+            "-=0.55",
+          )
+          .fromTo(
+            progressBarRef.current,
+            { scaleX: 0 },
+            { scaleX: 1, duration: duration * 0.453, ease: "power2.inOut" },
+            "-=0.2",
+          )
+          .to(
+            progressState,
+            {
+              value: 100,
+              duration: duration * 0.453,
+              ease: "power2.inOut",
+              onUpdate: () => {
+                const progress = Math.round(progressState.value);
+                if (progressTextRef.current) {
+                  progressTextRef.current.textContent = `${progress}%`;
+                }
+                onProgress?.(progress);
+              },
+            },
+            "<",
+          )
+          .to(statusRef.current, {
+            opacity: 0.85,
+            duration: 0.35,
+            onStart: () => {
+              if (statusRef.current) {
+                statusRef.current.textContent = "Ready";
               }
             },
-          },
-          "<",
-        )
-        .to(statusRef.current, {
-          opacity: 0.85,
-          duration: 0.35,
-          onStart: () => {
-            if (statusRef.current) {
-              statusRef.current.textContent = "Ready";
-            }
-          },
-        })
-        .to({}, { duration: 0.22 })
-        .to(containerRef.current, {
-          opacity: 0,
-          duration: 0.7,
-          ease: "power2.inOut",
-          onComplete,
+          })
+          .to({}, { duration: 0.22 })
+          .to(containerRef.current, {
+            opacity: 0,
+            duration: 0.7,
+            ease: "power2.inOut",
+            onComplete: () => {
+              try {
+                onComplete();
+              } catch (error) {
+                onError?.(error instanceof Error ? error : new Error("Unknown error"));
+              }
+            },
+          });
+
+        gsap.to(haloRef.current, {
+          scale: 1.08,
+          opacity: 0.42,
+          duration: 1.8,
+          yoyo: true,
+          repeat: -1,
+          ease: "sine.inOut",
         });
-
-      gsap.to(haloRef.current, {
-        scale: 1.08,
-        opacity: 0.42,
-        duration: 1.8,
-        yoyo: true,
-        repeat: -1,
-        ease: "sine.inOut",
       });
-    });
 
-    return () => {
-      ctx.revert();
-    };
-  }, [onComplete]);
+      return () => {
+        ctx.revert();
+        window.clearInterval(statusMessageInterval);
+        window.clearInterval(tipsInterval);
+        window.clearTimeout(safetyTimeoutId);
+      };
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error("Unknown error in LoadingScreen");
+      onError?.(err);
+      onComplete();
+    }
+  }, [onComplete, duration, onProgress, onError, statusMessages]);
 
   return (
     <div
