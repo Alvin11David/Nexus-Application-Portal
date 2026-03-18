@@ -44,7 +44,7 @@ const ResearchOpportunitiesPage = () => {
             {opportunityTracks.map((track) => (
               <div
                 key={track.title}
-                className="p-6 border border-border rounded-[24px] bg-secondary/20"
+                className="card-lift p-6 border border-border rounded-[24px] bg-secondary/20 hover:bg-secondary/25"
               >
                 <h2 className="font-heading text-2xl font-light text-foreground mb-3">
                   {track.title}

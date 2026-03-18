@@ -154,6 +154,27 @@ html {
   }
 }
 
+@keyframes borderGradient {
+  0% {
+    border-color: hsl(var(--border));
+  }
+  100% {
+    border-color: hsl(var(--accent) / 0.4);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.15;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 /* Hover Utility Classes */
 .card-hover {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -170,4 +191,45 @@ html {
 
 .icon-hover:hover {
   animation: iconScale 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Enhanced Card Hover Effects */
+.card-lift {
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card-lift:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 20px 40px rgba(138, 119, 84, 0.2);
+}
+
+.card-glow {
+  position: relative;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-color: hsl(var(--border));
+}
+
+.card-glow:hover {
+  border-color: hsl(var(--accent) / 0.5);
+  box-shadow: 0 0 20px hsl(var(--accent) / 0.15), 0 8px 24px hsl(var(--accent) / 0.1);
+}
+
+.card-border-accent {
+  transition: border-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card-border-accent:hover {
+  border-color: hsl(var(--accent) / 0.6);
+  box-shadow: 
+    0 0 30px hsl(var(--accent) / 0.2),
+    inset 0 0 20px hsl(var(--accent) / 0.05);
+}
+
+.card-scale {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.card-scale:hover {
+  transform: scale(1.02);
+  box-shadow: 0 16px 35px -8px rgba(0, 0, 0, 0.15);
 }
