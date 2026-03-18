@@ -349,7 +349,7 @@ const ContactPage = () => {
           {partnerTypes.map(({ icon: Icon, title, description }) => (
             <div
               key={title}
-              className="partner-card opacity-0 group p-8 bg-background border border-border rounded-[20px] transition-all duration-500 hover:border-accent/40 hover:shadow-[0_20px_60px_-20px_hsl(var(--accent)/0.12)]"
+              className="partner-card opacity-0 group card-lift p-8 bg-background border border-border rounded-[20px] hover:border-accent/40"
             >
               <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-6 group-hover:bg-accent/20 transition-colors duration-300">
                 <Icon size={20} className="text-accent" />

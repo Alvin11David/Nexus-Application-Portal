@@ -181,7 +181,8 @@ html {
 }
 
 .card-hover:hover {
-  animation: cardLift 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards,
+  animation:
+    cardLift 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards,
     cardGlow 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
@@ -211,7 +212,9 @@ html {
 
 .card-glow:hover {
   border-color: hsl(var(--accent) / 0.5);
-  box-shadow: 0 0 20px hsl(var(--accent) / 0.15), 0 8px 24px hsl(var(--accent) / 0.1);
+  box-shadow:
+    0 0 20px hsl(var(--accent) / 0.15),
+    0 8px 24px hsl(var(--accent) / 0.1);
 }
 
 .card-border-accent {
@@ -220,7 +223,7 @@ html {
 
 .card-border-accent:hover {
   border-color: hsl(var(--accent) / 0.6);
-  box-shadow: 
+  box-shadow:
     0 0 30px hsl(var(--accent) / 0.2),
     inset 0 0 20px hsl(var(--accent) / 0.05);
 }
