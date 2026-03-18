@@ -95,7 +95,7 @@ const NewsPage = () => {
             <Link
               key={n.slug}
               to={`/news/${n.slug}`}
-              className="news-card opacity-0 group p-8 border border-border rounded-[20px] transition-all duration-500 hover:border-accent/40 hover:shadow-[0_20px_60px_-20px_hsl(var(--accent)/0.12)]"
+              className="news-card opacity-0 group card-lift p-8 border border-border rounded-[20px] hover:border-accent/40"
             >
               <span className="inline-block font-body text-[10px] tracking-[0.3em] uppercase text-accent mb-4">{n.category}</span>
               <h3 className="font-heading text-xl font-light text-foreground mb-3 group-hover:text-accent transition-colors duration-500">{n.title}</h3>
