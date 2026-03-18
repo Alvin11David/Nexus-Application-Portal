@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 const SPLASH_KEY = "institute-splash-seen";
@@ -174,6 +174,8 @@ const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   );
 };
 
+LoadingScreen.displayName = "LoadingScreen";
+
 const LoadingWrapper = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(() => {
     if (typeof window === "undefined") {
@@ -211,4 +213,9 @@ const LoadingWrapper = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default LoadingWrapper;
+LoadingWrapper.displayName = "LoadingWrapper";
+
+const MemoizedLoadingWrapper = memo(LoadingWrapper);
+MemoizedLoadingWrapper.displayName = "LoadingWrapper";
+
+export default MemoizedLoadingWrapper;
