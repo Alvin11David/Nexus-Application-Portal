@@ -79,7 +79,9 @@ const LoadingScreen = ({
         try {
           onComplete();
         } catch (error) {
-          onError?.(error instanceof Error ? error : new Error("Unknown error"));
+          onError?.(
+            error instanceof Error ? error : new Error("Unknown error"),
+          );
         }
       }, MAX_LOADING_TIME);
 
@@ -88,7 +90,9 @@ const LoadingScreen = ({
           try {
             onComplete();
           } catch (error) {
-            onError?.(error instanceof Error ? error : new Error("Unknown error"));
+            onError?.(
+              error instanceof Error ? error : new Error("Unknown error"),
+            );
           }
         }, 550);
 
@@ -101,16 +105,20 @@ const LoadingScreen = ({
       // Cycle through status messages
       const statusMessageInterval = window.setInterval(() => {
         if (statusRef.current && statusMessages.length > 0) {
-          currentStatusIndexRef.current = (currentStatusIndexRef.current + 1) % statusMessages.length;
-          statusRef.current.textContent = statusMessages[currentStatusIndexRef.current];
+          currentStatusIndexRef.current =
+            (currentStatusIndexRef.current + 1) % statusMessages.length;
+          statusRef.current.textContent =
+            statusMessages[currentStatusIndexRef.current];
         }
       }, 1200);
 
       // Cycle through tips
       const tipsInterval = window.setInterval(() => {
         if (tipsRef.current && DEFAULT_LOADING_TIPS.length > 0) {
-          currentTipIndexRef.current = (currentTipIndexRef.current + 1) % DEFAULT_LOADING_TIPS.length;
-          tipsRef.current.textContent = DEFAULT_LOADING_TIPS[currentTipIndexRef.current];
+          currentTipIndexRef.current =
+            (currentTipIndexRef.current + 1) % DEFAULT_LOADING_TIPS.length;
+          tipsRef.current.textContent =
+            DEFAULT_LOADING_TIPS[currentTipIndexRef.current];
         }
       }, 4000);
 
@@ -182,7 +190,9 @@ const LoadingScreen = ({
               try {
                 onComplete();
               } catch (error) {
-                onError?.(error instanceof Error ? error : new Error("Unknown error"));
+                onError?.(
+                  error instanceof Error ? error : new Error("Unknown error"),
+                );
               }
             },
           });
@@ -204,7 +214,10 @@ const LoadingScreen = ({
         window.clearTimeout(safetyTimeoutId);
       };
     } catch (error) {
-      const err = error instanceof Error ? error : new Error("Unknown error in LoadingScreen");
+      const err =
+        error instanceof Error
+          ? error
+          : new Error("Unknown error in LoadingScreen");
       onError?.(err);
       onComplete();
     }
@@ -241,21 +254,21 @@ const LoadingScreen = ({
           className="flex flex-col items-center opacity-0"
         >
           <span className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-full border border-primary-foreground/30 text-xs font-body tracking-[0.22em] text-primary-foreground/75">
-            IU
+            {acronym}
           </span>
 
           <div
             ref={nameRef}
             className="font-heading text-3xl font-light uppercase text-primary-foreground md:text-5xl"
           >
-            Institute Uganda
+            {organizationName}
           </div>
 
           <p
             ref={mottoRef}
             className="mt-3 font-body text-[11px] uppercase tracking-[0.28em] text-primary-foreground/65 md:text-xs"
           >
-            Empowering Through Vocational Skills
+            {motto}
           </p>
 
           <div className="mt-10 w-[230px] md:w-[280px]">
@@ -266,10 +279,18 @@ const LoadingScreen = ({
               />
             </div>
             <div className="mt-3 flex items-center justify-between font-body text-[10px] uppercase tracking-[0.22em] text-primary-foreground/70 md:text-[11px]">
-              <p ref={statusRef}>Preparing Experience</p>
+              <p ref={statusRef}>{statusMessages[0]}</p>
               <span ref={progressTextRef}>0%</span>
             </div>
           </div>
+
+          {/* Loading Tips */}
+          <p
+            ref={tipsRef}
+            className="mt-8 max-w-xs text-center font-body text-[10px] italic text-primary-foreground/50 md:max-w-sm md:text-[11px]"
+          >
+            {DEFAULT_LOADING_TIPS[0]}
+          </p>
         </div>
       </div>
     </div>
