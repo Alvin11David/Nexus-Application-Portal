@@ -1,61 +1,9 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
 const SPLASH_KEY = "institute-splash-seen";
-const MAX_LOADING_TIME = 15000; // 15 seconds max
 
-/**
- * Props for the LoadingScreen component
- */
-export interface LoadingScreenProps {
-  onComplete: () => void;
-  motto?: string;
-  statusMessages?: string[];
-  duration?: number;
-  onProgress?: (progress: number) => void;
-  onError?: (error: Error) => void;
-  organizationName?: string;
-  acronym?: string;
-}
-
-/**
- * Props for the LoadingWrapper component
- */
-export interface LoadingWrapperProps {
-  children: React.ReactNode;
-  motto?: string;
-  statusMessages?: string[];
-  duration?: number;
-  skipInDev?: boolean;
-  onLoadComplete?: () => void;
-  forceLoading?: boolean;
-  organizationName?: string;
-  acronym?: string;
-}
-
-const DEFAULT_STATUS_MESSAGES = [
-  "Preparing Experience",
-  "Loading Resources",
-  "Initializing",
-];
-
-const DEFAULT_LOADING_TIPS = [
-  "Did you know? We offer scholarship programs",
-  "Join our vibrant student community",
-  "Explore our world-class research facilities",
-  "Discover internship opportunities",
-];
-
-const LoadingScreen = ({
-  onComplete,
-  motto = "Empowering Through Vocational Skills",
-  statusMessages = DEFAULT_STATUS_MESSAGES,
-  duration = 3.2,
-  onProgress,
-  onError,
-  organizationName = "Institute Uganda",
-  acronym = "IU",
-}: LoadingScreenProps) => {
+const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const brandBlockRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLDivElement>(null);
@@ -64,164 +12,101 @@ const LoadingScreen = ({
   const progressTextRef = useRef<HTMLSpanElement>(null);
   const statusRef = useRef<HTMLParagraphElement>(null);
   const haloRef = useRef<HTMLDivElement>(null);
-  const tipsRef = useRef<HTMLParagraphElement>(null);
-  const currentStatusIndexRef = useRef(0);
-  const currentTipIndexRef = useRef(0);
 
   useEffect(() => {
-    try {
-      const prefersReducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
-      // Safety timeout to prevent infinite loading
-      const safetyTimeoutId = window.setTimeout(() => {
-        try {
-          onComplete();
-        } catch (error) {
-          onError?.(
-            error instanceof Error ? error : new Error("Unknown error"),
-          );
-        }
-      }, MAX_LOADING_TIME);
-
-      if (prefersReducedMotion) {
-        const timeoutId = window.setTimeout(() => {
-          try {
-            onComplete();
-          } catch (error) {
-            onError?.(
-              error instanceof Error ? error : new Error("Unknown error"),
-            );
-          }
-        }, 550);
-
-        return () => {
-          window.clearTimeout(timeoutId);
-          window.clearTimeout(safetyTimeoutId);
-        };
-      }
-
-      // Cycle through status messages
-      const statusMessageInterval = window.setInterval(() => {
-        if (statusRef.current && statusMessages.length > 0) {
-          currentStatusIndexRef.current =
-            (currentStatusIndexRef.current + 1) % statusMessages.length;
-          statusRef.current.textContent =
-            statusMessages[currentStatusIndexRef.current];
-        }
-      }, 1200);
-
-      // Cycle through tips
-      const tipsInterval = window.setInterval(() => {
-        if (tipsRef.current && DEFAULT_LOADING_TIPS.length > 0) {
-          currentTipIndexRef.current =
-            (currentTipIndexRef.current + 1) % DEFAULT_LOADING_TIPS.length;
-          tipsRef.current.textContent =
-            DEFAULT_LOADING_TIPS[currentTipIndexRef.current];
-        }
-      }, 4000);
-
-      const progressState = { value: 0 };
-      const ctx = gsap.context(() => {
-        const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-
-        tl.set(containerRef.current, { opacity: 1 })
-          .fromTo(
-            haloRef.current,
-            { scale: 0.75, opacity: 0 },
-            { scale: 1, opacity: 0.35, duration: 1.1, ease: "power2.out" },
-          )
-          .fromTo(
-            brandBlockRef.current,
-            { y: 28, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.9 },
-            "-=0.8",
-          )
-          .fromTo(
-            nameRef.current,
-            { letterSpacing: "0.42em" },
-            { letterSpacing: "0.26em", duration: 0.8, ease: "power2.out" },
-            "<",
-          )
-          .fromTo(
-            mottoRef.current,
-            { y: 8, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.7 },
-            "-=0.55",
-          )
-          .fromTo(
-            progressBarRef.current,
-            { scaleX: 0 },
-            { scaleX: 1, duration: duration * 0.453, ease: "power2.inOut" },
-            "-=0.2",
-          )
-          .to(
-            progressState,
-            {
-              value: 100,
-              duration: duration * 0.453,
-              ease: "power2.inOut",
-              onUpdate: () => {
-                const progress = Math.round(progressState.value);
-                if (progressTextRef.current) {
-                  progressTextRef.current.textContent = `${progress}%`;
-                }
-                onProgress?.(progress);
-              },
-            },
-            "<",
-          )
-          .to(statusRef.current, {
-            opacity: 0.85,
-            duration: 0.35,
-            onStart: () => {
-              if (statusRef.current) {
-                statusRef.current.textContent = "Ready";
-              }
-            },
-          })
-          .to({}, { duration: 0.22 })
-          .to(containerRef.current, {
-            opacity: 0,
-            duration: 0.7,
-            ease: "power2.inOut",
-            onComplete: () => {
-              try {
-                onComplete();
-              } catch (error) {
-                onError?.(
-                  error instanceof Error ? error : new Error("Unknown error"),
-                );
-              }
-            },
-          });
-
-        gsap.to(haloRef.current, {
-          scale: 1.08,
-          opacity: 0.42,
-          duration: 1.8,
-          yoyo: true,
-          repeat: -1,
-          ease: "sine.inOut",
-        });
-      });
+    if (prefersReducedMotion) {
+      const timeoutId = window.setTimeout(() => {
+        onComplete();
+      }, 550);
 
       return () => {
-        ctx.revert();
-        window.clearInterval(statusMessageInterval);
-        window.clearInterval(tipsInterval);
-        window.clearTimeout(safetyTimeoutId);
+        window.clearTimeout(timeoutId);
       };
-    } catch (error) {
-      const err =
-        error instanceof Error
-          ? error
-          : new Error("Unknown error in LoadingScreen");
-      onError?.(err);
-      onComplete();
     }
-  }, [onComplete, duration, onProgress, onError, statusMessages]);
+
+    const progressState = { value: 0 };
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+      tl.set(containerRef.current, { opacity: 1 })
+        .fromTo(
+          haloRef.current,
+          { scale: 0.75, opacity: 0 },
+          { scale: 1, opacity: 0.35, duration: 1.1, ease: "power2.out" },
+        )
+        .fromTo(
+          brandBlockRef.current,
+          { y: 28, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.9 },
+          "-=0.8",
+        )
+        .fromTo(
+          nameRef.current,
+          { letterSpacing: "0.42em" },
+          { letterSpacing: "0.26em", duration: 0.8, ease: "power2.out" },
+          "<",
+        )
+        .fromTo(
+          mottoRef.current,
+          { y: 8, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.7 },
+          "-=0.55",
+        )
+        .fromTo(
+          progressBarRef.current,
+          { scaleX: 0 },
+          { scaleX: 1, duration: 1.45, ease: "power2.inOut" },
+          "-=0.2",
+        )
+        .to(
+          progressState,
+          {
+            value: 100,
+            duration: 1.45,
+            ease: "power2.inOut",
+            onUpdate: () => {
+              if (progressTextRef.current) {
+                progressTextRef.current.textContent = `${Math.round(progressState.value)}%`;
+              }
+            },
+          },
+          "<",
+        )
+        .to(statusRef.current, {
+          opacity: 0.85,
+          duration: 0.35,
+          onStart: () => {
+            if (statusRef.current) {
+              statusRef.current.textContent = "Ready";
+            }
+          },
+        })
+        .to({}, { duration: 0.22 })
+        .to(containerRef.current, {
+          opacity: 0,
+          duration: 0.7,
+          ease: "power2.inOut",
+          onComplete,
+        });
+
+      gsap.to(haloRef.current, {
+        scale: 1.08,
+        opacity: 0.42,
+        duration: 1.8,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut",
+      });
+    });
+
+    return () => {
+      ctx.revert();
+    };
+  }, [onComplete]);
 
   return (
     <div
@@ -254,21 +139,21 @@ const LoadingScreen = ({
           className="flex flex-col items-center opacity-0"
         >
           <span className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-full border border-primary-foreground/30 text-xs font-body tracking-[0.22em] text-primary-foreground/75">
-            {acronym}
+            IU
           </span>
 
           <div
             ref={nameRef}
             className="font-heading text-3xl font-light uppercase text-primary-foreground md:text-5xl"
           >
-            {organizationName}
+            Institute Uganda
           </div>
 
           <p
             ref={mottoRef}
             className="mt-3 font-body text-[11px] uppercase tracking-[0.28em] text-primary-foreground/65 md:text-xs"
           >
-            {motto}
+            Empowering Through Vocational Skills
           </p>
 
           <div className="mt-10 w-[230px] md:w-[280px]">
@@ -279,45 +164,20 @@ const LoadingScreen = ({
               />
             </div>
             <div className="mt-3 flex items-center justify-between font-body text-[10px] uppercase tracking-[0.22em] text-primary-foreground/70 md:text-[11px]">
-              <p ref={statusRef}>{statusMessages[0]}</p>
+              <p ref={statusRef}>Preparing Experience</p>
               <span ref={progressTextRef}>0%</span>
             </div>
           </div>
-
-          {/* Loading Tips */}
-          <p
-            ref={tipsRef}
-            className="mt-8 max-w-xs text-center font-body text-[10px] italic text-primary-foreground/50 md:max-w-sm md:text-[11px]"
-          >
-            {DEFAULT_LOADING_TIPS[0]}
-          </p>
         </div>
       </div>
     </div>
   );
 };
 
-LoadingScreen.displayName = "LoadingScreen";
-
-const LoadingWrapper = ({
-  children,
-  motto,
-  statusMessages,
-  duration,
-  skipInDev = false,
-  onLoadComplete,
-  forceLoading = false,
-  organizationName,
-  acronym,
-}: LoadingWrapperProps) => {
+const LoadingWrapper = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(() => {
     if (typeof window === "undefined") {
       return true;
-    }
-
-    // Skip in development if enabled
-    if (skipInDev && import.meta.env.DEV) {
-      return false;
     }
 
     try {
@@ -327,8 +187,6 @@ const LoadingWrapper = ({
     }
   });
 
-  const [error, setError] = useState<Error | null>(null);
-
   const handleComplete = () => {
     try {
       window.sessionStorage.setItem(SPLASH_KEY, "1");
@@ -336,55 +194,14 @@ const LoadingWrapper = ({
       // Ignore storage errors and continue UX flow.
     }
     setLoading(false);
-    onLoadComplete?.();
   };
-
-  const handleError = (error: Error) => {
-    console.error("Loading screen error:", error);
-    setError(error);
-    // Gracefully proceed even if there's an error
-    setTimeout(() => handleComplete(), 1000);
-  };
-
-  // Show error state briefly before proceeding
-  if (error && loading) {
-    return (
-      <>
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-primary">
-          <div className="text-center">
-            <p className="font-body text-primary-foreground/70">
-              Loading experience...
-            </p>
-          </div>
-        </div>
-        <div
-          style={{
-            opacity: 0,
-            transition: "opacity 0.5s ease",
-          }}
-        >
-          {children}
-        </div>
-      </>
-    );
-  }
 
   return (
     <>
-      {(loading || forceLoading) && (
-        <LoadingScreen
-          onComplete={handleComplete}
-          motto={motto}
-          statusMessages={statusMessages}
-          duration={duration}
-          onError={handleError}
-          organizationName={organizationName}
-          acronym={acronym}
-        />
-      )}
+      {loading && <LoadingScreen onComplete={handleComplete} />}
       <div
         style={{
-          opacity: loading || forceLoading ? 0 : 1,
+          opacity: loading ? 0 : 1,
           transition: "opacity 0.5s ease",
         }}
       >
@@ -394,9 +211,4 @@ const LoadingWrapper = ({
   );
 };
 
-LoadingWrapper.displayName = "LoadingWrapper";
-
-const MemoizedLoadingWrapper = memo(LoadingWrapper);
-MemoizedLoadingWrapper.displayName = "LoadingWrapper";
-
-export default MemoizedLoadingWrapper;
+export default LoadingWrapper;

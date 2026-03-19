@@ -117,122 +117,177 @@ html {
   scrollbar-color: hsl(var(--muted)) transparent;
 }
 
-/* Hover Animation Keyframes */
-@keyframes cardLift {
-  from {
-    transform: translateY(0px);
-  }
-  to {
-    transform: translateY(-8px);
-  }
+/* ===== ENHANCED HOVER & SCROLL ANIMATION SYSTEM ===== */
+
+/* Magnetic Card — lifts, glows, and tilts on hover */
+.magnetic-card {
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 0.5s ease;
+  will-change: transform;
+}
+.magnetic-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 30px 60px -18px hsl(var(--accent) / 0.22),
+    0 8px 20px -8px hsl(var(--foreground) / 0.06);
 }
 
-@keyframes cardGlow {
-  from {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  to {
-    box-shadow: 0 12px 24px rgba(138, 119, 84, 0.15);
-  }
-}
-
-@keyframes iconScale {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.15);
-  }
-}
-
-@keyframes iconRotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(6deg);
-  }
-}
-
-@keyframes borderGradient {
-  0% {
-    border-color: hsl(var(--border));
-  }
-  100% {
-    border-color: hsl(var(--accent) / 0.4);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 0.15;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-/* Hover Utility Classes */
-.card-hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card-hover:hover {
-  animation:
-    cardLift 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards,
-    cardGlow 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-.icon-hover {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.icon-hover:hover {
-  animation: iconScale 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-/* Enhanced Card Hover Effects */
-.card-lift {
-  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.card-lift:hover {
-  transform: translateY(-12px);
-  box-shadow: 0 20px 40px rgba(138, 119, 84, 0.2);
-}
-
-.card-glow {
+/* Spotlight Card — radial glow follows cursor (set --spotlight-x/y via JS) */
+.spotlight-card {
   position: relative;
-  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  border-color: hsl(var(--border));
+  overflow: hidden;
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 0.5s ease;
+}
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: radial-gradient(
+    600px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+    hsl(var(--accent) / 0.18),
+    transparent 45%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+.spotlight-card:hover::before {
+  opacity: 1;
+}
+.spotlight-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 28px 70px -28px hsl(var(--accent) / 0.35);
+  border-color: hsl(var(--accent) / 0.4);
 }
 
-.card-glow:hover {
+/* Glow Pulse — subtle accent pulse on hover */
+.glow-pulse:hover {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 20px hsl(var(--accent) / 0.15); }
+  50% { box-shadow: 0 0 40px hsl(var(--accent) / 0.3); }
+}
+
+/* Icon Bounce on hover */
+.icon-bounce {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.icon-bounce:hover {
+  transform: scale(1.18) rotate(4deg);
+}
+
+/* Text Shimmer — accent gradient sweep on hover */
+.text-shimmer {
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  transition: background-position 0.6s ease;
+  background-image: linear-gradient(
+    90deg,
+    hsl(var(--foreground)) 0%,
+    hsl(var(--foreground)) 40%,
+    hsl(var(--accent)) 50%,
+    hsl(var(--foreground)) 60%,
+    hsl(var(--foreground)) 100%
+  );
+  background-position: 100% 0;
+}
+.text-shimmer:hover {
+  -webkit-text-fill-color: transparent;
+  background-position: -100% 0;
+}
+
+/* Underline Grow — from left */
+.underline-grow {
+  position: relative;
+  display: inline-block;
+}
+.underline-grow::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: hsl(var(--accent));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.underline-grow:hover::after {
+  transform: scaleX(1);
+}
+
+/* Scroll Reveal base states */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(60px);
+}
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-60px);
+}
+.reveal-right {
+  opacity: 0;
+  transform: translateX(60px);
+}
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.9);
+}
+.reveal-fade {
+  opacity: 0;
+}
+
+/* Revealed state — applied by GSAP */
+.revealed {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Stagger children helper */
+.stagger-children > * {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+/* Smooth image zoom on hover */
+.img-zoom {
+  overflow: hidden;
+}
+.img-zoom img,
+.img-zoom > .img-inner {
+  transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.img-zoom:hover img,
+.img-zoom:hover > .img-inner {
+  transform: scale(1.08);
+}
+
+/* Button hover lift */
+.btn-lift {
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.btn-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -8px hsl(var(--accent) / 0.3);
+}
+
+/* Stat counter glow */
+.stat-glow {
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.stat-glow:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px -20px hsl(var(--accent) / 0.25);
   border-color: hsl(var(--accent) / 0.5);
-  box-shadow:
-    0 0 20px hsl(var(--accent) / 0.15),
-    0 8px 24px hsl(var(--accent) / 0.1);
 }
-
-.card-border-accent {
-  transition: border-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.card-border-accent:hover {
-  border-color: hsl(var(--accent) / 0.6);
-  box-shadow:
-    0 0 30px hsl(var(--accent) / 0.2),
-    inset 0 0 20px hsl(var(--accent) / 0.05);
-}
-
-.card-scale {
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.card-scale:hover {
-  transform: scale(1.02);
-  box-shadow: 0 16px 35px -8px rgba(0, 0, 0, 0.15);
+.stat-glow:hover .stat-value {
+  transform: scale(1.1);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }

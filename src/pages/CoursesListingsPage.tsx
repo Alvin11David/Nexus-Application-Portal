@@ -189,19 +189,19 @@ const CoursesListingsPage = () => {
 
         {/* Summary Stats */}
         <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="card-lift p-8 rounded-[24px] border border-accent/30 bg-accent/5 text-center hover:border-accent/60 hover:bg-accent/8">
+          <div className="p-8 rounded-[24px] border border-accent/30 bg-accent/5 text-center">
             <p className="font-heading text-5xl font-light text-accent mb-3">
               143+
             </p>
             <p className="font-body text-muted-foreground">Total Programs</p>
           </div>
-          <div className="card-lift p-8 rounded-[24px] border border-accent/30 bg-accent/5 text-center hover:border-accent/60 hover:bg-accent/8">
+          <div className="p-8 rounded-[24px] border border-accent/30 bg-accent/5 text-center">
             <p className="font-heading text-5xl font-light text-accent mb-3">
               10
             </p>
             <p className="font-body text-muted-foreground">Academic Colleges</p>
           </div>
-          <div className="card-lift p-8 rounded-[24px] border border-accent/30 bg-accent/5 text-center hover:border-accent/60 hover:bg-accent/8">
+          <div className="p-8 rounded-[24px] border border-accent/30 bg-accent/5 text-center">
             <p className="font-heading text-5xl font-light text-accent mb-3">
               Unlimited
             </p>
