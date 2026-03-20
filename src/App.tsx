@@ -48,6 +48,8 @@ const ProgramsPage = lazy(() => import("./pages/ProgramsPage.tsx"));
 const ImpactPage = lazy(() => import("./pages/ImpactPage.tsx"));
 const DonatePage = lazy(() => import("./pages/DonatePage.tsx"));
 const GalleryPage = lazy(() => import("./pages/GalleryPage.tsx"));
+const PartnersPage = lazy(() => import("./pages/PartnersPage.tsx"));
+const StudentStoriesPage = lazy(() => import("./pages/StudentStoriesPage.tsx"));
 const ContactPage = lazy(() => import("./pages/ContactPage.tsx"));
 const ChatBot = lazy(() => import("@/components/ChatBot"));
 const AdminLoginPage = lazy(() => import("./pages/AdminLoginPage.tsx"));
