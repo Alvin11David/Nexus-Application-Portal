@@ -1,46 +1,94 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import heroCampus from "@/assets/hero-campus.jpg";
-import aboutHero from "@/assets/about-hero.jpg";
+
+import tailoringClass from "@/assets/gallery/tailoring-class.jpg";
+import graduationCeremony from "@/assets/gallery/graduation-ceremony.jpg";
+import electricalTraining from "@/assets/gallery/electrical-training.jpg";
+import communityOutreach from "@/assets/gallery/community-outreach.jpg";
+import soapProducts from "@/assets/gallery/soap-products.jpg";
+import beautyTherapy from "@/assets/gallery/beauty-therapy.jpg";
+import weldingWorkshop from "@/assets/gallery/welding-workshop.jpg";
+import graduatesGroup from "@/assets/gallery/graduates-group.jpg";
+import plumbingTraining from "@/assets/gallery/plumbing-training.jpg";
+import communityMarket from "@/assets/gallery/community-market.jpg";
+import autoMechanics from "@/assets/gallery/auto-mechanics.jpg";
+import tailoringBusiness from "@/assets/gallery/tailoring-business.jpg";
 
 gsap.registerPlugin(ScrollTrigger);
 
 type Category = "All" | "Training" | "Graduation" | "Community" | "Projects";
 
-const galleryItems: { src: string; alt: string; caption: string; category: Omit<Category, "All"> }[] = [
-  { src: heroCampus, alt: "Tailoring class in session", caption: "Tailoring students perfecting their craft", category: "Training" },
-  { src: aboutHero, alt: "Graduation ceremony", caption: "Class of 2023 Graduation Day", category: "Graduation" },
-  { src: heroCampus, alt: "Electrical installation training", caption: "Students practice electrical wiring", category: "Training" },
-  { src: aboutHero, alt: "Community outreach event", caption: "Outreach day in Nakawa", category: "Community" },
-  { src: heroCampus, alt: "Student project display", caption: "Graduates showcase their business products", category: "Projects" },
-  { src: aboutHero, alt: "Beauty therapy class", caption: "Beauty therapy practical session", category: "Training" },
-  { src: heroCampus, alt: "Welding in workshop", caption: "Welding fabrication workshop", category: "Training" },
-  { src: aboutHero, alt: "Graduation group photo", caption: "Tailoring graduates, Class of 2022", category: "Graduation" },
-  { src: heroCampus, alt: "Soap products display", caption: "Soap making graduates display their products", category: "Projects" },
-  { src: aboutHero, alt: "Community gathering", caption: "Community partners meeting", category: "Community" },
-  { src: heroCampus, alt: "Plumbing training", caption: "Students in plumbing practical session", category: "Training" },
-  { src: aboutHero, alt: "Student project market", caption: "Graduates sell products at community market", category: "Projects" },
+interface GalleryItem {
+  src: string;
+  alt: string;
+  caption: string;
+  category: Exclude<Category, "All">;
+  span?: "tall" | "wide" | "normal";
+}
+
+const galleryItems: GalleryItem[] = [
+  { src: tailoringClass, alt: "Tailoring class in session", caption: "Tailoring students perfecting their craft", category: "Training", span: "wide" },
+  { src: graduationCeremony, alt: "Graduation ceremony", caption: "Class of 2024 Graduation Day", category: "Graduation", span: "normal" },
+  { src: electricalTraining, alt: "Electrical installation training", caption: "Students practice electrical wiring", category: "Training", span: "tall" },
+  { src: communityOutreach, alt: "Community outreach event", caption: "Outreach day in Nakawa", category: "Community", span: "wide" },
+  { src: soapProducts, alt: "Handmade soap products", caption: "Graduate showcases her soap business", category: "Projects", span: "tall" },
+  { src: beautyTherapy, alt: "Beauty therapy class", caption: "Beauty therapy practical session", category: "Training", span: "normal" },
+  { src: weldingWorkshop, alt: "Welding in workshop", caption: "Welding fabrication workshop", category: "Training", span: "wide" },
+  { src: graduatesGroup, alt: "Graduation group photo", caption: "Proud graduates with certificates", category: "Graduation", span: "wide" },
+  { src: plumbingTraining, alt: "Plumbing training", caption: "Students in plumbing practical session", category: "Training", span: "tall" },
+  { src: communityMarket, alt: "Community market", caption: "Graduates sell products at community market", category: "Projects", span: "normal" },
+  { src: autoMechanics, alt: "Auto mechanics training", caption: "Auto mechanics hands-on learning", category: "Training", span: "normal" },
+  { src: tailoringBusiness, alt: "Graduate running her business", caption: "A graduate runs her own tailoring shop", category: "Projects", span: "tall" },
 ];
 
 const categories: Category[] = ["All", "Training", "Graduation", "Community", "Projects"];
 
 const GalleryPage = () => {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
-  const [lightboxImg, setLightboxImg] = useState<{ src: string; alt: string; caption: string } | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const lightboxRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
 
   const filtered = activeCategory === "All" ? galleryItems : galleryItems.filter((item) => item.category === activeCategory);
+  const lightboxItem = lightboxIndex !== null ? filtered[lightboxIndex] : null;
 
+  const openLightbox = (i: number) => setLightboxIndex(i);
+  const closeLightbox = () => setLightboxIndex(null);
+
+  const goNext = useCallback(() => {
+    if (lightboxIndex === null) return;
+    setLightboxIndex((lightboxIndex + 1) % filtered.length);
+  }, [lightboxIndex, filtered.length]);
+
+  const goPrev = useCallback(() => {
+    if (lightboxIndex === null) return;
+    setLightboxIndex((lightboxIndex - 1 + filtered.length) % filtered.length);
+  }, [lightboxIndex, filtered.length]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowRight") goNext();
+      if (e.key === "ArrowLeft") goPrev();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightboxIndex, goNext, goPrev]);
+
+  // Hero entrance
   useEffect(() => {
     window.scrollTo(0, 0);
     const ctx = gsap.context(() => {
       gsap.fromTo(".gallery-hero-text > *",
-        { y: 80, opacity: 0, clipPath: "inset(100% 0% 0% 0%)" },
-        { y: 0, opacity: 1, clipPath: "inset(0% 0% 0% 0%)", duration: 1.3, stagger: 0.18, ease: "power3.out", delay: 0.3 }
+        { y: 60, opacity: 0, filter: "blur(6px)" },
+        { y: 0, opacity: 1, filter: "blur(0px)", duration: 1.1, stagger: 0.15, ease: "power3.out", delay: 0.3 }
       );
     });
     return () => ctx.revert();
@@ -49,98 +97,179 @@ const GalleryPage = () => {
   // Animate grid items on filter change
   useEffect(() => {
     if (!gridRef.current) return;
+    const items = gridRef.current.querySelectorAll(".gallery-item");
     const ctx = gsap.context(() => {
-      gsap.fromTo(gridRef.current!.querySelectorAll(".gallery-item"),
-        { scale: 0.88, opacity: 0, y: 30 },
-        { scale: 1, opacity: 1, y: 0, duration: 0.55, stagger: 0.04, ease: "back.out(1.3)" }
+      gsap.fromTo(items,
+        { scale: 0.92, opacity: 0, y: 40, filter: "blur(4px)" },
+        { scale: 1, opacity: 1, y: 0, filter: "blur(0px)", duration: 0.6, stagger: 0.06, ease: "power3.out" }
       );
     });
     return () => ctx.revert();
   }, [activeCategory]);
 
-  // Animate lightbox open
+  // Lightbox animation
   useEffect(() => {
-    if (lightboxImg && lightboxRef.current) {
+    if (lightboxItem && lightboxRef.current) {
+      document.body.style.overflow = "hidden";
       gsap.fromTo(lightboxRef.current,
         { opacity: 0 },
         { opacity: 1, duration: 0.3, ease: "power2.out" }
       );
       gsap.fromTo(lightboxRef.current.querySelector(".lightbox-content"),
-        { scale: 0.9, y: 30 },
-        { scale: 1, y: 0, duration: 0.45, ease: "back.out(1.4)", delay: 0.1 }
+        { scale: 0.92, y: 20, filter: "blur(6px)" },
+        { scale: 1, y: 0, filter: "blur(0px)", duration: 0.5, ease: "power3.out", delay: 0.1 }
       );
+    } else {
+      document.body.style.overflow = "";
     }
-  }, [lightboxImg]);
+    return () => { document.body.style.overflow = ""; };
+  }, [lightboxItem]);
+
+  // Scroll-triggered parallax on hero
+  useEffect(() => {
+    if (!heroRef.current) return;
+    const ctx = gsap.context(() => {
+      gsap.to(".gallery-hero-img", {
+        y: 80,
+        ease: "none",
+        scrollTrigger: { trigger: heroRef.current, start: "top top", end: "bottom top", scrub: 1.2 },
+      });
+    });
+    return () => ctx.revert();
+  }, []);
+
+  const getSpanClass = (span?: string) => {
+    switch (span) {
+      case "tall": return "row-span-2";
+      case "wide": return "col-span-1 sm:col-span-2";
+      default: return "";
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
       {/* Hero */}
-      <div className="relative min-h-[50vh] flex items-end">
-        <div className="absolute inset-0 overflow-hidden rounded-none">
-          <img src={heroCampus} alt="Gallery hero" className="w-full h-full object-cover rounded-none" />
-          <div className="absolute inset-0 bg-primary/70 rounded-none" />
-        </div>
-        <div className="relative z-10 px-8 md:px-16 pb-24 pt-40 gallery-hero-text max-w-4xl">
-          <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-6 opacity-0">Photo Gallery</p>
-          <h1 className="font-heading text-5xl md:text-7xl font-light text-primary-foreground leading-[0.92] mb-8 opacity-0">
+      <div ref={heroRef} className="relative min-h-[55vh] flex items-end overflow-hidden">
+        <img src={graduatesGroup} alt="Gallery hero" className="gallery-hero-img absolute inset-0 w-full h-full object-cover rounded-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/60 to-primary/20 rounded-none" />
+        <div className="relative z-10 px-8 md:px-16 pb-20 pt-40 gallery-hero-text max-w-4xl">
+          <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-5 opacity-0">Photo Gallery</p>
+          <h1 className="font-heading text-5xl md:text-7xl font-light text-primary-foreground leading-[0.92] mb-6 opacity-0">
             See the Impact<br /><em className="text-accent">In Action</em>
           </h1>
-          <p className="font-body text-lg text-primary-foreground/70 max-w-xl leading-relaxed opacity-0">
+          <p className="font-body text-base text-primary-foreground/70 max-w-xl leading-relaxed opacity-0">
             Photos from our training sessions, graduation ceremonies, student projects, and community activities.
           </p>
         </div>
       </div>
 
-      {/* Filter */}
-      <div className="px-8 md:px-16 pt-16 pb-8">
-        <div className="flex flex-wrap gap-3">
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`font-body text-xs tracking-[0.2em] uppercase px-5 py-2.5 rounded-full border transition-all duration-400 ${
-                activeCategory === cat
-                  ? "bg-accent text-accent-foreground border-accent scale-105"
-                  : "border-border text-muted-foreground hover:border-accent/40 hover:text-foreground hover:scale-105"
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+      {/* Filter Bar */}
+      <div className="sticky top-16 z-30 bg-background/80 backdrop-blur-lg border-b border-border/50">
+        <div className="px-8 md:px-16 py-5">
+          <div className="flex flex-wrap gap-2.5">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`font-body text-xs tracking-[0.18em] uppercase px-5 py-2 rounded-full border transition-all duration-300 active:scale-95 ${
+                  activeCategory === cat
+                    ? "bg-accent text-accent-foreground border-accent shadow-md shadow-accent/20"
+                    : "border-border text-muted-foreground hover:border-accent/40 hover:text-foreground hover:shadow-sm"
+                }`}
+              >
+                {cat}
+                {cat !== "All" && (
+                  <span className="ml-1.5 text-[10px] opacity-60">
+                    ({galleryItems.filter(g => g.category === cat).length})
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Gallery Grid */}
-      <div ref={gridRef} className="px-8 md:px-16 pb-24 md:pb-32">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map(({ src, alt, caption }, i) => (
+      {/* Gallery Grid — masonry-inspired */}
+      <div ref={gridRef} className="px-6 md:px-12 lg:px-16 py-12 md:py-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-[280px] gap-3">
+          {filtered.map(({ src, alt, caption, span }, i) => (
             <button
               key={`${activeCategory}-${i}`}
-              className="gallery-item opacity-0 group relative overflow-hidden rounded-[20px] aspect-square cursor-pointer img-zoom"
-              onClick={() => setLightboxImg({ src, alt, caption })}
+              className={`gallery-item opacity-0 group relative overflow-hidden rounded-2xl cursor-pointer focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${getSpanClass(span)}`}
+              onClick={() => openLightbox(i)}
+              aria-label={`View: ${caption}`}
             >
-              <img src={src} alt={alt} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/60 transition-all duration-500 rounded-[20px] flex items-end">
-                <p className="font-body text-sm text-primary-foreground px-5 py-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">{caption}</p>
+              <img
+                src={src}
+                alt={alt}
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+              />
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-5">
+                <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                  <p className="font-body text-sm text-primary-foreground/90 leading-snug">{caption}</p>
+                </div>
+                <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-accent/20 backdrop-blur-sm flex items-center justify-center scale-75 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-400 delay-100">
+                  <ZoomIn className="w-4 h-4 text-accent-foreground" />
+                </div>
               </div>
+              {/* Subtle inner shadow for depth */}
+              <div className="absolute inset-0 rounded-2xl shadow-[inset_0_-60px_60px_-40px_hsl(var(--primary)/0.3)] pointer-events-none" />
             </button>
           ))}
         </div>
       </div>
 
       {/* Lightbox */}
-      {lightboxImg && (
+      {lightboxItem && (
         <div
           ref={lightboxRef}
-          className="fixed inset-0 z-[200] bg-primary/95 flex items-center justify-center p-8 opacity-0"
-          onClick={() => setLightboxImg(null)}
+          className="fixed inset-0 z-[200] bg-primary/95 backdrop-blur-md flex items-center justify-center opacity-0"
+          onClick={closeLightbox}
         >
-          <div className="lightbox-content max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
-            <img src={lightboxImg.src} alt={lightboxImg.alt} className="w-full max-h-[75vh] object-contain rounded-[20px]" />
-            <p className="font-body text-sm text-primary-foreground/70 mt-4 text-center">{lightboxImg.caption}</p>
-            <button onClick={() => setLightboxImg(null)} className="block mx-auto mt-6 font-body text-xs tracking-[0.3em] uppercase text-accent hover:text-primary-foreground transition-colors duration-300">Close</button>
+          <div className="lightbox-content relative max-w-5xl w-full mx-4 md:mx-8" onClick={(e) => e.stopPropagation()}>
+            {/* Close */}
+            <button
+              onClick={closeLightbox}
+              className="absolute -top-12 right-0 md:top-4 md:-right-14 w-10 h-10 rounded-full bg-primary-foreground/10 backdrop-blur-sm flex items-center justify-center hover:bg-primary-foreground/20 transition-colors duration-300 active:scale-95"
+              aria-label="Close lightbox"
+            >
+              <X className="w-5 h-5 text-primary-foreground" />
+            </button>
+
+            {/* Navigation arrows */}
+            <button
+              onClick={(e) => { e.stopPropagation(); goPrev(); }}
+              className="absolute left-2 md:-left-14 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-primary-foreground/10 backdrop-blur-sm flex items-center justify-center hover:bg-primary-foreground/20 transition-colors duration-300 active:scale-95 z-10"
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-5 h-5 text-primary-foreground" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); goNext(); }}
+              className="absolute right-2 md:-right-14 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-primary-foreground/10 backdrop-blur-sm flex items-center justify-center hover:bg-primary-foreground/20 transition-colors duration-300 active:scale-95 z-10"
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-5 h-5 text-primary-foreground" />
+            </button>
+
+            {/* Image */}
+            <img
+              src={lightboxItem.src}
+              alt={lightboxItem.alt}
+              className="w-full max-h-[78vh] object-contain rounded-2xl"
+            />
+
+            {/* Caption bar */}
+            <div className="flex items-center justify-between mt-4 px-1">
+              <p className="font-body text-sm text-primary-foreground/70">{lightboxItem.caption}</p>
+              <p className="font-body text-xs text-primary-foreground/40 tabular-nums">
+                {lightboxIndex !== null ? lightboxIndex + 1 : 0} / {filtered.length}
+              </p>
+            </div>
           </div>
         </div>
       )}
