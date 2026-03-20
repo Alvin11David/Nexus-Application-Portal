@@ -19,7 +19,9 @@ const quickLinks = [
   { label: "About", href: "/about" },
   { label: "Programs", href: "/programs" },
   { label: "Impact & Stories", href: "/impact" },
+  { label: "Student Stories", href: "/stories" },
   { label: "Gallery", href: "/gallery" },
+  { label: "Partners", href: "/partners" },
   { label: "Donate", href: "/donate" },
   { label: "Contact", href: "/contact" },
 ];
