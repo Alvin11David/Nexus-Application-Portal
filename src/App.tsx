@@ -52,17 +52,6 @@ const PartnersPage = lazy(() => import("./pages/PartnersPage.tsx"));
 const StudentStoriesPage = lazy(() => import("./pages/StudentStoriesPage.tsx"));
 const ContactPage = lazy(() => import("./pages/ContactPage.tsx"));
 const ChatBot = lazy(() => import("@/components/ChatBot"));
-const AdminLoginPage = lazy(() => import("./pages/AdminLoginPage.tsx"));
-import AdminLayout from "@/components/AdminLayout";
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard.tsx"));
-const AdminNewsPage = lazy(() => import("./pages/admin/AdminNewsPage.tsx"));
-const AdminFacultyPage = lazy(
-  () => import("./pages/admin/AdminFacultyPage.tsx"),
-);
-const AdminCoursesPage = lazy(
-  () => import("./pages/admin/AdminCoursesPage.tsx"),
-);
-const AdminPagesPage = lazy(() => import("./pages/admin/AdminPagesPage.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -76,24 +65,6 @@ const RouteFallback = () => (
 
 const AnimatedRoutes = () => {
   const location = useLocation();
-  const isAdmin = location.pathname.startsWith("/admin");
-
-  if (isAdmin) {
-    return (
-      <Suspense fallback={<RouteFallback />}>
-        <Routes location={location}>
-          <Route path="/admin/login" element={<AdminLoginPage />} />
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="news" element={<AdminNewsPage />} />
-            <Route path="faculty" element={<AdminFacultyPage />} />
-            <Route path="courses" element={<AdminCoursesPage />} />
-            <Route path="pages" element={<AdminPagesPage />} />
-          </Route>
-        </Routes>
-      </Suspense>
-    );
-  }
 
   return (
     <>
