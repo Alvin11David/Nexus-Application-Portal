@@ -3562,24 +3562,24 @@ const ApplicationStartPage = () => {
                             {formData.paymentReference || "Not provided"}
                           </p>
                         </div>
-                          <div className="rounded-[18px] border border-border bg-secondary/10 p-4 space-y-3">
-                            <p className="font-body text-xs uppercase tracking-[0.2em] text-accent">
-                              Declaration
-                            </p>
-                            <p className="font-body text-sm text-foreground leading-relaxed">
-                              I declare that the information provided in this
-                              application is true and complete to the best of my
-                              knowledge. I understand that submitting forged,
-                              misleading, or incomplete documents may result in
-                              rejection, withdrawal of admission, or other
-                              disciplinary and legal action in line with the
-                              institution's regulations.
-                            </p>
-                            <p className="text-xs text-muted-foreground leading-relaxed">
-                              After final submission and payment confirmation,
-                              this application is locked and cannot be edited.
-                            </p>
-                          </div>
+                        <div className="rounded-[18px] border border-border bg-secondary/10 p-4 space-y-3">
+                          <p className="font-body text-xs uppercase tracking-[0.2em] text-accent">
+                            Declaration
+                          </p>
+                          <p className="font-body text-sm text-foreground leading-relaxed">
+                            I declare that the information provided in this
+                            application is true and complete to the best of my
+                            knowledge. I understand that submitting forged,
+                            misleading, or incomplete documents may result in
+                            rejection, withdrawal of admission, or other
+                            disciplinary and legal action in line with the
+                            institution's regulations.
+                          </p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            After final submission and payment confirmation,
+                            this application is locked and cannot be edited.
+                          </p>
+                        </div>
                         <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
                           <input
                             type="checkbox"
@@ -3589,8 +3589,8 @@ const ApplicationStartPage = () => {
                             }
                             className="mt-1"
                           />
-                            I confirm that the information and attached documents
-                            are accurate, authentic, and complete.
+                          I confirm that the information and attached documents
+                          are accurate, authentic, and complete.
                         </label>
                         {errors.termsAccepted && (
                           <p className="text-xs text-destructive">
