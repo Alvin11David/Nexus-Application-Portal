@@ -68,14 +68,21 @@ const NewsArticlePage = () => {
     return <Navigate to="/not-found" replace />;
   }
 
+  // Normalize article to Article type
+  const normalizedArticle: Article = {
+    id: (article as any).id || slug || "",
+    slug: (article as any).slug || slug || "",
+    ...(article as any),
+  };
+
   const relatedArticles = allArticles
-    .filter((item) => item.slug !== article.slug)
+    .filter((item) => item.slug !== normalizedArticle.slug)
     .slice(0, 3);
-  const paragraphs = toParagraphs(article);
-  const highlights = Array.isArray(article.highlights)
-    ? article.highlights
+  const paragraphs = toParagraphs(normalizedArticle);
+  const highlights = Array.isArray(normalizedArticle.highlights)
+    ? normalizedArticle.highlights
     : [];
-  const articleDate = article.published_date ?? article.date;
+  const articleDate = normalizedArticle.published_date ?? normalizedArticle.date;
 
   return (
     <div className="min-h-screen bg-background">
@@ -92,17 +99,17 @@ const NewsArticlePage = () => {
           </Link>
 
           <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">
-            {article.category}
+            {normalizedArticle.category}
           </p>
           <h1 className="font-heading text-4xl md:text-6xl font-light text-foreground leading-[0.95] mb-6">
-            {article.title}
+            {normalizedArticle.title}
           </h1>
           <div className="flex flex-wrap items-center gap-4 font-body text-sm text-muted-foreground mb-8">
             <span>{articleDate}</span>
-            <span>{article.readTime ?? "5 min read"}</span>
+            <span>{normalizedArticle.readTime ?? "5 min read"}</span>
           </div>
           <p className="font-body text-lg text-muted-foreground leading-relaxed mb-12 max-w-3xl">
-            {article.excerpt}
+            {normalizedArticle.excerpt}
           </p>
 
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-10 items-start">
