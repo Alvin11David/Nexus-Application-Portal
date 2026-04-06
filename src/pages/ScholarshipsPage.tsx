@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Award, TrendingUp, Users } from "lucide-react";
 import aboutHero from "@/assets/about-hero.jpg";
+import { useFirestoreCollection } from "@/hooks/useFirestore";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -36,6 +37,15 @@ const scholarshipTypes = [
   },
 ];
 
+type ScholarshipDoc = {
+  id: string;
+  name: string;
+  amount?: number;
+  currency?: string;
+  eligibility_criteria?: string;
+  level?: string;
+};
+
 const stats = [
   { label: "Total Scholarships", value: "$18M+", desc: "Distributed annually" },
   { label: "Coverage", value: "80%", desc: "Of student population" },
@@ -47,6 +57,44 @@ const ScholarshipsPage = () => {
   const heroTextRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const typesRef = useRef<HTMLDivElement>(null);
+  const { data: scholarshipDocs } = useFirestoreCollection<ScholarshipDoc>(
+    "scholarships",
+    [],
+    { orderBy: { field: "amount", direction: "desc" } },
+  );
+
+  const scholarshipData =
+    scholarshipDocs.length > 0
+      ? scholarshipDocs.map((item) => ({
+          name: item.name,
+          amount:
+            typeof item.amount === "number"
+              ? `${item.currency || "$"}${item.amount.toLocaleString()}`
+              : "Varies",
+          criteria:
+            item.eligibility_criteria ||
+            "See scholarship details for eligibility and requirements.",
+          count: item.level ? `${item.level} level` : "Open category",
+        }))
+      : scholarshipTypes;
+
+  const totalAmount = scholarshipDocs.reduce(
+    (sum, item) => sum + (typeof item.amount === "number" ? item.amount : 0),
+    0,
+  );
+  const dynamicStats = [
+    {
+      label: "Total Scholarships",
+      value: totalAmount > 0 ? `$${Math.round(totalAmount).toLocaleString()}` : "$18M+",
+      desc: "Recorded in database",
+    },
+    {
+      label: "Coverage",
+      value: scholarshipDocs.length > 0 ? `${scholarshipDocs.length}` : "80%",
+      desc: "Available scholarship records",
+    },
+    stats[2],
+  ];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -158,7 +206,7 @@ const ScholarshipsPage = () => {
         className="px-8 md:px-16 py-24 bg-gradient-to-b from-secondary/20 to-background"
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          {stats.map((item) => (
+          {dynamicStats.map((item) => (
             <div key={item.label} className="stat-card opacity-0">
               <div className="card-hover p-8 rounded-[24px] border border-border/40 bg-background hover:border-accent/40 text-center transition-all duration-500">
                 <p className="font-heading text-4xl font-light text-accent mb-3">
@@ -188,7 +236,7 @@ const ScholarshipsPage = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {scholarshipTypes.map((scholarship) => (
+          {scholarshipData.map((scholarship) => (
             <div key={scholarship.name} className="scholarship-card opacity-0">
               <div className="group card-hover h-full p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500">
                 <Award

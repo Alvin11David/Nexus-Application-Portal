@@ -12,6 +12,7 @@ import storyEsther from "@/assets/story-esther.jpg";
 import tailoringBusiness from "@/assets/gallery/tailoring-business.jpg";
 import soapProducts from "@/assets/gallery/soap-products.jpg";
 import communityMarket from "@/assets/gallery/community-market.jpg";
+import { useFirestoreCollection } from "@/hooks/useFirestore";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -103,10 +104,46 @@ const stories: Story[] = [
   },
 ];
 
+type StudentStoryDoc = {
+  id: string;
+  title: string;
+  student_name: string;
+  program?: string;
+  graduation_year?: number;
+  content?: string;
+  image_url?: string;
+};
+
 const StudentStoriesPage = () => {
   const navigate = useNavigate();
   const [expandedStory, setExpandedStory] = useState<number | null>(null);
   const storiesRef = useRef<HTMLDivElement>(null);
+  const { data: storyDocs } = useFirestoreCollection<StudentStoryDoc>(
+    "student_stories",
+    [],
+    { orderBy: { field: "published_date", direction: "desc" } },
+  );
+
+  const dynamicStories: Story[] =
+    storyDocs.length > 0
+      ? storyDocs.map((doc, index) => {
+          const content = doc.content || "Story details will be published soon.";
+          return {
+            name: doc.student_name,
+            age: 0,
+            program: doc.program || "Vocational Training",
+            graduated: doc.graduation_year ? String(doc.graduation_year) : "Recent",
+            image:
+              doc.image_url ||
+              [tailoringBusiness, storySamuel, storyGrace, storyEsther, soapProducts, communityMarket][index % 6],
+            tag: "Featured Story",
+            quote: doc.title,
+            before: "Learner preparing for better livelihood opportunities.",
+            after: "Graduate applying practical skills for income and impact.",
+            fullStory: content,
+          };
+        })
+      : stories;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -168,7 +205,7 @@ const StudentStoriesPage = () => {
         </div>
 
         <div ref={storiesRef} className="space-y-8 max-w-5xl">
-          {stories.map((story, i) => (
+          {dynamicStories.map((story, i) => (
             <div
               key={story.name}
               className="story-card opacity-0 group border border-border rounded-2xl overflow-hidden hover:border-accent/30 transition-all duration-500"

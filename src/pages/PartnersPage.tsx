@@ -9,6 +9,7 @@ import partnersHero from "@/assets/partners-hero.jpg";
 import communityOutreach from "@/assets/gallery/community-outreach.jpg";
 import graduatesGroup from "@/assets/gallery/graduates-group.jpg";
 import { useSpotlightCards } from "@/hooks/useScrollReveal";
+import { useFirestoreCollection } from "@/hooks/useFirestore";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -48,6 +49,12 @@ const currentPartners = [
   { name: "Kampala Trade Association", type: "Industry Partner", since: "2023" },
 ];
 
+type PartnerDoc = {
+  id: string;
+  name: string;
+  category?: string;
+};
+
 const impactNumbers = [
   { value: "18", label: "Active Partners" },
   { value: "$240K", label: "Funds Mobilised" },
@@ -60,6 +67,28 @@ const PartnersPage = () => {
   const cardsRef = useRef<HTMLDivElement>(null);
   const partnersGridRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
+  const { data: partnerDocs } = useFirestoreCollection<PartnerDoc>(
+    "partners",
+    currentPartners.map((partner) => ({
+      id: partner.name,
+      name: partner.name,
+      category: partner.type,
+    })),
+    { orderBy: { field: "name", direction: "asc" } },
+  );
+
+  const partnersList = partnerDocs.map((partner) => ({
+    name: partner.name,
+    type: partner.category || "Partner",
+    since: "Now",
+  }));
+
+  const dynamicImpactNumbers = [
+    { value: `${partnersList.length}`, label: "Active Partners" },
+    impactNumbers[1],
+    impactNumbers[2],
+    impactNumbers[3],
+  ];
 
   useSpotlightCards(cardsRef);
 
@@ -133,7 +162,7 @@ const PartnersPage = () => {
       {/* Partnership Stats */}
       <div ref={statsRef} className="px-8 md:px-16 py-16 bg-secondary/20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
-          {impactNumbers.map(({ value, label }) => (
+          {dynamicImpactNumbers.map(({ value, label }) => (
             <div key={label} className="stat-item opacity-0 text-center p-6 bg-background border border-border rounded-2xl stat-glow">
               <p className="stat-value font-heading text-4xl md:text-5xl font-light text-accent mb-2">{value}</p>
               <p className="font-body text-xs tracking-[0.2em] uppercase text-muted-foreground">{label}</p>
@@ -191,7 +220,7 @@ const PartnersPage = () => {
           </p>
         </div>
         <div ref={partnersGridRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {currentPartners.map(({ name, type, since }) => (
+          {partnersList.map(({ name, type, since }) => (
             <div key={name} className="current-partner opacity-0 group p-6 border border-border rounded-2xl hover:border-accent/40 transition-all duration-500 magnetic-card">
               <div className="flex items-start justify-between mb-3">
                 <Handshake size={20} className="text-accent/60 group-hover:text-accent transition-colors duration-500" />

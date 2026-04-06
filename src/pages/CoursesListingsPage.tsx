@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { BookOpen } from "lucide-react";
 import aboutHero from "@/assets/about-hero.jpg";
+import { useFirestoreCollection } from "@/hooks/useFirestore";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -52,10 +53,66 @@ const colleges = [
   },
 ];
 
+type CourseDoc = {
+  id: string;
+  title?: string;
+  code?: string;
+  college?: string;
+  level?: string;
+  description?: string;
+};
+
+type CollegeCard = {
+  name: string;
+  programs: number;
+  focus: string;
+};
+
 const CoursesListingsPage = () => {
   const imageRef = useRef<HTMLImageElement>(null);
   const heroTextRef = useRef<HTMLDivElement>(null);
   const collegesRef = useRef<HTMLDivElement>(null);
+  const { data: courseDocs } = useFirestoreCollection<CourseDoc>("courses", [], {
+    orderBy: { field: "college", direction: "asc" },
+  });
+
+  const collegesData: CollegeCard[] =
+    courseDocs.length > 0
+      ? Object.values(
+          courseDocs.reduce<Record<string, CollegeCard & { levels: Set<string> }>>(
+            (acc, course) => {
+              const key = (course.college || "General Studies").trim();
+              if (!acc[key]) {
+                acc[key] = {
+                  name: key,
+                  programs: 0,
+                  focus: "Program pathways and career-ready learning tracks.",
+                  levels: new Set<string>(),
+                };
+              }
+
+              acc[key].programs += 1;
+              if (course.level) {
+                acc[key].levels.add(course.level);
+              }
+
+              const levelSummary = Array.from(acc[key].levels).slice(0, 3).join(", ");
+              if (levelSummary) {
+                acc[key].focus = levelSummary;
+              }
+
+              return acc;
+            },
+            {},
+          ),
+        ).map(({ levels: _levels, ...college }) => college)
+      : colleges;
+
+  const totalPrograms = collegesData.reduce(
+    (sum, college) => sum + college.programs,
+    0,
+  );
+  const totalColleges = collegesData.length;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -156,7 +213,7 @@ const CoursesListingsPage = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {colleges.map((college) => (
+          {collegesData.map((college) => (
             <div key={college.name} className="college-card opacity-0">
               <Link
                 to="/study/courses-programs"
@@ -191,13 +248,13 @@ const CoursesListingsPage = () => {
         <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="p-8 rounded-[24px] border border-accent/30 bg-accent/5 text-center">
             <p className="font-heading text-5xl font-light text-accent mb-3">
-              143+
+              {totalPrograms > 0 ? `${totalPrograms}+` : "143+"}
             </p>
             <p className="font-body text-muted-foreground">Total Programs</p>
           </div>
           <div className="p-8 rounded-[24px] border border-accent/30 bg-accent/5 text-center">
             <p className="font-heading text-5xl font-light text-accent mb-3">
-              10
+              {totalColleges > 0 ? totalColleges : 10}
             </p>
             <p className="font-body text-muted-foreground">Academic Colleges</p>
           </div>

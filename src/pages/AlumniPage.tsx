@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Award, Users, Briefcase } from "lucide-react";
 import aboutHero from "@/assets/about-hero.jpg";
+import { useFirestoreCollection } from "@/hooks/useFirestore";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -50,11 +51,50 @@ const spotlights = [
   },
 ];
 
+type AlumniDoc = {
+  id: string;
+  name: string;
+  occupation?: string;
+  company?: string;
+  graduation_year?: number;
+  bio?: string;
+  featured?: boolean;
+};
+
 const AlumniPage = () => {
   const imageRef = useRef<HTMLImageElement>(null);
   const heroTextRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const spotlightsRef = useRef<HTMLDivElement>(null);
+  const { data: alumniDocs } = useFirestoreCollection<AlumniDoc>("alumni", [], {
+    orderBy: { field: "graduation_year", direction: "desc" },
+  });
+
+  const spotlightData =
+    alumniDocs.length > 0
+      ? alumniDocs
+          .filter((item) => item.featured ?? true)
+          .slice(0, 3)
+          .map((item) => ({
+            name: item.name,
+            role: [item.occupation, item.company].filter(Boolean).join(", "),
+            year: item.graduation_year ? String(item.graduation_year) : "-",
+            bio:
+              item.bio ||
+              "Alumni profile from the Veritas community network.",
+          }))
+      : spotlights;
+
+  const dynamicStats = [
+    {
+      icon: Users,
+      label: "Alumni Records",
+      value: `${alumniDocs.length || 45}+`,
+      desc: "In our directory",
+    },
+    stats[1],
+    stats[2],
+  ];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -166,7 +206,7 @@ const AlumniPage = () => {
         className="px-8 md:px-16 py-24 bg-gradient-to-b from-secondary/20 to-background"
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          {stats.map((item) => {
+          {dynamicStats.map((item) => {
             const Icon = item.icon;
             return (
               <div key={item.label} className="stat-item opacity-0">
@@ -200,7 +240,7 @@ const AlumniPage = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {spotlights.map((alumni) => (
+          {spotlightData.map((alumni) => (
             <div key={alumni.name} className="spotlight-card opacity-0">
               <div className="card-hover p-8 rounded-[24px] border border-border/50 bg-gradient-to-br from-secondary/20 to-background hover:border-accent/40 transition-all duration-500">
                 <div className="mb-6 pb-6 border-b border-border/50">

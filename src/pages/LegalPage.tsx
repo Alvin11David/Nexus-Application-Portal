@@ -3,10 +3,42 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowLeft } from "lucide-react";
 import { getLegalPageBySlug } from "@/lib/legalContent";
+import { useFirestoreCollection } from "@/hooks/useFirestore";
+
+type LegalPageDoc = {
+  id: string;
+  slug: string;
+  title: string;
+  content: string;
+};
 
 const LegalPage = () => {
   const { slug } = useParams();
-  const page = slug ? getLegalPageBySlug(slug) : undefined;
+  const { data: legalDocs } = useFirestoreCollection<LegalPageDoc>(
+    "legal_pages",
+    [],
+    {
+      where: { field: "slug", operator: "==", value: slug ?? "" },
+      limit: 1,
+    },
+  );
+
+  const firestorePage = legalDocs[0]
+    ? {
+        slug: legalDocs[0].slug,
+        title: legalDocs[0].title,
+        intro: "Official legal page content from the Veritas Firestore database.",
+        sections: legalDocs[0].content
+          .split(/\n\n+/)
+          .filter(Boolean)
+          .map((paragraph, index) => ({
+            title: `Section ${index + 1}`,
+            body: paragraph,
+          })),
+      }
+    : undefined;
+
+  const page = firestorePage ?? (slug ? getLegalPageBySlug(slug) : undefined);
 
   if (!page) {
     return <Navigate to="/not-found" replace />;

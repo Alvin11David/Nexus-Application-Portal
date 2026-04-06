@@ -13,7 +13,8 @@ const projectFirebaseConfig: FirebaseOptions = {
 const firebaseConfig: FirebaseOptions = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? projectFirebaseConfig.apiKey,
   authDomain:
-    import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ?? projectFirebaseConfig.authDomain,
+    import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ??
+    projectFirebaseConfig.authDomain,
   projectId:
     import.meta.env.VITE_FIREBASE_PROJECT_ID ?? projectFirebaseConfig.projectId,
   storageBucket:

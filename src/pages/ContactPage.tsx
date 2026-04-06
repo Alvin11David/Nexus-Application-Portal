@@ -8,6 +8,7 @@ import { Mail, Phone, MapPin, MessageCircle, Heart, ArrowRight, Send, Users, Bui
 import { toast } from "@/hooks/use-toast";
 import heroCampus from "@/assets/hero-campus.jpg";
 import { useSpotlightCards } from "@/hooks/useScrollReveal";
+import { submitContactSubmission } from "@/integrations/firebase/mutations";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -81,15 +82,33 @@ const ContactPage = () => {
     return () => handlers.forEach((fn) => fn());
   }, []);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) return;
     setSending(true);
-    setTimeout(() => {
+
+    try {
+      await submitContactSubmission({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: formData.subject.trim(),
+        message: formData.message.trim(),
+      });
+
       setSending(false);
       setFormData({ name: "", email: "", subject: "", message: "" });
       toast({ title: "Message Sent", description: "Thank you! We'll get back to you within 24 hours." });
-    }, 1200);
+    } catch (error) {
+      setSending(false);
+      toast({
+        title: "Submission Failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "We could not submit your message right now.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

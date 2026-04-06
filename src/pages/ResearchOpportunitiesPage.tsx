@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
+import { useFirestoreCollection } from "@/hooks/useFirestore";
 
 const opportunityTracks = [
   {
@@ -21,7 +22,23 @@ const opportunityTracks = [
   },
 ];
 
+type ResearchOpportunityDoc = {
+  id: string;
+  title: string;
+  description?: string;
+};
+
 const ResearchOpportunitiesPage = () => {
+  const { data: opportunities } = useFirestoreCollection<ResearchOpportunityDoc>(
+    "research_opportunities",
+    opportunityTracks.map((track) => ({
+      id: track.title,
+      title: track.title,
+      description: track.description,
+    })),
+    { orderBy: { field: "published_date", direction: "desc" }, limit: 6 },
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -41,9 +58,9 @@ const ResearchOpportunitiesPage = () => {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
-            {opportunityTracks.map((track) => (
+            {opportunities.map((track) => (
               <div
-                key={track.title}
+                key={track.id}
                 className="p-6 border border-border rounded-[24px] bg-secondary/20"
               >
                 <h2 className="font-heading text-2xl font-light text-foreground mb-3">
