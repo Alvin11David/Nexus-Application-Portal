@@ -2,11 +2,57 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useFirestoreCollection } from "@/hooks/useFirestore";
 import { getResourceGuideBySlug, quickLinkGroups } from "@/lib/resourceContent";
+
+type QuickLinkDoc = {
+  id: string;
+  title: string;
+  slug: string;
+  category: string;
+  description?: string;
+  link_url?: string;
+};
 
 const QuickLinkDetailPage = () => {
   const { slug } = useParams();
-  const guide = slug ? getResourceGuideBySlug(slug) : undefined;
+  const staticGuide = slug ? getResourceGuideBySlug(slug) : undefined;
+  const { data: quickLinks } = useFirestoreCollection<QuickLinkDoc>("quick_links", [], {
+    where: { field: "slug", operator: "==", value: slug ?? "" },
+    limit: 1,
+  });
+
+  const firestoreLink = slug ? quickLinks.find((item) => item.slug === slug) : undefined;
+
+  const guide =
+    staticGuide ??
+    (firestoreLink
+      ? {
+          slug: firestoreLink.slug,
+          title: firestoreLink.title,
+          category: firestoreLink.category,
+          excerpt: firestoreLink.description ?? "Resource detail and access information.",
+          overview:
+            firestoreLink.description ??
+            "This resource is maintained in the institute portal and can be accessed from the link below.",
+          highlights: [
+            "Sourced from the live Firestore quick links collection.",
+            "Use this as the fastest path to the intended service.",
+            "Contact support if the destination is unavailable.",
+          ],
+          sections: [
+            {
+              title: "How to Use",
+              body:
+                "Open the primary action below to access the target resource. If you need additional support, use Contact Us from the quick links directory.",
+            },
+          ],
+          primaryAction: firestoreLink.link_url
+            ? { label: "Open Resource", href: firestoreLink.link_url }
+            : undefined,
+          secondaryAction: { label: "Back to Quick Links", href: "/quick-links" },
+        }
+      : undefined);
 
   if (!guide) {
     return <Navigate to="/not-found" replace />;
@@ -16,6 +62,7 @@ const QuickLinkDetailPage = () => {
     .flatMap((group) => group.links)
     .filter((item) => item.slug !== guide.slug)
     .slice(0, 4);
+  const isExternalUrl = (href: string) => /^https?:\/\//i.test(href);
 
   return (
     <div className="min-h-screen bg-background">
@@ -84,13 +131,25 @@ const QuickLinkDetailPage = () => {
                   </p>
                   <div className="space-y-3">
                     {guide.primaryAction && (
-                      <Link
-                        to={guide.primaryAction.href}
-                        className="flex items-center justify-between rounded-[16px] border border-accent/35 px-4 py-3 font-body text-xs tracking-[0.16em] uppercase text-accent hover:bg-accent/10 transition-colors duration-300"
-                      >
-                        {guide.primaryAction.label}
-                        <ArrowRight size={14} />
-                      </Link>
+                      isExternalUrl(guide.primaryAction.href) ? (
+                        <a
+                          href={guide.primaryAction.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center justify-between rounded-[16px] border border-accent/35 px-4 py-3 font-body text-xs tracking-[0.16em] uppercase text-accent hover:bg-accent/10 transition-colors duration-300"
+                        >
+                          {guide.primaryAction.label}
+                          <ArrowRight size={14} />
+                        </a>
+                      ) : (
+                        <Link
+                          to={guide.primaryAction.href}
+                          className="flex items-center justify-between rounded-[16px] border border-accent/35 px-4 py-3 font-body text-xs tracking-[0.16em] uppercase text-accent hover:bg-accent/10 transition-colors duration-300"
+                        >
+                          {guide.primaryAction.label}
+                          <ArrowRight size={14} />
+                        </Link>
+                      )
                     )}
                     {guide.secondaryAction && (
                       <Link

@@ -8,6 +8,7 @@ import {
   Scissors, Zap, Wrench, Sparkles, Users, BookOpen, Car, Flame,
   ChevronDown, ChevronUp, Heart, ArrowRight,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import aboutHero from "@/assets/about-hero.jpg";
 import academicsImage from "@/assets/academics.jpg";
 import campusLifeImage from "@/assets/campus-life.jpg";
@@ -17,10 +18,11 @@ import researchImage from "@/assets/research.jpg";
 import studentsHeroImage from "@/assets/students-hero.jpg";
 import heroCampusImage from "@/assets/hero-campus.jpg";
 import newsHeroImage from "@/assets/news-hero.jpg";
+import { useFirestoreCollection } from "@/hooks/useFirestore";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const programs = [
+const fallbackPrograms = [
   { id: "tailoring", icon: Scissors, title: "Tailoring & Garment Design", duration: "6 months", image: academicsImage, skills: ["Sewing techniques", "Pattern making", "Clothing repair & alterations", "Fashion design basics"], careers: ["Run your own tailoring shop", "Work as a designer for boutiques", "Clothing repairs & alterations business"], description: "One of our most popular programs. Students learn to design, cut, and sew garments professionally. Many graduates open small tailoring shops or work for clothing manufacturers." },
   { id: "plumbing", icon: Wrench, title: "Plumbing", duration: "8 months", image: campusLifeImage, skills: ["Pipe fitting & installation", "Drainage systems", "Water supply systems", "Maintenance & repair"], careers: ["Start a plumbing contracting business", "Work with construction companies", "Maintenance technician roles"], description: "Skilled plumbers are always in demand. This program trains students to install, maintain, and repair water and drainage systems in residential and commercial buildings." },
   { id: "electrical", icon: Zap, title: "Electrical Installation", duration: "8 months", image: donateHeroImage, skills: ["Wiring & circuitry", "Safety standards", "Solar installation basics", "Fault diagnosis & repair"], careers: ["Certified electrician", "Solar installation business", "Electrical maintenance technician"], description: "Electricity needs are growing rapidly. Graduates leave ready to wire buildings, install solar panels, and troubleshoot electrical faults — all high-demand skills." },
@@ -31,10 +33,84 @@ const programs = [
   { id: "soap", icon: BookOpen, title: "Soap & Cosmetics Making", duration: "3 months", image: heroCampusImage, skills: ["Soap formulation", "Packaging & branding", "Quality control", "Business & marketing basics"], careers: ["Home-based soap business", "Supply to local shops & markets", "Build a beauty products brand"], description: "A low-cost, high-return business opportunity. Students learn to make and brand quality soaps and cosmetics, with a strong focus on turning the skill into a viable income source." },
 ];
 
+type ProgramCard = {
+  id: string;
+  title: string;
+  duration?: string;
+  description?: string;
+  skills?: string[];
+  careers?: string[];
+  level?: string;
+  icon: LucideIcon;
+  image: string;
+};
+
+type FirestoreProgram = {
+  id: string;
+  name: string;
+  level?: string;
+  description?: string;
+  duration?: string;
+  admission_requirements?: string;
+};
+
+const iconByKeyword: Array<{ keyword: string; icon: LucideIcon; image: string }> = [
+  { keyword: "tailor", icon: Scissors, image: academicsImage },
+  { keyword: "plumb", icon: Wrench, image: campusLifeImage },
+  { keyword: "electric", icon: Zap, image: donateHeroImage },
+  { keyword: "weld", icon: Flame, image: researchHeroImage },
+  { keyword: "hair", icon: Users, image: studentsHeroImage },
+  { keyword: "beauty", icon: Sparkles, image: newsHeroImage },
+  { keyword: "auto", icon: Car, image: researchImage },
+  { keyword: "soap", icon: BookOpen, image: heroCampusImage },
+];
+
+const resolveProgramVisuals = (title: string) => {
+  const lower = title.toLowerCase();
+  const matched = iconByKeyword.find((item) => lower.includes(item.keyword));
+  return {
+    icon: matched?.icon ?? BookOpen,
+    image: matched?.image ?? academicsImage,
+  };
+};
+
 const ProgramsPage = () => {
   const navigate = useNavigate();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
+  const { data: firestorePrograms } = useFirestoreCollection<FirestoreProgram>(
+    "programs",
+    [],
+    { orderBy: { field: "name", direction: "asc" } },
+  );
+
+  const programs: ProgramCard[] =
+    firestorePrograms.length > 0
+      ? firestorePrograms.map((program) => {
+          const visuals = resolveProgramVisuals(program.name);
+          const fallbackSkills = program.admission_requirements
+            ? [program.admission_requirements]
+            : ["Practical hands-on training", "Career-oriented curriculum"];
+
+          return {
+            id: program.id,
+            title: program.name,
+            duration: program.duration ?? "Flexible",
+            description:
+              program.description ??
+              "A practical, market-focused program designed to build job-ready skills.",
+            skills: fallbackSkills,
+            careers: [
+              `${program.name} technician`,
+              "Self-employment pathway",
+              "Industry apprenticeship",
+            ],
+            level: program.level,
+            icon: visuals.icon,
+            image: visuals.image,
+          };
+        })
+      : fallbackPrograms;
 
   useEffect(() => {
     window.scrollTo(0, 0);

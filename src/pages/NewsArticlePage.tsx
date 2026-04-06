@@ -2,19 +2,75 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useFirestoreCollection } from "@/hooks/useFirestore";
 import { getNewsArticleBySlug, newsArticles } from "@/lib/newsContent";
+
+type Article = {
+  id: string;
+  slug: string;
+  title: string;
+  date?: string;
+  published_date?: string;
+  category: string;
+  excerpt: string;
+  readTime?: string;
+  body?: string[];
+  content?: string;
+  highlights?: string[];
+};
+
+const fallbackArticles: Article[] = newsArticles.map((item) => ({
+  id: item.slug,
+  slug: item.slug,
+  title: item.title,
+  date: item.date,
+  category: item.category,
+  excerpt: item.excerpt,
+  readTime: item.readTime,
+  body: item.body,
+  highlights: item.highlights,
+}));
+
+const toParagraphs = (article: Article): string[] => {
+  if (Array.isArray(article.body) && article.body.length > 0) {
+    return article.body;
+  }
+  if (typeof article.content === "string" && article.content.trim().length > 0) {
+    return article.content
+      .split(/\n\n+/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return [];
+};
 
 const NewsArticlePage = () => {
   const { slug } = useParams();
-  const article = slug ? getNewsArticleBySlug(slug) : undefined;
+  const { data: remoteMatch } = useFirestoreCollection<Article>("news", [], {
+    where: { field: "slug", operator: "==", value: slug ?? "" },
+    limit: 1,
+  });
+  const { data: allArticles } = useFirestoreCollection<Article>(
+    "news",
+    fallbackArticles,
+    { orderBy: { field: "published_date", direction: "desc" } },
+  );
+
+  const article =
+    (slug ? remoteMatch.find((item) => item.slug === slug) : undefined) ??
+    (slug ? allArticles.find((item) => item.slug === slug) : undefined) ??
+    (slug ? getNewsArticleBySlug(slug) : undefined);
 
   if (!article) {
     return <Navigate to="/not-found" replace />;
   }
 
-  const relatedArticles = newsArticles
+  const relatedArticles = allArticles
     .filter((item) => item.slug !== article.slug)
     .slice(0, 3);
+  const paragraphs = toParagraphs(article);
+  const highlights = Array.isArray(article.highlights) ? article.highlights : [];
+  const articleDate = article.published_date ?? article.date;
 
   return (
     <div className="min-h-screen bg-background">
@@ -37,8 +93,8 @@ const NewsArticlePage = () => {
             {article.title}
           </h1>
           <div className="flex flex-wrap items-center gap-4 font-body text-sm text-muted-foreground mb-8">
-            <span>{article.date}</span>
-            <span>{article.readTime}</span>
+            <span>{articleDate}</span>
+            <span>{article.readTime ?? "5 min read"}</span>
           </div>
           <p className="font-body text-lg text-muted-foreground leading-relaxed mb-12 max-w-3xl">
             {article.excerpt}
@@ -46,7 +102,7 @@ const NewsArticlePage = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-10 items-start">
             <article className="space-y-6">
-              {article.body.map((paragraph) => (
+              {paragraphs.map((paragraph) => (
                 <p
                   key={paragraph}
                   className="font-body text-base text-foreground/90 leading-8"
@@ -61,7 +117,7 @@ const NewsArticlePage = () => {
                 Key Takeaways
               </p>
               <div className="space-y-4">
-                {article.highlights.map((highlight) => (
+                {highlights.map((highlight) => (
                   <p
                     key={highlight}
                     className="font-body text-sm text-muted-foreground leading-relaxed"

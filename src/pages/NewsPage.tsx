@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowRight, Calendar } from "lucide-react";
 import newsHero from "@/assets/news-hero.jpg";
+import { useFirestoreCollection } from "@/hooks/useFirestore";
 import {
   featuredNewsSlug,
   getNewsArticleBySlug,
@@ -14,20 +15,74 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
-const events = [
+const fallbackEvents = [
   { title: "Open Day 2026", date: "April 15, 2026", type: "Admissions" },
   { title: "Research Symposium", date: "April 22, 2026", type: "Academic" },
   { title: "Alumni Gala Dinner", date: "May 10, 2026", type: "Community" },
   { title: "International Culture Week", date: "May 18–24, 2026", type: "Student Life" },
 ];
 
-const featuredNews = getNewsArticleBySlug(featuredNewsSlug)!;
-const newsItems = newsArticles.filter((article) => article.slug !== featuredNewsSlug);
+type NewsItem = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  category: string;
+  date: string;
+  featured?: boolean;
+};
+
+type EventItem = {
+  id: string;
+  title: string;
+  date: string;
+  type: string;
+};
+
+const formatDate = (value: string | undefined, fallback = "TBA") => {
+  if (!value) return fallback;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString(undefined, {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
+const fallbackNews: NewsItem[] = newsArticles.map((article) => ({
+  id: article.slug,
+  slug: article.slug,
+  title: article.title,
+  excerpt: article.excerpt,
+  category: article.category,
+  date: article.date,
+  featured: article.slug === featuredNewsSlug,
+}));
 
 const NewsPage = () => {
   const imageRef = useRef<HTMLImageElement>(null);
   const newsRef = useRef<HTMLDivElement>(null);
   const eventsRef = useRef<HTMLDivElement>(null);
+
+  const { data: newsData } = useFirestoreCollection<NewsItem>("news", fallbackNews, {
+    orderBy: { field: "published_date", direction: "desc" },
+  });
+  const { data: eventsData } = useFirestoreCollection<EventItem>(
+    "events",
+    fallbackEvents.map((item) => ({ ...item, id: item.title })),
+    { orderBy: { field: "date", direction: "asc" } },
+  );
+
+  const featuredNews =
+    newsData.find((article) => article.featured) ??
+    newsData[0] ??
+    getNewsArticleBySlug(featuredNewsSlug)!;
+  const newsItems = newsData.filter((article) => article.slug !== featuredNews.slug);
+  const events = eventsData.map((item) => ({
+    ...item,
+    date: formatDate(item.date, item.date),
+  }));
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -77,7 +132,7 @@ const NewsPage = () => {
           <h2 className="font-heading text-3xl md:text-5xl font-light text-foreground leading-tight mb-6">{featuredNews.title}</h2>
           <p className="font-body text-base text-muted-foreground leading-relaxed mb-6 max-w-2xl">{featuredNews.excerpt}</p>
           <div className="flex items-center gap-6">
-            <span className="font-body text-xs text-muted-foreground">{featuredNews.date}</span>
+            <span className="font-body text-xs text-muted-foreground">{formatDate(featuredNews.date, featuredNews.date)}</span>
             <Link
               to={`/news/${featuredNews.slug}`}
               className="group inline-flex items-center gap-2 font-body text-xs tracking-[0.15em] uppercase text-accent"
@@ -101,7 +156,7 @@ const NewsPage = () => {
               <h3 className="font-heading text-xl font-light text-foreground mb-3 group-hover:text-accent transition-colors duration-500">{n.title}</h3>
               <p className="font-body text-sm text-muted-foreground leading-relaxed mb-6">{n.excerpt}</p>
               <div className="flex items-center justify-between">
-                <span className="font-body text-xs text-muted-foreground/60">{n.date}</span>
+                <span className="font-body text-xs text-muted-foreground/60">{formatDate(n.date, n.date)}</span>
                 <ArrowRight size={16} className="text-muted-foreground/30 group-hover:text-accent group-hover:translate-x-1 transition-all duration-500" />
               </div>
             </Link>

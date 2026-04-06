@@ -19,6 +19,7 @@ import {
   Users,
 } from "lucide-react";
 import { quickLinkGroups } from "@/lib/resourceContent";
+import { useFirestoreCollection } from "@/hooks/useFirestore";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -37,7 +38,7 @@ const iconMap = {
   "Forms & Documents": FileText,
 } as const;
 
-const linkGroups = quickLinkGroups.map((group) => ({
+const fallbackLinkGroups = quickLinkGroups.map((group) => ({
   ...group,
   links: group.links.map((link) => ({
     ...link,
@@ -45,8 +46,60 @@ const linkGroups = quickLinkGroups.map((group) => ({
   })),
 }));
 
+type QuickLinkDoc = {
+  id: string;
+  title: string;
+  slug: string;
+  category: string;
+  description?: string;
+  icon?: string;
+  order?: number;
+};
+
+const fallbackQuickLinks: QuickLinkDoc[] = quickLinkGroups.flatMap((group) =>
+  group.links.map((link, index) => ({
+    id: `${group.title}-${link.slug}`,
+    title: link.label,
+    slug: link.slug,
+    category: group.title,
+    description: link.desc,
+    icon: link.label,
+    order: index,
+  })),
+);
+
 const QuickLinksPage = () => {
   const gridRef = useRef<HTMLDivElement>(null);
+  const { data: quickLinks } = useFirestoreCollection<QuickLinkDoc>(
+    "quick_links",
+    fallbackQuickLinks,
+    { orderBy: { field: "order", direction: "asc" } },
+  );
+
+  const grouped = quickLinks.reduce<Record<string, QuickLinkDoc[]>>((acc, item) => {
+    if (!acc[item.category]) {
+      acc[item.category] = [];
+    }
+    acc[item.category].push(item);
+    return acc;
+  }, {});
+
+  const linkGroups = Object.entries(grouped).map(([title, links]) => ({
+    title,
+    links: links
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((link) => {
+        const iconKey = (link.icon || link.title) as keyof typeof iconMap;
+        return {
+          slug: link.slug,
+          label: link.title,
+          desc: link.description ?? "Visit this resource",
+          icon: iconMap[iconKey] ?? FileText,
+        };
+      }),
+  }));
+
+  const sections = linkGroups.length > 0 ? linkGroups : fallbackLinkGroups;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -103,7 +156,7 @@ const QuickLinksPage = () => {
 
       {/* Links Grid */}
       <div ref={gridRef} className="px-8 md:px-16 py-32 space-y-24">
-        {linkGroups.map((group) => (
+        {sections.map((group) => (
           <div key={group.title} className="ql-group opacity-0">
             <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-10">
               {group.title}

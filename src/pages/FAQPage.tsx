@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ChevronDown, HelpCircle } from "lucide-react";
 import aboutHero from "@/assets/about-hero.jpg";
+import { useFirestoreCollection } from "@/hooks/useFirestore";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -121,11 +122,50 @@ const faqCategories = [
   },
 ];
 
+type FirestoreFaq = {
+  id: string;
+  category: string;
+  question: string;
+  answer: string;
+  order?: number;
+};
+
+const fallbackFaqs: FirestoreFaq[] = faqCategories.flatMap((category) =>
+  category.questions.map((question, index) => ({
+    id: `${category.category}-${index}`,
+    category: category.category,
+    question: question.q,
+    answer: question.a,
+    order: index,
+  })),
+);
+
 const FAQPage = () => {
   const imageRef = useRef<HTMLImageElement>(null);
   const heroTextRef = useRef<HTMLDivElement>(null);
   const faqRef = useRef<HTMLDivElement>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { data: faqs } = useFirestoreCollection<FirestoreFaq>("faqs", fallbackFaqs, {
+    orderBy: { field: "order", direction: "asc" },
+  });
+
+  const groupedFaqs = faqs.reduce<Record<string, FirestoreFaq[]>>((acc, item) => {
+    if (!acc[item.category]) {
+      acc[item.category] = [];
+    }
+    acc[item.category].push(item);
+    return acc;
+  }, {});
+
+  const dynamicFaqCategories = Object.entries(groupedFaqs).map(
+    ([category, questions]) => ({
+      category,
+      icon: HelpCircle,
+      questions: questions
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((item) => ({ q: item.question, a: item.answer })),
+    }),
+  );
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -221,7 +261,7 @@ const FAQPage = () => {
       {/* FAQ Sections */}
       <div ref={faqRef} className="px-8 md:px-16 py-24 bg-background">
         <div className="space-y-20">
-          {faqCategories.map((category) => (
+          {dynamicFaqCategories.map((category) => (
             <div key={category.category} className="max-w-4xl mx-auto">
               {/* Category Header */}
               <div className="flex items-center gap-4 mb-12">
