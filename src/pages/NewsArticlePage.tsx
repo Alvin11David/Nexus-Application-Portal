@@ -68,11 +68,10 @@ const toSlug = (value: string) =>
 
 const NewsArticlePage = () => {
   const { slug } = useParams();
-  const { data: firestoreArticles } = useFirestoreCollection<FirestoreNewsArticle>(
-    "NewsArticles",
-    [],
-    { orderBy: { field: "createdAt", direction: "desc" } },
-  );
+  const { data: firestoreArticles } =
+    useFirestoreCollection<FirestoreNewsArticle>("NewsArticles", [], {
+      orderBy: { field: "createdAt", direction: "desc" },
+    });
 
   const allArticles: Article[] =
     firestoreArticles.length > 0
@@ -93,22 +92,27 @@ const NewsArticlePage = () => {
               title,
               date:
                 (typeof item.createdAt === "string" && item.createdAt) ||
-                (typeof item.published_date === "string" && item.published_date) ||
+                (typeof item.published_date === "string" &&
+                  item.published_date) ||
                 "",
               published_date:
-                (typeof item.published_date === "string" && item.published_date) ||
+                (typeof item.published_date === "string" &&
+                  item.published_date) ||
                 (typeof item.createdAt === "string" && item.createdAt) ||
                 "",
               category:
-                typeof item.category === "string" && item.category.trim().length > 0
+                typeof item.category === "string" &&
+                item.category.trim().length > 0
                   ? item.category
                   : "News",
               excerpt:
-                typeof item.excerpt === "string" && item.excerpt.trim().length > 0
+                typeof item.excerpt === "string" &&
+                item.excerpt.trim().length > 0
                   ? item.excerpt
                   : "Read the full story for details.",
               content:
-                typeof item.content === "string" && item.content.trim().length > 0
+                typeof item.content === "string" &&
+                item.content.trim().length > 0
                   ? item.content
                   : undefined,
             };
@@ -137,7 +141,8 @@ const NewsArticlePage = () => {
   const highlights = Array.isArray(normalizedArticle.highlights)
     ? normalizedArticle.highlights
     : [];
-  const articleDate = normalizedArticle.published_date ?? normalizedArticle.date;
+  const articleDate =
+    normalizedArticle.published_date ?? normalizedArticle.date;
 
   return (
     <div className="min-h-screen bg-background">

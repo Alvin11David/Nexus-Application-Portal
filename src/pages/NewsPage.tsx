@@ -119,16 +119,19 @@ const NewsPage = () => {
                   ? item.slug
                   : generatedSlug,
               excerpt:
-                typeof item.excerpt === "string" && item.excerpt.trim().length > 0
+                typeof item.excerpt === "string" &&
+                item.excerpt.trim().length > 0
                   ? item.excerpt
                   : "Read the full story for details.",
               category:
-                typeof item.category === "string" && item.category.trim().length > 0
+                typeof item.category === "string" &&
+                item.category.trim().length > 0
                   ? item.category
                   : "News",
               date:
                 (typeof item.createdAt === "string" && item.createdAt) ||
-                (typeof item.published_date === "string" && item.published_date) ||
+                (typeof item.published_date === "string" &&
+                  item.published_date) ||
                 "",
               featured: Boolean(item.featured),
             };

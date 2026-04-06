@@ -207,13 +207,16 @@ type ProgramCard = {
   image: string;
 };
 
-type FirestoreProgram = {
+type FirestoreProgram = Record<string, unknown> & {
   id: string;
-  name: string;
-  level?: string;
+  programName?: string;
+  programCode?: string;
+  department?: string;
   description?: string;
-  duration?: string;
-  admission_requirements?: string;
+  duration?: number | string;
+  totalCredits?: number;
+  status?: string;
+  createdAt?: string;
 };
 
 const iconByKeyword: Array<{
@@ -244,39 +247,88 @@ const ProgramsPage = () => {
   const navigate = useNavigate();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
-  const { data: firestorePrograms } = useFirestoreCollection<FirestoreProgram>(
-    "programs",
-    [],
-    { orderBy: { field: "name", direction: "asc" } },
-  );
+  const {
+    data: firestorePrograms,
+    error: firestoreProgramsError,
+    isUsingFallback,
+  } = useFirestoreCollection<FirestoreProgram>("AcademicPrograms", []);
 
   const programs: ProgramCard[] =
     firestorePrograms.length > 0
-      ? firestorePrograms.map((program) => {
-          const visuals = resolveProgramVisuals(program.name);
-          const fallbackSkills = program.admission_requirements
-            ? [program.admission_requirements]
-            : ["Practical hands-on training", "Career-oriented curriculum"];
+      ? firestorePrograms
+          .filter(
+            (program) =>
+              !program.status ||
+              String(program.status).trim().toLowerCase() === "active",
+          )
+          .sort((a, b) =>
+            String(a.programName ?? "").localeCompare(
+              String(b.programName ?? ""),
+            ),
+          )
+          .map((program) => {
+            const programName =
+              typeof program.programName === "string" &&
+              program.programName.trim().length > 0
+                ? program.programName
+                : "Unnamed Program";
 
-          return {
-            id: program.id,
-            title: program.name,
-            duration: program.duration ?? "Flexible",
-            description:
-              program.description ??
-              "A practical, market-focused program designed to build job-ready skills.",
-            skills: fallbackSkills,
-            careers: [
-              `${program.name} technician`,
+            const visuals = resolveProgramVisuals(programName);
+            const fallbackSkills = program.department
+              ? [`Department: ${program.department}`]
+              : ["Practical hands-on training", "Career-oriented curriculum"];
+
+            const durationText =
+              typeof program.duration === "number"
+                ? `${program.duration} years`
+                : typeof program.duration === "string" &&
+                    program.duration.trim().length > 0
+                  ? program.duration
+                  : "Flexible";
+
+            const careers = [
+              `${programName} technician`,
               "Self-employment pathway",
               "Industry apprenticeship",
-            ],
-            level: program.level,
-            icon: visuals.icon,
-            image: visuals.image,
-          };
-        })
+            ];
+
+            if (program.programCode) {
+              careers.unshift(`Program code: ${program.programCode}`);
+            }
+
+            if (typeof program.totalCredits === "number") {
+              careers.push(`Total credits: ${program.totalCredits}`);
+            }
+
+            return {
+              id: program.id,
+              title: programName,
+              duration: durationText,
+              description:
+                program.description ??
+                "A practical, market-focused program designed to build job-ready skills.",
+              skills: fallbackSkills,
+              careers,
+              level: program.department,
+              icon: visuals.icon,
+              image: visuals.image,
+            };
+          })
       : fallbackPrograms;
+
+  useEffect(() => {
+    if (firestoreProgramsError) {
+      console.error(
+        "Failed to fetch AcademicPrograms:",
+        firestoreProgramsError,
+      );
+    }
+    if (isUsingFallback && firestorePrograms.length === 0) {
+      console.warn(
+        "Programs page is using fallback data. Check Firestore rules, collection name, and project config.",
+      );
+    }
+  }, [firestoreProgramsError, isUsingFallback, firestorePrograms.length]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -445,7 +497,7 @@ const ProgramsPage = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
                           <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">
-                            Skills Learned
+                            Department
                           </p>
                           <ul className="space-y-2">
                             {skills.map((s) => (
@@ -461,7 +513,7 @@ const ProgramsPage = () => {
                         </div>
                         <div>
                           <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">
-                            Career Opportunities
+                            More Information about the Program
                           </p>
                           <ul className="space-y-2">
                             {careers.map((c) => (
