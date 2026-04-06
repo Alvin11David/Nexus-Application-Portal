@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowLeft, ArrowRight, Check, Lock } from "lucide-react";
+import {
+  submitApplicationSubmission,
+  type ApplicationSubmissionInput,
+} from "@/integrations/firebase/mutations";
 
 const applicationSteps = [
   {
@@ -97,6 +101,8 @@ const hearAboutOptions = [
   "Other",
 ];
 
+const OTP_API_BASE = "http://127.0.0.1:5055";
+
 const ApplicationStartPage = () => {
   const [formData, setFormData] = useState<ApplicationStartData>({
     email: "",
@@ -136,6 +142,15 @@ const ApplicationStartPage = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [furthestStep, setFurthestStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [submittingApplication, setSubmittingApplication] = useState(false);
+  const [submissionStatus, setSubmissionStatus] = useState<string>("");
+  const [applicationId, setApplicationId] = useState<string>("");
+  const [otpCode, setOtpCode] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpStatus, setOtpStatus] = useState<string>("");
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
 
   const updateField = <K extends keyof ApplicationStartData>(
     key: K,
@@ -165,6 +180,9 @@ const ApplicationStartPage = () => {
         nextErrors.confirmPassword = "Please confirm your password.";
       } else if (formData.confirmPassword !== formData.password) {
         nextErrors.confirmPassword = "Passwords do not match.";
+      }
+      if (!otpVerified) {
+        nextErrors.otp = "Please verify your email with the OTP code.";
       }
     }
 
@@ -256,19 +274,154 @@ const ApplicationStartPage = () => {
     setActiveStep(nextStep);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!validateStep(5)) return;
-    setSubmitted(true);
+
+    setSubmittingApplication(true);
+    setSubmissionStatus("");
+
+    try {
+      const payload: ApplicationSubmissionInput = {
+        email: formData.email.trim().toLowerCase(),
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        phone: formData.phone.trim(),
+        dateOfBirth: formData.dateOfBirth,
+        nationality: formData.nationality.trim(),
+        address: formData.address.trim(),
+        city: formData.city.trim(),
+        postalCode: formData.postalCode.trim(),
+        country: formData.country.trim(),
+        guardianName: formData.guardianName.trim(),
+        guardianPhone: formData.guardianPhone.trim(),
+        program: formData.program,
+        startDate: formData.startDate,
+        previousInstitution: formData.previousInstitution.trim(),
+        highestQualification: formData.highestQualification,
+        gpa: formData.gpa.trim(),
+        personalStatement: formData.personalStatement.trim(),
+        howDidYouHear: formData.howDidYouHear,
+        documentsConfirmed: formData.documentsConfirmed,
+        transcriptUploaded: formData.transcriptUploaded,
+        idUploaded: formData.idUploaded,
+        recommendationUploaded: formData.recommendationUploaded,
+        statementUploaded: formData.statementUploaded,
+        applicationFeePaid: formData.applicationFeePaid,
+        paymentMethod: formData.paymentMethod,
+        paymentReference: formData.paymentReference.trim(),
+        interviewPreference: formData.interviewPreference,
+        termsAccepted: formData.termsAccepted,
+        emailVerified: otpVerified,
+      };
+
+      const submission = await submitApplicationSubmission(payload);
+      setApplicationId(submission.id);
+      setSubmitted(true);
+      setSubmissionStatus(
+        "Your application has been saved to Firestore and submitted successfully.",
+      );
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to save application. Please try again.";
+      setSubmissionStatus(message);
+    } finally {
+      setSubmittingApplication(false);
+    }
+  };
+
+  const handleSendOtp = async () => {
+    const email = formData.email.trim().toLowerCase();
+    if (!email) {
+      setErrors((prev) => ({ ...prev, email: "Email is required." }));
+      return;
+    }
+
+    setSendingOtp(true);
+    setOtpStatus("");
+    setOtpVerified(false);
+
+    try {
+      const res = await fetch(`${OTP_API_BASE}/api/otp/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const payload = (await res.json()) as {
+        ok?: boolean;
+        message?: string;
+        error?: string;
+      };
+
+      if (!res.ok || !payload.ok) {
+        setOtpStatus(payload.error ?? "Failed to send OTP.");
+        return;
+      }
+
+      setOtpSent(true);
+      setOtpStatus(payload.message ?? "OTP sent. Check your email.");
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to send OTP.";
+      setOtpStatus(message);
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    const email = formData.email.trim().toLowerCase();
+    const code = otpCode.trim();
+
+    if (!code) {
+      setErrors((prev) => ({ ...prev, otp: "Enter the 5-digit OTP code." }));
+      return;
+    }
+
+    setVerifyingOtp(true);
+    setOtpStatus("");
+
+    try {
+      const res = await fetch(`${OTP_API_BASE}/api/otp/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp: code }),
+      });
+      const payload = (await res.json()) as {
+        ok?: boolean;
+        verified?: boolean;
+        message?: string;
+        error?: string;
+      };
+
+      if (!res.ok || !payload.ok || !payload.verified) {
+        setOtpVerified(false);
+        setOtpStatus(payload.error ?? "Invalid OTP.");
+        return;
+      }
+
+      setOtpVerified(true);
+      setOtpStatus(payload.message ?? "Email verified successfully.");
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next.otp;
+        return next;
+      });
+    } catch (error) {
+      setOtpVerified(false);
+      const message =
+        error instanceof Error ? error.message : "Failed to verify OTP.";
+      setOtpStatus(message);
+    } finally {
+      setVerifyingOtp(false);
+    }
   };
 
   const completedSteps = useMemo(
     () => applicationSteps.map((_, index) => index < furthestStep),
     [furthestStep],
   );
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -359,6 +512,16 @@ const ApplicationStartPage = () => {
                     Your full application has been received. We will contact you
                     at {formData.email || "your email"} with next steps.
                   </p>
+                  {applicationId ? (
+                    <p className="font-body text-sm text-foreground mb-4">
+                      Application Reference: {applicationId}
+                    </p>
+                  ) : null}
+                  {submissionStatus ? (
+                    <p className="font-body text-sm text-muted-foreground mb-6 max-w-2xl">
+                      {submissionStatus}
+                    </p>
+                  ) : null}
                   <Link
                     to="/admissions/how-to-apply"
                     className="inline-flex items-center gap-2 px-6 py-3 border border-accent/40 text-accent rounded-[14px] font-body text-xs tracking-[0.2em] uppercase"
@@ -388,12 +551,17 @@ const ApplicationStartPage = () => {
                           </label>
                           <input
                             value={formData.email}
-                            onChange={(e) =>
-                              updateField("email", e.target.value)
-                            }
+                            onChange={(e) => {
+                              updateField("email", e.target.value);
+                              setOtpSent(false);
+                              setOtpVerified(false);
+                              setOtpCode("");
+                              setOtpStatus("");
+                            }}
                             className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
                             type="email"
                             placeholder="you@example.com"
+                            disabled={otpVerified}
                           />
                           {errors.email && (
                             <p className="text-xs text-destructive mt-2">
@@ -440,6 +608,64 @@ const ApplicationStartPage = () => {
                               </p>
                             )}
                           </div>
+                        </div>
+
+                        <div className="border border-border rounded-[14px] p-4 space-y-3 bg-secondary/10">
+                          <p className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            Email Verification (OTP)
+                          </p>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={handleSendOtp}
+                              disabled={sendingOtp || otpVerified}
+                              className="px-4 py-2 rounded-[10px] border border-accent/40 text-accent font-body text-xs tracking-[0.16em] uppercase disabled:opacity-50"
+                            >
+                              {sendingOtp
+                                ? "Sending..."
+                                : otpSent
+                                  ? "Resend OTP"
+                                  : "Send OTP"}
+                            </button>
+
+                            <input
+                              value={otpCode}
+                              onChange={(e) =>
+                                setOtpCode(
+                                  e.target.value.replace(/\D/g, "").slice(0, 5),
+                                )
+                              }
+                              placeholder="Enter 5-digit OTP"
+                              className="border border-border rounded-[10px] px-3 py-2 bg-transparent font-body text-sm w-[180px]"
+                              disabled={!otpSent || otpVerified}
+                            />
+
+                            <button
+                              type="button"
+                              onClick={handleVerifyOtp}
+                              disabled={!otpSent || verifyingOtp || otpVerified}
+                              className="px-4 py-2 rounded-[10px] bg-accent text-accent-foreground font-body text-xs tracking-[0.16em] uppercase disabled:opacity-50"
+                            >
+                              {verifyingOtp
+                                ? "Verifying..."
+                                : otpVerified
+                                  ? "Verified"
+                                  : "Verify OTP"}
+                            </button>
+                          </div>
+
+                          {otpStatus ? (
+                            <p
+                              className={`text-xs ${otpVerified ? "text-green-600" : "text-muted-foreground"}`}
+                            >
+                              {otpStatus}
+                            </p>
+                          ) : null}
+                          {errors.otp ? (
+                            <p className="text-xs text-destructive">
+                              {errors.otp}
+                            </p>
+                          ) : null}
                         </div>
                       </>
                     )}
@@ -1096,9 +1322,12 @@ const ApplicationStartPage = () => {
                     ) : (
                       <button
                         onClick={handleSubmit}
+                        disabled={submittingApplication}
                         className="px-6 py-3 bg-accent text-accent-foreground rounded-[14px] font-body text-xs tracking-[0.2em] uppercase"
                       >
-                        Submit Application
+                        {submittingApplication
+                          ? "Submitting..."
+                          : "Submit Application"}
                       </button>
                     )}
                   </div>
