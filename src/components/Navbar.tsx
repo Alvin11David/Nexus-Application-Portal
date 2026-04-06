@@ -105,7 +105,11 @@ const Navbar = () => {
             </button>
             <button
               onClick={() => navigate("/donate")}
-              className="flex items-center gap-2 px-5 py-2.5 bg-foreground/10 text-foreground font-body text-xs tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:bg-foreground/20 hover:scale-105"
+              className={`flex items-center gap-2 px-5 py-2.5 font-body text-xs tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:scale-105 ${
+                scrolled
+                  ? "bg-foreground/10 text-foreground hover:bg-foreground/20"
+                  : "bg-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/30"
+              }`}
             >
               <Heart size={12} className="fill-current" />
               Donate
@@ -162,7 +166,7 @@ const Navbar = () => {
             </button>
             <button
               onClick={() => handleNavClick("/donate")}
-              className="flex items-center gap-2 px-8 py-4 bg-foreground/10 text-foreground font-body text-sm tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:bg-foreground/20 mt-4"
+              className="flex items-center gap-2 px-8 py-4 bg-accent/20 text-accent font-body text-sm tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:bg-accent/30 mt-4"
             >
               <Heart size={16} className="fill-current" />
               Donate Now
