@@ -390,6 +390,15 @@ const hearAboutOptions = [
   "Other",
 ];
 
+const eastAfricanNationalities = [
+  "uganda",
+  "kenya",
+  "tanzania",
+  "rwanda",
+  "burundi",
+  "south sudan",
+];
+
 const nationalityOptions = [
   "Afghanistan",
   "Albania",
@@ -1368,13 +1377,14 @@ const ApplicationStartPage = () => {
 
     if (step === 4) {
       if (!formData.applicationFeePaid) {
-        nextErrors.applicationFeePaid = "Please confirm fee payment.";
+        nextErrors.applicationFeePaid =
+          "Confirm that payment was completed externally using your PRN.";
       }
       if (!formData.paymentMethod.trim()) {
-        nextErrors.paymentMethod = "Payment method is required.";
+        nextErrors.paymentMethod = "Select the channel used for PRN payment.";
       }
       if (!formData.paymentReference.trim()) {
-        nextErrors.paymentReference = "Payment reference is required.";
+        nextErrors.paymentReference = "Generate a PRN before proceeding.";
       }
     }
 
@@ -1420,6 +1430,35 @@ const ApplicationStartPage = () => {
     }
     setActiveStep((prev) => (prev > 0 ? prev - 1 : prev));
   };
+
+  const generatePrn = () => {
+    const initials = `${formData.firstName}${formData.lastName}`
+      .replace(/[^a-zA-Z]/g, "")
+      .toUpperCase()
+      .slice(0, 4)
+      .padEnd(4, "X");
+    const stamp = Date.now().toString().slice(-8);
+    const random = Math.floor(1000 + Math.random() * 9000).toString();
+    const prn = `PRN-${initials}-${stamp}-${random}`;
+
+    updateField("paymentReference", prn);
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.paymentReference;
+      return next;
+    });
+  };
+
+  const nationalityLower = formData.nationality.trim().toLowerCase();
+  const isEastAfricanApplicant =
+    formData.isUgandan === "yes" ||
+    eastAfricanNationalities.some(
+      (country) =>
+        nationalityLower === country || nationalityLower.includes(country),
+    );
+  const paymentFeeSummary = isEastAfricanApplicant
+    ? "UGX 50,000 + bank/service charges (typically UGX 2,750-5,000)."
+    : "USD 75 (or equivalent, e.g. UGX 281,250 in some schemes).";
   const handleSubmit = async () => {
     if (!validateStep(5)) return;
     setSubmittingApplication(true);
@@ -1721,6 +1760,11 @@ const ApplicationStartPage = () => {
                   <p className="font-body text-muted-foreground leading-relaxed mb-8 max-w-2xl">
                     Your full application has been received. We will contact you
                     at {formData.email || "your email"} with next steps.
+                  </p>
+                  <p className="font-body text-sm text-foreground leading-relaxed mb-4 max-w-2xl">
+                    This submission is final. The application is locked after
+                    submission and payment confirmation, and no further edits
+                    can be made unless the admissions office reopens it.
                   </p>
                   {applicationId ? (
                     <p className="font-body text-sm text-foreground mb-4">
@@ -3363,30 +3407,52 @@ const ApplicationStartPage = () => {
 
                     {activeStep === 4 && (
                       <div className="space-y-4">
-                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
-                          <input
-                            type="checkbox"
-                            checked={formData.applicationFeePaid}
-                            onChange={(e) =>
-                              updateField(
-                                "applicationFeePaid",
-                                e.target.checked,
-                              )
-                            }
-                            className="mt-1"
-                          />
-                          I confirm application fee payment (Domestic: $75,
-                          International: $150).
-                        </label>
-                        {errors.applicationFeePaid && (
-                          <p className="text-xs text-destructive mt-1">
-                            {errors.applicationFeePaid}
+                        <div className="rounded-[18px] border border-border bg-secondary/10 p-4 space-y-3">
+                          <p className="font-body text-xs uppercase tracking-[0.2em] text-accent">
+                            Application Fee (2025/2026 Typical)
                           </p>
-                        )}
+                          <p className="font-body text-sm text-foreground leading-relaxed">
+                            {paymentFeeSummary}
+                          </p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            Payment is completed outside this form (bank or
+                            mobile money/URA flow). This page simulates PRN
+                            generation and external confirmation.
+                          </p>
+                        </div>
 
                         <div>
                           <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            Payment Method
+                            Payment Reference Number (PRN)
+                          </label>
+                          <div className="mt-2 flex flex-wrap gap-3">
+                            <input
+                              value={formData.paymentReference}
+                              readOnly
+                              className="flex-1 min-w-[220px] border border-border rounded-[12px] px-4 py-3 bg-secondary/10 font-body text-sm"
+                              type="text"
+                              placeholder="Generate PRN"
+                            />
+                            <button
+                              type="button"
+                              onClick={generatePrn}
+                              className="px-4 py-3 rounded-[12px] border border-accent/40 text-accent font-body text-xs tracking-[0.16em] uppercase"
+                            >
+                              {formData.paymentReference
+                                ? "Regenerate PRN"
+                                : "Generate PRN"}
+                            </button>
+                          </div>
+                          {errors.paymentReference && (
+                            <p className="text-xs text-destructive mt-2">
+                              {errors.paymentReference}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            External Payment Channel
                           </label>
                           <select
                             value={formData.paymentMethod}
@@ -3395,34 +3461,20 @@ const ApplicationStartPage = () => {
                             }
                             className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
                           >
-                            <option value="">Select method</option>
-                            <option value="Mobile Money">Mobile Money</option>
-                            <option value="Bank Transfer">Bank Transfer</option>
-                            <option value="Card Payment">Card Payment</option>
+                            <option value="">Select channel</option>
+                            <option value="Bank (PRN/URA)">
+                              Bank (PRN/URA)
+                            </option>
+                            <option value="Mobile Money (PRN/URA)">
+                              Mobile Money (PRN/URA)
+                            </option>
+                            <option value="Other Authorized Channel">
+                              Other Authorized Channel
+                            </option>
                           </select>
                           {errors.paymentMethod && (
                             <p className="text-xs text-destructive mt-2">
                               {errors.paymentMethod}
-                            </p>
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            Payment Reference
-                          </label>
-                          <input
-                            value={formData.paymentReference}
-                            onChange={(e) =>
-                              updateField("paymentReference", e.target.value)
-                            }
-                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                            type="text"
-                            placeholder="Transaction ID / receipt number"
-                          />
-                          {errors.paymentReference && (
-                            <p className="text-xs text-destructive mt-2">
-                              {errors.paymentReference}
                             </p>
                           )}
                         </div>
@@ -3443,6 +3495,28 @@ const ApplicationStartPage = () => {
                             <option value="In-person">In-person</option>
                           </select>
                         </div>
+
+                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
+                          <input
+                            type="checkbox"
+                            checked={formData.applicationFeePaid}
+                            onChange={(e) =>
+                              updateField(
+                                "applicationFeePaid",
+                                e.target.checked,
+                              )
+                            }
+                            className="mt-1"
+                          />
+                          I have paid externally using the generated PRN, and I
+                          understand status update is normally done by the
+                          payment platform integration.
+                        </label>
+                        {errors.applicationFeePaid && (
+                          <p className="text-xs text-destructive mt-1">
+                            {errors.applicationFeePaid}
+                          </p>
+                        )}
                       </div>
                     )}
 
@@ -3479,17 +3553,33 @@ const ApplicationStartPage = () => {
                           </p>
                           <p>
                             <span className="text-muted-foreground">
-                              Payment Method:
+                              Payment Channel:
                             </span>{" "}
                             {formData.paymentMethod || "Not selected"}
                           </p>
                           <p>
-                            <span className="text-muted-foreground">
-                              Reference:
-                            </span>{" "}
+                            <span className="text-muted-foreground">PRN:</span>{" "}
                             {formData.paymentReference || "Not provided"}
                           </p>
                         </div>
+                          <div className="rounded-[18px] border border-border bg-secondary/10 p-4 space-y-3">
+                            <p className="font-body text-xs uppercase tracking-[0.2em] text-accent">
+                              Declaration
+                            </p>
+                            <p className="font-body text-sm text-foreground leading-relaxed">
+                              I declare that the information provided in this
+                              application is true and complete to the best of my
+                              knowledge. I understand that submitting forged,
+                              misleading, or incomplete documents may result in
+                              rejection, withdrawal of admission, or other
+                              disciplinary and legal action in line with the
+                              institution's regulations.
+                            </p>
+                            <p className="text-xs text-muted-foreground leading-relaxed">
+                              After final submission and payment confirmation,
+                              this application is locked and cannot be edited.
+                            </p>
+                          </div>
                         <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
                           <input
                             type="checkbox"
@@ -3499,8 +3589,8 @@ const ApplicationStartPage = () => {
                             }
                             className="mt-1"
                           />
-                          I confirm the information provided is accurate and I
-                          accept the application terms.
+                            I confirm that the information and attached documents
+                            are accurate, authentic, and complete.
                         </label>
                         {errors.termsAccepted && (
                           <p className="text-xs text-destructive">
