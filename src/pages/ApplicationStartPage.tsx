@@ -376,7 +376,8 @@ const documentUploadSteps = [
   ],
 ] as const;
 
-type DocumentUploadField = (typeof documentUploadSteps)[number][number]["field"];
+type DocumentUploadField =
+  (typeof documentUploadSteps)[number][number]["field"];
 
 type DocumentUploadConfig = (typeof documentUploadSteps)[number][number];
 
@@ -716,7 +717,9 @@ const ApplicationStartPage = () => {
       >
     >
   >({});
-  const [documentUploadErrors, setDocumentUploadErrors] = useState<Record<string, string>>({});
+  const [documentUploadErrors, setDocumentUploadErrors] = useState<
+    Record<string, string>
+  >({});
   const isUaceSelected = formData.academicCredentialLevel.includes("UACE");
   const isDirectEntry = formData.applicationType === "Direct Entry (A-Level)";
   const shouldCaptureUceAndUace = isDirectEntry || isUaceSelected;
@@ -911,7 +914,9 @@ const ApplicationStartPage = () => {
             )}
             <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
               <span>{meta?.fileName || "Uploaded file"}</span>
-              {meta?.fileSize ? <span>{formatFileSize(meta.fileSize)}</span> : null}
+              {meta?.fileSize ? (
+                <span>{formatFileSize(meta.fileSize)}</span>
+              ) : null}
             </div>
             <a
               href={uploadedUrl}
@@ -923,9 +928,7 @@ const ApplicationStartPage = () => {
             </a>
           </div>
         ) : (
-          <p className="text-xs text-muted-foreground">
-            No file uploaded yet.
-          </p>
+          <p className="text-xs text-muted-foreground">No file uploaded yet.</p>
         )}
 
         {fileError || validationError ? (
@@ -1335,7 +1338,8 @@ const ApplicationStartPage = () => {
           "Upload a passport-size photo under 100KB.";
       }
       if (!formData.birthCertificateUrl.trim()) {
-        nextErrors.birthCertificateUrl = "Birth certificate upload is required.";
+        nextErrors.birthCertificateUrl =
+          "Birth certificate upload is required.";
       }
       if (!formData.oLevelResultSlipUrl.trim()) {
         nextErrors.oLevelResultSlipUrl =
@@ -1353,7 +1357,10 @@ const ApplicationStartPage = () => {
         nextErrors.nationalIdOrPassportUrl =
           "Upload your National ID or Passport.";
       }
-      if (formData.isUgandan === "no" && !formData.countryIdDocumentUrl.trim()) {
+      if (
+        formData.isUgandan === "no" &&
+        !formData.countryIdDocumentUrl.trim()
+      ) {
         nextErrors.countryIdDocumentUrl =
           "Upload your country ID or national document.";
       }
@@ -1402,29 +1409,36 @@ const ApplicationStartPage = () => {
       setAcademicSubStep((prev) => prev - 1);
       return;
     }
-
     if (activeStep === 3 && documentSubStep > 0) {
       setDocumentSubStep((prev) => prev - 1);
       return;
     }
-
     if (activeStep === 3) {
       setActiveStep(2);
       setAcademicSubStep(academicStepLabels.length - 1);
       return;
     }
-
     setActiveStep((prev) => (prev > 0 ? prev - 1 : prev));
   };
-
   const handleSubmit = async () => {
     if (!validateStep(5)) return;
-
     setSubmittingApplication(true);
     setSubmissionStatus("");
-
     try {
       const ugandanStatus = formData.isUgandan === "no" ? "no" : "yes";
+      const needsTranscript =
+        /Diploma|Degree/i.test(formData.applicationType) ||
+        /Diploma|Degree/i.test(formData.academicCredentialLevel);
+      const needsALevelSlip = shouldCaptureUceAndUace;
+      const documentsReady = Boolean(
+        formData.passportPhotoUrl.trim() &&
+        formData.birthCertificateUrl.trim() &&
+        formData.oLevelResultSlipUrl.trim() &&
+        formData.nationalIdOrPassportUrl.trim() &&
+        (!needsALevelSlip || formData.aLevelResultSlipUrl.trim()) &&
+        (!needsTranscript || formData.academicTranscriptUrl.trim()) &&
+        (formData.isUgandan !== "no" || formData.countryIdDocumentUrl.trim()),
+      );
 
       const payload: ApplicationSubmissionInput = {
         email: formData.email.trim().toLowerCase(),
@@ -1444,7 +1458,8 @@ const ApplicationStartPage = () => {
         districtOfOrigin: formData.districtOfOrigin.trim(),
         birthCertificateOrNationalIdDetails:
           formData.birthCertificateOrNationalIdDetails.trim(),
-        passportPhotoUploaded: formData.passportPhotoUploaded,
+        passportPhotoUploaded: Boolean(formData.passportPhotoUrl.trim()),
+        passportPhotoUrl: formData.passportPhotoUrl.trim(),
         guardianName: formData.guardianName.trim(),
         guardianType: formData.guardianType,
         guardianPhone: formData.guardianPhone.trim(),
@@ -1458,6 +1473,7 @@ const ApplicationStartPage = () => {
         highestQualification: formData.highestQualification,
         academicCredentialLevel: formData.academicCredentialLevel,
         academicCredentialsDetails: formData.academicCredentialsDetails.trim(),
+        birthCertificateUrl: formData.birthCertificateUrl.trim(),
         uceIndexNumber: formData.uceIndexNumber.trim(),
         uceYearOfSitting: formData.uceYearOfSitting.trim(),
         uceSecondSitting: formData.uceSecondSitting,
@@ -1473,17 +1489,27 @@ const ApplicationStartPage = () => {
         uaceGeneralPaperGrade: formData.uaceGeneralPaperGrade,
         uaceIctOrSubMathSubject: formData.uaceIctOrSubMathSubject,
         uaceIctOrSubMathGrade: formData.uaceIctOrSubMathGrade,
+        oLevelResultSlipUrl: formData.oLevelResultSlipUrl.trim(),
+        aLevelResultSlipUrl: formData.aLevelResultSlipUrl.trim(),
+        academicTranscriptUrl: formData.academicTranscriptUrl.trim(),
+        nationalIdOrPassportUrl: formData.nationalIdOrPassportUrl.trim(),
+        countryIdDocumentUrl: formData.countryIdDocumentUrl.trim(),
+        refereeLetterUrl: formData.refereeLetterUrl.trim(),
+        personalStatementAttachmentUrl:
+          formData.personalStatementAttachmentUrl.trim(),
         oLevelSubjects: formData.oLevelSubjects,
         certificateSubjects: formData.certificateSubjects,
         gpa: formData.gpa.trim(),
         personalStatement: formData.personalStatement.trim(),
         howDidYouHear: formData.howDidYouHear,
-        documentsConfirmed: formData.documentsConfirmed,
-        transcriptUploaded: formData.transcriptUploaded,
-        idUploaded: formData.idUploaded,
-        countryIdUploaded: formData.countryIdUploaded,
-        recommendationUploaded: formData.recommendationUploaded,
-        statementUploaded: formData.statementUploaded,
+        documentsConfirmed: documentsReady,
+        transcriptUploaded: Boolean(formData.academicTranscriptUrl.trim()),
+        idUploaded: Boolean(formData.nationalIdOrPassportUrl.trim()),
+        countryIdUploaded: Boolean(formData.countryIdDocumentUrl.trim()),
+        recommendationUploaded: Boolean(formData.refereeLetterUrl.trim()),
+        statementUploaded: Boolean(
+          formData.personalStatementAttachmentUrl.trim(),
+        ),
         applicationFeePaid: formData.applicationFeePaid,
         paymentMethod: formData.paymentMethod,
         paymentReference: formData.paymentReference.trim(),
@@ -3304,7 +3330,8 @@ const ApplicationStartPage = () => {
                             </div>
                           </div>
                           <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
-                            Files upload directly to Firebase Storage. Image files show a preview after upload.
+                            Files upload directly to Firebase Storage. Image
+                            files show a preview after upload.
                           </p>
                         </div>
 
