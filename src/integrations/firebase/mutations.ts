@@ -31,6 +31,7 @@ export type ApplicationSubmissionInput = {
   districtOfOrigin: string;
   birthCertificateOrNationalIdDetails: string;
   passportPhotoUploaded: boolean;
+  passportPhotoUrl: string;
   guardianName: string;
   guardianType: string;
   guardianPhone: string;
@@ -44,6 +45,7 @@ export type ApplicationSubmissionInput = {
   highestQualification: string;
   academicCredentialLevel: string;
   academicCredentialsDetails: string;
+  birthCertificateUrl: string;
   uceIndexNumber: string;
   uceYearOfSitting: string;
   uceSecondSitting: boolean;
@@ -59,6 +61,13 @@ export type ApplicationSubmissionInput = {
   uaceGeneralPaperGrade: string;
   uaceIctOrSubMathSubject: string;
   uaceIctOrSubMathGrade: string;
+  oLevelResultSlipUrl: string;
+  aLevelResultSlipUrl: string;
+  academicTranscriptUrl: string;
+  nationalIdOrPassportUrl: string;
+  countryIdDocumentUrl: string;
+  refereeLetterUrl: string;
+  personalStatementAttachmentUrl: string;
   oLevelSubjects: SubjectGradeEntry[];
   certificateSubjects: SubjectGradeEntry[];
   gpa: string;
@@ -122,6 +131,7 @@ export const submitApplicationSubmission = async (
     birth_certificate_or_national_id_details:
       payload.birthCertificateOrNationalIdDetails,
     passport_photo_uploaded: payload.passportPhotoUploaded,
+    passport_photo_url: payload.passportPhotoUrl,
     guardian_name: payload.guardianName,
     guardian_type: payload.guardianType,
     guardian_phone: payload.guardianPhone,
@@ -135,6 +145,7 @@ export const submitApplicationSubmission = async (
     highest_qualification: payload.highestQualification,
     academic_credential_level: payload.academicCredentialLevel,
     academic_credentials_details: payload.academicCredentialsDetails,
+    birth_certificate_url: payload.birthCertificateUrl,
     uce_index_number: payload.uceIndexNumber,
     uce_year_of_sitting: payload.uceYearOfSitting,
     uce_second_sitting: payload.uceSecondSitting,
@@ -150,6 +161,13 @@ export const submitApplicationSubmission = async (
     uace_general_paper_grade: payload.uaceGeneralPaperGrade,
     uace_ict_or_sub_math_subject: payload.uaceIctOrSubMathSubject,
     uace_ict_or_sub_math_grade: payload.uaceIctOrSubMathGrade,
+    o_level_result_slip_url: payload.oLevelResultSlipUrl,
+    a_level_result_slip_url: payload.aLevelResultSlipUrl,
+    academic_transcript_url: payload.academicTranscriptUrl,
+    national_id_or_passport_url: payload.nationalIdOrPassportUrl,
+    country_id_document_url: payload.countryIdDocumentUrl,
+    referee_letter_url: payload.refereeLetterUrl,
+    personal_statement_attachment_url: payload.personalStatementAttachmentUrl,
     o_level_subjects: payload.oLevelSubjects,
     certificate_subjects: payload.certificateSubjects,
     gpa: payload.gpa,

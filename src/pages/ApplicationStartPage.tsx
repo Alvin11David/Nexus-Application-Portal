@@ -1,12 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowLeft, ArrowRight, Check, Lock } from "lucide-react";
 import {
+  getDownloadURL,
+  getStorage,
+  ref as storageRef,
+  uploadBytes,
+} from "firebase/storage";
+import {
   submitApplicationSubmission,
   type ApplicationSubmissionInput,
 } from "@/integrations/firebase/mutations";
+import { firebaseApp } from "@/integrations/firebase/config";
 
 const applicationSteps = [
   {
@@ -67,6 +74,7 @@ type ApplicationStartData = {
   districtOfOrigin: string;
   birthCertificateOrNationalIdDetails: string;
   passportPhotoUploaded: boolean;
+  passportPhotoUrl: string;
   guardianName: string;
   guardianType: "" | "Parent" | "Guardian" | "Sponsor" | "Other";
   guardianPhone: string;
@@ -80,6 +88,7 @@ type ApplicationStartData = {
   highestQualification: string;
   academicCredentialLevel: string;
   academicCredentialsDetails: string;
+  birthCertificateUrl: string;
   uceIndexNumber: string;
   uceYearOfSitting: string;
   uceSecondSitting: boolean;
@@ -95,6 +104,13 @@ type ApplicationStartData = {
   uaceGeneralPaperGrade: string;
   uaceIctOrSubMathSubject: string;
   uaceIctOrSubMathGrade: string;
+  oLevelResultSlipUrl: string;
+  aLevelResultSlipUrl: string;
+  academicTranscriptUrl: string;
+  nationalIdOrPassportUrl: string;
+  countryIdDocumentUrl: string;
+  refereeLetterUrl: string;
+  personalStatementAttachmentUrl: string;
   oLevelSubjects: { subject: string; grade: string }[];
   certificateSubjects: { subject: string; grade: string }[];
   gpa: string;
@@ -278,6 +294,91 @@ const certificateGradeOptions = [
   "8",
   "9",
 ];
+
+const documentUploadSteps = [
+  [
+    {
+      field: "passportPhotoUrl",
+      label: "Passport-size Photograph",
+      hint: "JPEG or PNG under 100KB.",
+      accept: "image/*",
+      maxBytes: 100 * 1024,
+      preview: true,
+    },
+    {
+      field: "birthCertificateUrl",
+      label: "Birth Certificate",
+      hint: "Certified copy or scan under 1MB.",
+      accept: "image/*,application/pdf",
+      maxBytes: 1024 * 1024,
+      preview: false,
+    },
+    {
+      field: "oLevelResultSlipUrl",
+      label: "O-Level Result Slip / Certificate",
+      hint: "Upload the official or certified result document.",
+      accept: "image/*,application/pdf",
+      maxBytes: 1024 * 1024,
+      preview: false,
+    },
+    {
+      field: "aLevelResultSlipUrl",
+      label: "A-Level Result Slip / Certificate",
+      hint: "Required for direct entry and UACE applicants.",
+      accept: "image/*,application/pdf",
+      maxBytes: 1024 * 1024,
+      preview: false,
+    },
+  ],
+  [
+    {
+      field: "academicTranscriptUrl",
+      label: "Academic Transcript",
+      hint: "Required for diploma and degree holders.",
+      accept: "image/*,application/pdf",
+      maxBytes: 1024 * 1024,
+      preview: false,
+    },
+    {
+      field: "nationalIdOrPassportUrl",
+      label: "National ID / Passport",
+      hint: "Upload your main identity document.",
+      accept: "image/*,application/pdf",
+      maxBytes: 1024 * 1024,
+      preview: false,
+    },
+    {
+      field: "countryIdDocumentUrl",
+      label: "Country ID / National Document",
+      hint: "Required for non-Ugandan applicants.",
+      accept: "image/*,application/pdf",
+      maxBytes: 1024 * 1024,
+      preview: false,
+    },
+  ],
+  [
+    {
+      field: "refereeLetterUrl",
+      label: "Recommendation / Referee Letter",
+      hint: "Sometimes required for specific entry types.",
+      accept: "image/*,application/pdf",
+      maxBytes: 1024 * 1024,
+      preview: false,
+    },
+    {
+      field: "personalStatementAttachmentUrl",
+      label: "Personal Statement Attachment",
+      hint: "Optional supporting file if you have one.",
+      accept: "image/*,application/pdf",
+      maxBytes: 1024 * 1024,
+      preview: false,
+    },
+  ],
+] as const;
+
+type DocumentUploadField = (typeof documentUploadSteps)[number][number]["field"];
+
+type DocumentUploadConfig = (typeof documentUploadSteps)[number][number];
 
 const hearAboutOptions = [
   "University Website",
@@ -512,6 +613,7 @@ const initialFormData: ApplicationStartData = {
   districtOfOrigin: "",
   birthCertificateOrNationalIdDetails: "",
   passportPhotoUploaded: false,
+  passportPhotoUrl: "",
   guardianName: "",
   guardianType: "",
   guardianPhone: "",
@@ -525,6 +627,7 @@ const initialFormData: ApplicationStartData = {
   highestQualification: "",
   academicCredentialLevel: "",
   academicCredentialsDetails: "",
+  birthCertificateUrl: "",
   uceIndexNumber: "",
   uceYearOfSitting: "",
   uceSecondSitting: false,
@@ -544,6 +647,13 @@ const initialFormData: ApplicationStartData = {
   uaceGeneralPaperGrade: "",
   uaceIctOrSubMathSubject: "",
   uaceIctOrSubMathGrade: "",
+  oLevelResultSlipUrl: "",
+  aLevelResultSlipUrl: "",
+  academicTranscriptUrl: "",
+  nationalIdOrPassportUrl: "",
+  countryIdDocumentUrl: "",
+  refereeLetterUrl: "",
+  personalStatementAttachmentUrl: "",
   oLevelSubjects: Array.from({ length: 5 }, () => ({ subject: "", grade: "" })),
   certificateSubjects: Array.from({ length: 3 }, () => ({
     subject: "",
@@ -568,7 +678,7 @@ const initialFormData: ApplicationStartData = {
   secondSittingUceYearOfSitting: "",
   hasSecondSittingUace: false,
   secondSittingUaceIndexNumber: "",
-  secondSittingUaceYearOfSitting: ""
+  secondSittingUaceYearOfSitting: "",
 };
 
 type ApplicationDraftPayload = {
@@ -598,19 +708,234 @@ const ApplicationStartPage = () => {
   const [draftHydrated, setDraftHydrated] = useState(false);
   const [academicSubStep, setAcademicSubStep] = useState(0);
   const [documentSubStep, setDocumentSubStep] = useState(0);
+  const [uploadingDocuments, setUploadingDocuments] = useState<
+    Partial<
+      Record<
+        DocumentUploadField,
+        { uploading: boolean; fileName: string; fileSize: number }
+      >
+    >
+  >({});
+  const [documentUploadErrors, setDocumentUploadErrors] = useState<Record<string, string>>({});
   const isUaceSelected = formData.academicCredentialLevel.includes("UACE");
   const isDirectEntry = formData.applicationType === "Direct Entry (A-Level)";
   const shouldCaptureUceAndUace = isDirectEntry || isUaceSelected;
+  const storage = firebaseApp ? getStorage(firebaseApp) : null;
   const academicStepLabels = [
     "Application Setup",
     "Qualification Record",
     "Subjects & Motivation",
   ];
   const documentStepLabels = [
-    "Required Documents",
-    "Identity Confirmation",
-    "Supporting Declarations",
+    "Photo & Results",
+    "Identity Documents",
+    "Supporting Files",
   ];
+
+  const updateUploadField = <K extends DocumentUploadField>(
+    field: K,
+    value: string,
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const handleDocumentUpload = async (
+    config: DocumentUploadConfig,
+    file: File,
+  ) => {
+    if (!storage) {
+      setDocumentUploadErrors((prev) => ({
+        ...prev,
+        [config.field]: "Firebase Storage is not configured.",
+      }));
+      return;
+    }
+
+    if (file.size > config.maxBytes) {
+      setDocumentUploadErrors((prev) => ({
+        ...prev,
+        [config.field]:
+          config.field === "passportPhotoUrl"
+            ? "Passport photo must be under 100KB."
+            : "This file must be under 1MB.",
+      }));
+      return;
+    }
+
+    setDocumentUploadErrors((prev) => {
+      const next = { ...prev };
+      delete next[config.field];
+      return next;
+    });
+
+    setUploadingDocuments((prev) => ({
+      ...prev,
+      [config.field]: {
+        uploading: true,
+        fileName: file.name,
+        fileSize: file.size,
+      },
+    }));
+
+    try {
+      const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const uploadPath = `applications/${config.field}/${Date.now()}-${safeName}`;
+      const fileRef = storageRef(storage, uploadPath);
+      setUploadingDocuments((prev) => ({
+        ...prev,
+        [config.field]: {
+          uploading: true,
+          fileName: file.name,
+          fileSize: file.size,
+        },
+      }));
+      await uploadBytes(fileRef, file);
+      const downloadUrl = await getDownloadURL(fileRef);
+      updateUploadField(config.field, downloadUrl);
+
+      if (config.field === "passportPhotoUrl") {
+        updateField("passportPhotoUploaded", true);
+      }
+      if (config.field === "academicTranscriptUrl") {
+        updateField("transcriptUploaded", true);
+      }
+      if (config.field === "nationalIdOrPassportUrl") {
+        updateField("idUploaded", true);
+      }
+      if (config.field === "countryIdDocumentUrl") {
+        updateField("countryIdUploaded", true);
+      }
+      if (config.field === "refereeLetterUrl") {
+        updateField("recommendationUploaded", true);
+      }
+      if (config.field === "personalStatementAttachmentUrl") {
+        updateField("statementUploaded", true);
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Upload failed. Please try again.";
+      setDocumentUploadErrors((prev) => ({
+        ...prev,
+        [config.field]: message,
+      }));
+    } finally {
+      setUploadingDocuments((prev) => ({
+        ...prev,
+        [config.field]: {
+          uploading: false,
+          fileName: prev[config.field]?.fileName ?? file.name,
+          fileSize: prev[config.field]?.fileSize ?? file.size,
+        },
+      }));
+    }
+  };
+
+  const handleDocumentSelection = (
+    config: DocumentUploadConfig,
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    void handleDocumentUpload(config, file);
+    event.target.value = "";
+  };
+
+  const formatFileSize = (size: number) => {
+    if (size < 1024) return `${size} B`;
+    if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+    return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const renderUploadCard = (config: DocumentUploadConfig) => {
+    const uploadedUrl = formData[config.field];
+    const meta = uploadingDocuments[config.field];
+    const fileError = documentUploadErrors[config.field];
+    const validationError = errors[config.field];
+    const isImagePreview =
+      config.preview || /\.(png|jpe?g|webp|gif)$/i.test(meta?.fileName ?? "");
+
+    return (
+      <div
+        key={config.field}
+        className="rounded-[18px] border border-border bg-background/80 p-4 space-y-4"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="font-body text-sm uppercase tracking-[0.16em] text-foreground">
+              {config.label}
+            </p>
+            <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+              {config.hint}
+            </p>
+          </div>
+          <span className="rounded-full border border-border px-3 py-1 text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+            {config.maxBytes === 100 * 1024 ? "<100KB" : "<1MB"}
+          </span>
+        </div>
+
+        <input
+          type="file"
+          accept={config.accept}
+          onChange={(e) => handleDocumentSelection(config, e)}
+          className="block w-full text-sm text-muted-foreground file:mr-4 file:rounded-[10px] file:border-0 file:bg-accent file:px-4 file:py-2 file:text-xs file:font-body file:uppercase file:tracking-[0.16em] file:text-accent-foreground hover:file:opacity-90"
+          disabled={Boolean(uploadingDocuments[config.field]?.uploading)}
+        />
+
+        {meta?.uploading ? (
+          <p className="text-xs text-accent">Uploading file...</p>
+        ) : null}
+
+        {uploadedUrl ? (
+          <div className="space-y-3">
+            {isImagePreview ? (
+              <img
+                src={uploadedUrl}
+                alt={config.label}
+                className="h-40 w-full rounded-[14px] object-cover border border-border"
+              />
+            ) : (
+              <div className="rounded-[14px] border border-border bg-secondary/20 p-4 text-sm text-foreground">
+                <p className="font-medium">File uploaded</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {meta?.fileName || "Document file"}
+                </p>
+              </div>
+            )}
+            <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+              <span>{meta?.fileName || "Uploaded file"}</span>
+              {meta?.fileSize ? <span>{formatFileSize(meta.fileSize)}</span> : null}
+            </div>
+            <a
+              href={uploadedUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-accent"
+            >
+              View uploaded file
+            </a>
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            No file uploaded yet.
+          </p>
+        )}
+
+        {fileError || validationError ? (
+          <p className="text-xs text-destructive">
+            {fileError ?? validationError}
+          </p>
+        ) : null}
+      </div>
+    );
+  };
 
   useEffect(() => {
     if (activeStep !== 2) {
@@ -810,10 +1135,6 @@ const ApplicationStartPage = () => {
         nextErrors.birthCertificateOrNationalIdDetails =
           "Birth certificate or National ID details are required.";
       }
-      if (!formData.passportPhotoUploaded) {
-        nextErrors.passportPhotoUploaded =
-          "Please confirm passport-size photo upload.";
-      }
       if (!formData.guardianName.trim())
         nextErrors.guardianName = "Guardian name is required.";
       if (!formData.guardianType) {
@@ -1004,26 +1325,37 @@ const ApplicationStartPage = () => {
     }
 
     if (step === 3) {
-      if (!formData.documentsConfirmed) {
-        nextErrors.documentsConfirmed = "Please confirm document readiness.";
+      const needsTranscript =
+        /Diploma|Degree/i.test(formData.applicationType) ||
+        /Diploma|Degree/i.test(formData.academicCredentialLevel);
+      const needsALevelSlip = shouldCaptureUceAndUace;
+
+      if (!formData.passportPhotoUrl.trim()) {
+        nextErrors.passportPhotoUrl =
+          "Upload a passport-size photo under 100KB.";
       }
-      if (!formData.transcriptUploaded) {
-        nextErrors.transcriptUploaded = "Transcript confirmation is required.";
+      if (!formData.birthCertificateUrl.trim()) {
+        nextErrors.birthCertificateUrl = "Birth certificate upload is required.";
       }
-      if (!formData.idUploaded) {
-        nextErrors.idUploaded = "ID/Passport confirmation is required.";
+      if (!formData.oLevelResultSlipUrl.trim()) {
+        nextErrors.oLevelResultSlipUrl =
+          "Upload your O-Level result slip or certificate.";
       }
-      if (formData.isUgandan === "no" && !formData.countryIdUploaded) {
-        nextErrors.countryIdUploaded =
-          "Country ID upload confirmation is required for non-Ugandan applicants.";
+      if (needsALevelSlip && !formData.aLevelResultSlipUrl.trim()) {
+        nextErrors.aLevelResultSlipUrl =
+          "Upload your A-Level result slip or certificate.";
       }
-      if (!formData.recommendationUploaded) {
-        nextErrors.recommendationUploaded =
-          "Recommendation letter confirmation is required.";
+      if (needsTranscript && !formData.academicTranscriptUrl.trim()) {
+        nextErrors.academicTranscriptUrl =
+          "Academic transcript upload is required for diploma or degree entry.";
       }
-      if (!formData.statementUploaded) {
-        nextErrors.statementUploaded =
-          "Personal statement confirmation is required.";
+      if (!formData.nationalIdOrPassportUrl.trim()) {
+        nextErrors.nationalIdOrPassportUrl =
+          "Upload your National ID or Passport.";
+      }
+      if (formData.isUgandan === "no" && !formData.countryIdDocumentUrl.trim()) {
+        nextErrors.countryIdDocumentUrl =
+          "Upload your country ID or national document.";
       }
     }
 
@@ -1311,7 +1643,12 @@ const ApplicationStartPage = () => {
                   return (
                     <button
                       key={step.number}
-                      onClick={() => !isLocked && setActiveStep(index)}
+                      onClick={() => {
+                        if (isLocked) return;
+                        setActiveStep(index);
+                        if (index === 2) setAcademicSubStep(0);
+                        if (index === 3) setDocumentSubStep(0);
+                      }}
                       disabled={isLocked}
                       className={`w-full text-left rounded-[14px] border px-4 py-3 transition-colors duration-300 ${
                         isActive
@@ -1772,26 +2109,11 @@ const ApplicationStartPage = () => {
                           )}
                         </div>
 
-                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
-                          <input
-                            type="checkbox"
-                            checked={formData.passportPhotoUploaded}
-                            onChange={(e) =>
-                              updateField(
-                                "passportPhotoUploaded",
-                                e.target.checked,
-                              )
-                            }
-                            className="mt-1"
-                          />
-                          Passport-size photo uploaded and meets admissions
-                          requirements.
-                        </label>
-                        {errors.passportPhotoUploaded && (
-                          <p className="text-xs text-destructive mt-1">
-                            {errors.passportPhotoUploaded}
-                          </p>
-                        )}
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Upload your passport-size photograph in the document
+                          upload step. The portal will enforce the file size
+                          limit there.
+                        </p>
 
                         <div>
                           <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
@@ -1994,575 +2316,602 @@ const ApplicationStartPage = () => {
 
                     {activeStep === 2 && (
                       <>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Application Type
-                            </label>
-                            <select
-                              value={formData.applicationType}
-                              onChange={(e) =>
-                                updateField("applicationType", e.target.value)
-                              }
-                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                            >
-                              <option value="">Select application type</option>
-                              {applicationTypeOptions.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
-                            {errors.applicationType && (
-                              <p className="text-xs text-destructive mt-2">
-                                {errors.applicationType}
+                        <div className="mb-6 rounded-[18px] border border-border bg-secondary/10 p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                              <p className="font-body text-[11px] tracking-[0.24em] uppercase text-accent">
+                                Part {academicSubStep + 1}/3
                               </p>
-                            )}
-                          </div>
-                          <div>
-                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Entry Scheme
-                            </label>
-                            <select
-                              value={formData.entryScheme}
-                              onChange={(e) =>
-                                updateField("entryScheme", e.target.value)
-                              }
-                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                            >
-                              <option value="">Select entry scheme</option>
-                              {entrySchemeOptions.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
-                            {errors.entryScheme && (
-                              <p className="text-xs text-destructive mt-2">
-                                {errors.entryScheme}
+                              <p className="font-body text-sm text-foreground mt-1">
+                                {academicStepLabels[academicSubStep]}
                               </p>
-                            )}
-                          </div>
-                        </div>
-
-                        {shouldCaptureUceAndUace ? (
-                          <div className="space-y-4 border border-border rounded-[14px] p-4 bg-secondary/10">
-                            <p className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              UNEB Index Details
-                            </p>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                  UCE Index Number
-                                </label>
-                                <input
-                                  value={formData.uceIndexNumber}
-                                  onChange={(e) =>
-                                    updateField("uceIndexNumber", e.target.value)
-                                  }
-                                  className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                  type="text"
-                                  placeholder="e.g. U0123/001"
-                                />
-                                {errors.uceIndexNumber && (
-                                  <p className="text-xs text-destructive mt-2">
-                                    {errors.uceIndexNumber}
-                                  </p>
-                                )}
-                              </div>
-                              <div>
-                                <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                  UCE Year of Sitting
-                                </label>
-                                <input
-                                  value={formData.uceYearOfSitting}
-                                  onChange={(e) =>
-                                    updateField(
-                                      "uceYearOfSitting",
-                                      e.target.value.replace(/\D/g, "").slice(0, 4),
-                                    )
-                                  }
-                                  className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                  type="text"
-                                  inputMode="numeric"
-                                  placeholder="YYYY"
-                                />
-                                {errors.uceYearOfSitting && (
-                                  <p className="text-xs text-destructive mt-2">
-                                    {errors.uceYearOfSitting}
-                                  </p>
-                                )}
-                              </div>
                             </div>
-
-                            <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
-                              <input
-                                type="checkbox"
-                                checked={formData.hasSecondSittingUce}
-                                onChange={(e) =>
-                                  updateField("hasSecondSittingUce", e.target.checked)
-                                }
-                                className="mt-1"
-                              />
-                              I sat UCE in more than one sitting.
-                            </label>
-
-                            {formData.hasSecondSittingUce ? (
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                    Second Sitting UCE Index Number
-                                  </label>
-                                  <input
-                                    value={formData.secondSittingUceIndexNumber}
-                                    onChange={(e) =>
-                                      updateField(
-                                        "secondSittingUceIndexNumber",
-                                        e.target.value,
-                                      )
-                                    }
-                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                    type="text"
-                                  />
-                                  {errors.secondSittingUceIndexNumber && (
-                                    <p className="text-xs text-destructive mt-2">
-                                      {errors.secondSittingUceIndexNumber}
-                                    </p>
-                                  )}
-                                </div>
-                                <div>
-                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                    Second Sitting UCE Year
-                                  </label>
-                                  <input
-                                    value={formData.secondSittingUceYearOfSitting}
-                                    onChange={(e) =>
-                                      updateField(
-                                        "secondSittingUceYearOfSitting",
-                                        e.target.value.replace(/\D/g, "").slice(0, 4),
-                                      )
-                                    }
-                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                    type="text"
-                                    inputMode="numeric"
-                                    placeholder="YYYY"
-                                  />
-                                  {errors.secondSittingUceYearOfSitting && (
-                                    <p className="text-xs text-destructive mt-2">
-                                      {errors.secondSittingUceYearOfSitting}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            ) : null}
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div>
-                                <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                  UACE Index Number
-                                </label>
-                                <input
-                                  value={formData.uaceIndexNumber}
-                                  onChange={(e) =>
-                                    updateField("uaceIndexNumber", e.target.value)
-                                  }
-                                  className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                  type="text"
-                                  placeholder="e.g. U0123/002"
-                                />
-                                {errors.uaceIndexNumber && (
-                                  <p className="text-xs text-destructive mt-2">
-                                    {errors.uaceIndexNumber}
-                                  </p>
-                                )}
-                              </div>
-                              <div>
-                                <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                  UACE Year of Sitting
-                                </label>
-                                <input
-                                  value={formData.uaceYearOfSitting}
-                                  onChange={(e) =>
-                                    updateField(
-                                      "uaceYearOfSitting",
-                                      e.target.value.replace(/\D/g, "").slice(0, 4),
-                                    )
-                                  }
-                                  className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                  type="text"
-                                  inputMode="numeric"
-                                  placeholder="YYYY"
-                                />
-                                {errors.uaceYearOfSitting && (
-                                  <p className="text-xs text-destructive mt-2">
-                                    {errors.uaceYearOfSitting}
-                                  </p>
-                                )}
-                              </div>
+                            <div className="flex flex-wrap gap-2">
+                              {academicStepLabels.map((label, index) => (
+                                <span
+                                  key={label}
+                                  className={`rounded-full border px-3 py-1 text-[11px] uppercase tracking-[0.16em] ${
+                                    index === academicSubStep
+                                      ? "border-accent bg-accent/10 text-accent"
+                                      : "border-border text-muted-foreground"
+                                  }`}
+                                >
+                                  {index + 1}/3 {label}
+                                </span>
+                              ))}
                             </div>
-
-                            <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
-                              <input
-                                type="checkbox"
-                                checked={formData.hasSecondSittingUace}
-                                onChange={(e) =>
-                                  updateField("hasSecondSittingUace", e.target.checked)
-                                }
-                                className="mt-1"
-                              />
-                              I sat UACE in more than one sitting.
-                            </label>
-
-                            {formData.hasSecondSittingUace ? (
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                    Second Sitting UACE Index Number
-                                  </label>
-                                  <input
-                                    value={formData.secondSittingUaceIndexNumber}
-                                    onChange={(e) =>
-                                      updateField(
-                                        "secondSittingUaceIndexNumber",
-                                        e.target.value,
-                                      )
-                                    }
-                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                    type="text"
-                                  />
-                                  {errors.secondSittingUaceIndexNumber && (
-                                    <p className="text-xs text-destructive mt-2">
-                                      {errors.secondSittingUaceIndexNumber}
-                                    </p>
-                                  )}
-                                </div>
-                                <div>
-                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                    Second Sitting UACE Year
-                                  </label>
-                                  <input
-                                    value={formData.secondSittingUaceYearOfSitting}
-                                    onChange={(e) =>
-                                      updateField(
-                                        "secondSittingUaceYearOfSitting",
-                                        e.target.value.replace(/\D/g, "").slice(0, 4),
-                                      )
-                                    }
-                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                    type="text"
-                                    inputMode="numeric"
-                                    placeholder="YYYY"
-                                  />
-                                  {errors.secondSittingUaceYearOfSitting && (
-                                    <p className="text-xs text-destructive mt-2">
-                                      {errors.secondSittingUaceYearOfSitting}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            ) : null}
-                          </div>
-                        ) : null}
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Program
-                            </label>
-                            <input
-                              value={formData.program}
-                              onChange={(e) =>
-                                updateField("program", e.target.value)
-                              }
-                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                              type="text"
-                              list="program-options"
-                              placeholder="Search/select a program"
-                            />
-                            <datalist id="program-options">
-                              {programOptions.map((program) => (
-                                <option key={program} value={program} />
-                              ))}
-                            </datalist>
-                            {errors.program && (
-                              <p className="text-xs text-destructive mt-2">
-                                {errors.program}
-                              </p>
-                            )}
-                          </div>
-                          <div>
-                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Preferred Start Date
-                            </label>
-                            <select
-                              value={formData.startDate}
-                              onChange={(e) =>
-                                updateField("startDate", e.target.value)
-                              }
-                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                            >
-                              <option value="">Select date</option>
-                              <option value="June 2026">June 2026</option>
-                              <option value="September 2026">
-                                September 2026
-                              </option>
-                              <option value="January 2027">January 2027</option>
-                            </select>
-                            {errors.startDate && (
-                              <p className="text-xs text-destructive mt-2">
-                                {errors.startDate}
-                              </p>
-                            )}
                           </div>
                         </div>
 
-                        <div>
-                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            Previous Institution
-                          </label>
-                          <input
-                            value={formData.previousInstitution}
-                            onChange={(e) =>
-                              updateField("previousInstitution", e.target.value)
-                            }
-                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                            type="text"
-                          />
-                          {errors.previousInstitution && (
-                            <p className="text-xs text-destructive mt-2">
-                              {errors.previousInstitution}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Academic Credential Level
-                            </label>
-                            <select
-                              value={formData.academicCredentialLevel}
-                              onChange={(e) =>
-                                updateField(
-                                  "academicCredentialLevel",
-                                  e.target.value,
-                                )
-                              }
-                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                            >
-                              <option value="">Select credential level</option>
-                              {academicCredentialOptions.map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
-                            <p className="text-xs text-muted-foreground mt-2">
-                              For Uganda applicants, choose UCE, UACE, Diploma,
-                              Degree, or an equivalent result.
-                            </p>
-                            {errors.academicCredentialLevel && (
-                              <p className="text-xs text-destructive mt-2">
-                                {errors.academicCredentialLevel}
-                              </p>
-                            )}
-                          </div>
-                          <div>
-                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Academic Results / Transcript Details
-                            </label>
-                            <input
-                              value={formData.academicCredentialsDetails}
-                              onChange={(e) =>
-                                updateField(
-                                  "academicCredentialsDetails",
-                                  e.target.value,
-                                )
-                              }
-                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                              type="text"
-                              placeholder="Example: UCE - 8 passes, UACE - 2 principal passes, Diploma transcript attached"
-                            />
-                            <p className="text-xs text-muted-foreground mt-2">
-                              UCE: minimum of five passes. UACE: at least two
-                              principal passes. Diploma/Degree holders should
-                              provide certified transcript details.
-                            </p>
-                            {errors.academicCredentialsDetails && (
-                              <p className="text-xs text-destructive mt-2">
-                                {errors.academicCredentialsDetails}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        {isUaceSelected ? (
-                          <div className="space-y-6 border border-border rounded-[14px] p-4 bg-secondary/10">
-                            <p className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              UACE Details
-                            </p>
-
+                        <div
+                          className={
+                            academicSubStep === 0 ? "space-y-4" : "hidden"
+                          }
+                        >
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                O-Level School Name
+                                Application Type
+                              </label>
+                              <select
+                                value={formData.applicationType}
+                                onChange={(e) =>
+                                  updateField("applicationType", e.target.value)
+                                }
+                                className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              >
+                                <option value="">
+                                  Select application type
+                                </option>
+                                {applicationTypeOptions.map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                              {errors.applicationType && (
+                                <p className="text-xs text-destructive mt-2">
+                                  {errors.applicationType}
+                                </p>
+                              )}
+                            </div>
+                            <div>
+                              <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                Entry Scheme
+                              </label>
+                              <select
+                                value={formData.entryScheme}
+                                onChange={(e) =>
+                                  updateField("entryScheme", e.target.value)
+                                }
+                                className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              >
+                                <option value="">Select entry scheme</option>
+                                {entrySchemeOptions.map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                              {errors.entryScheme && (
+                                <p className="text-xs text-destructive mt-2">
+                                  {errors.entryScheme}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {shouldCaptureUceAndUace ? (
+                            <div className="space-y-4 border border-border rounded-[14px] p-4 bg-secondary/10">
+                              <p className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                UNEB Index Details
+                              </p>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                    UCE Index Number
+                                  </label>
+                                  <input
+                                    value={formData.uceIndexNumber}
+                                    onChange={(e) =>
+                                      updateField(
+                                        "uceIndexNumber",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                    type="text"
+                                    placeholder="e.g. U0123/001"
+                                  />
+                                  {errors.uceIndexNumber && (
+                                    <p className="text-xs text-destructive mt-2">
+                                      {errors.uceIndexNumber}
+                                    </p>
+                                  )}
+                                </div>
+                                <div>
+                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                    UCE Year of Sitting
+                                  </label>
+                                  <input
+                                    value={formData.uceYearOfSitting}
+                                    onChange={(e) =>
+                                      updateField(
+                                        "uceYearOfSitting",
+                                        e.target.value
+                                          .replace(/\D/g, "")
+                                          .slice(0, 4),
+                                      )
+                                    }
+                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                    type="text"
+                                    inputMode="numeric"
+                                    placeholder="YYYY"
+                                  />
+                                  {errors.uceYearOfSitting && (
+                                    <p className="text-xs text-destructive mt-2">
+                                      {errors.uceYearOfSitting}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+
+                              <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
+                                <input
+                                  type="checkbox"
+                                  checked={formData.hasSecondSittingUce}
+                                  onChange={(e) =>
+                                    updateField(
+                                      "hasSecondSittingUce",
+                                      e.target.checked,
+                                    )
+                                  }
+                                  className="mt-1"
+                                />
+                                I sat UCE in more than one sitting.
+                              </label>
+
+                              {formData.hasSecondSittingUce ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                      Second Sitting UCE Index Number
+                                    </label>
+                                    <input
+                                      value={
+                                        formData.secondSittingUceIndexNumber
+                                      }
+                                      onChange={(e) =>
+                                        updateField(
+                                          "secondSittingUceIndexNumber",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                      type="text"
+                                    />
+                                    {errors.secondSittingUceIndexNumber && (
+                                      <p className="text-xs text-destructive mt-2">
+                                        {errors.secondSittingUceIndexNumber}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                      Second Sitting UCE Year
+                                    </label>
+                                    <input
+                                      value={
+                                        formData.secondSittingUceYearOfSitting
+                                      }
+                                      onChange={(e) =>
+                                        updateField(
+                                          "secondSittingUceYearOfSitting",
+                                          e.target.value
+                                            .replace(/\D/g, "")
+                                            .slice(0, 4),
+                                        )
+                                      }
+                                      className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                      type="text"
+                                      inputMode="numeric"
+                                      placeholder="YYYY"
+                                    />
+                                    {errors.secondSittingUceYearOfSitting && (
+                                      <p className="text-xs text-destructive mt-2">
+                                        {errors.secondSittingUceYearOfSitting}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              ) : null}
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                    UACE Index Number
+                                  </label>
+                                  <input
+                                    value={formData.uaceIndexNumber}
+                                    onChange={(e) =>
+                                      updateField(
+                                        "uaceIndexNumber",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                    type="text"
+                                    placeholder="e.g. U0123/002"
+                                  />
+                                  {errors.uaceIndexNumber && (
+                                    <p className="text-xs text-destructive mt-2">
+                                      {errors.uaceIndexNumber}
+                                    </p>
+                                  )}
+                                </div>
+                                <div>
+                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                    UACE Year of Sitting
+                                  </label>
+                                  <input
+                                    value={formData.uaceYearOfSitting}
+                                    onChange={(e) =>
+                                      updateField(
+                                        "uaceYearOfSitting",
+                                        e.target.value
+                                          .replace(/\D/g, "")
+                                          .slice(0, 4),
+                                      )
+                                    }
+                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                    type="text"
+                                    inputMode="numeric"
+                                    placeholder="YYYY"
+                                  />
+                                  {errors.uaceYearOfSitting && (
+                                    <p className="text-xs text-destructive mt-2">
+                                      {errors.uaceYearOfSitting}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+
+                              <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
+                                <input
+                                  type="checkbox"
+                                  checked={formData.hasSecondSittingUace}
+                                  onChange={(e) =>
+                                    updateField(
+                                      "hasSecondSittingUace",
+                                      e.target.checked,
+                                    )
+                                  }
+                                  className="mt-1"
+                                />
+                                I sat UACE in more than one sitting.
+                              </label>
+
+                              {formData.hasSecondSittingUace ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                      Second Sitting UACE Index Number
+                                    </label>
+                                    <input
+                                      value={
+                                        formData.secondSittingUaceIndexNumber
+                                      }
+                                      onChange={(e) =>
+                                        updateField(
+                                          "secondSittingUaceIndexNumber",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                      type="text"
+                                    />
+                                    {errors.secondSittingUaceIndexNumber && (
+                                      <p className="text-xs text-destructive mt-2">
+                                        {errors.secondSittingUaceIndexNumber}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                      Second Sitting UACE Year
+                                    </label>
+                                    <input
+                                      value={
+                                        formData.secondSittingUaceYearOfSitting
+                                      }
+                                      onChange={(e) =>
+                                        updateField(
+                                          "secondSittingUaceYearOfSitting",
+                                          e.target.value
+                                            .replace(/\D/g, "")
+                                            .slice(0, 4),
+                                        )
+                                      }
+                                      className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                      type="text"
+                                      inputMode="numeric"
+                                      placeholder="YYYY"
+                                    />
+                                    {errors.secondSittingUaceYearOfSitting && (
+                                      <p className="text-xs text-destructive mt-2">
+                                        {errors.secondSittingUaceYearOfSitting}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              ) : null}
+                            </div>
+                          ) : null}
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                Program
                               </label>
                               <input
-                                value={formData.oLevelSchoolName}
+                                value={formData.program}
+                                onChange={(e) =>
+                                  updateField("program", e.target.value)
+                                }
+                                className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                type="text"
+                                list="program-options"
+                                placeholder="Search/select a program"
+                              />
+                              <datalist id="program-options">
+                                {programOptions.map((program) => (
+                                  <option key={program} value={program} />
+                                ))}
+                              </datalist>
+                              {errors.program && (
+                                <p className="text-xs text-destructive mt-2">
+                                  {errors.program}
+                                </p>
+                              )}
+                            </div>
+                            <div>
+                              <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                Preferred Start Date
+                              </label>
+                              <select
+                                value={formData.startDate}
+                                onChange={(e) =>
+                                  updateField("startDate", e.target.value)
+                                }
+                                className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              >
+                                <option value="">Select date</option>
+                                <option value="June 2026">June 2026</option>
+                                <option value="September 2026">
+                                  September 2026
+                                </option>
+                                <option value="January 2027">
+                                  January 2027
+                                </option>
+                              </select>
+                              {errors.startDate && (
+                                <p className="text-xs text-destructive mt-2">
+                                  {errors.startDate}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Previous Institution
+                            </label>
+                            <input
+                              value={formData.previousInstitution}
+                              onChange={(e) =>
+                                updateField(
+                                  "previousInstitution",
+                                  e.target.value,
+                                )
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="text"
+                            />
+                            {errors.previousInstitution && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.previousInstitution}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div
+                          className={
+                            academicSubStep === 1 ? "space-y-4" : "hidden"
+                          }
+                        >
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                Academic Credential Level
+                              </label>
+                              <select
+                                value={formData.academicCredentialLevel}
                                 onChange={(e) =>
                                   updateField(
-                                    "oLevelSchoolName",
+                                    "academicCredentialLevel",
+                                    e.target.value,
+                                  )
+                                }
+                                className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              >
+                                <option value="">
+                                  Select credential level
+                                </option>
+                                {academicCredentialOptions.map((option) => (
+                                  <option key={option} value={option}>
+                                    {option}
+                                  </option>
+                                ))}
+                              </select>
+                              <p className="text-xs text-muted-foreground mt-2">
+                                For Uganda applicants, choose UCE, UACE,
+                                Diploma, Degree, or an equivalent result.
+                              </p>
+                              {errors.academicCredentialLevel && (
+                                <p className="text-xs text-destructive mt-2">
+                                  {errors.academicCredentialLevel}
+                                </p>
+                              )}
+                            </div>
+                            <div>
+                              <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                Academic Results / Transcript Details
+                              </label>
+                              <input
+                                value={formData.academicCredentialsDetails}
+                                onChange={(e) =>
+                                  updateField(
+                                    "academicCredentialsDetails",
                                     e.target.value,
                                   )
                                 }
                                 className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
                                 type="text"
-                                placeholder="Enter your O-Level school name"
+                                placeholder="Example: UCE - 8 passes, UACE - 2 principal passes, Diploma transcript attached"
                               />
-                              {errors.oLevelSchoolName && (
-                                <p className="text-xs text-destructive mt-2">
-                                  {errors.oLevelSchoolName}
-                                </p>
-                              )}
-                            </div>
-
-                            <div className="space-y-4">
-                              <p className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                UACE Principal Subjects (3)
+                              <p className="text-xs text-muted-foreground mt-2">
+                                UCE: minimum of five passes. UACE: at least two
+                                principal passes. Diploma/Degree holders should
+                                provide certified transcript details.
                               </p>
-                              {formData.uacePrincipalSubjects.map(
-                                (entry, index) => (
-                                  <div
-                                    key={`uace-principal-${index}`}
-                                    className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_180px] gap-3"
-                                  >
-                                    <div>
-                                      <input
-                                        value={entry.subject}
-                                        onChange={(e) =>
-                                          updateSubjectGradeList(
-                                            "uacePrincipalSubjects",
-                                            index,
-                                            "subject",
-                                            e.target.value,
-                                          )
-                                        }
-                                        list="uace-subject-options"
-                                        className="w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                        type="text"
-                                        placeholder={`Principal subject ${index + 1}`}
-                                      />
-                                      {errors[
-                                        `uacePrincipalSubject${index}`
-                                      ] && (
-                                        <p className="text-xs text-destructive mt-2">
-                                          {
-                                            errors[
-                                              `uacePrincipalSubject${index}`
-                                            ]
-                                          }
-                                        </p>
-                                      )}
-                                    </div>
-                                    <div>
-                                      <select
-                                        value={entry.grade}
-                                        onChange={(e) =>
-                                          updateSubjectGradeList(
-                                            "uacePrincipalSubjects",
-                                            index,
-                                            "grade",
-                                            e.target.value,
-                                          )
-                                        }
-                                        className="w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                      >
-                                        <option value="">Grade</option>
-                                        {uaceGradeOptions.map((grade) => (
-                                          <option key={grade} value={grade}>
-                                            {grade}
-                                          </option>
-                                        ))}
-                                      </select>
-                                      {errors[`uacePrincipalGrade${index}`] && (
-                                        <p className="text-xs text-destructive mt-2">
-                                          {errors[`uacePrincipalGrade${index}`]}
-                                        </p>
-                                      )}
-                                    </div>
-                                  </div>
-                                ),
-                              )}
-                              {errors.uacePrincipalSubjects && (
-                                <p className="text-xs text-destructive mt-1">
-                                  {errors.uacePrincipalSubjects}
+                              {errors.academicCredentialsDetails && (
+                                <p className="text-xs text-destructive mt-2">
+                                  {errors.academicCredentialsDetails}
                                 </p>
                               )}
                             </div>
+                          </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {isUaceSelected ? (
+                            <div className="space-y-6 border border-border rounded-[14px] p-4 bg-secondary/10">
+                              <p className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                UACE Details
+                              </p>
+
                               <div>
                                 <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                  General Paper Grade
+                                  O-Level School Name
                                 </label>
-                                <select
-                                  value={formData.uaceGeneralPaperGrade}
+                                <input
+                                  value={formData.oLevelSchoolName}
                                   onChange={(e) =>
                                     updateField(
-                                      "uaceGeneralPaperGrade",
+                                      "oLevelSchoolName",
                                       e.target.value,
                                     )
                                   }
                                   className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                >
-                                  <option value="">Select grade</option>
-                                  {uaceGradeOptions.map((grade) => (
-                                    <option key={`gp-${grade}`} value={grade}>
-                                      {grade}
-                                    </option>
-                                  ))}
-                                </select>
-                                {errors.uaceGeneralPaperGrade && (
+                                  type="text"
+                                  placeholder="Enter your O-Level school name"
+                                />
+                                {errors.oLevelSchoolName && (
                                   <p className="text-xs text-destructive mt-2">
-                                    {errors.uaceGeneralPaperGrade}
+                                    {errors.oLevelSchoolName}
                                   </p>
                                 )}
                               </div>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                              <div className="space-y-4">
+                                <p className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                  UACE Principal Subjects (3)
+                                </p>
+                                {formData.uacePrincipalSubjects.map(
+                                  (entry, index) => (
+                                    <div
+                                      key={`uace-principal-${index}`}
+                                      className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_180px] gap-3"
+                                    >
+                                      <div>
+                                        <input
+                                          value={entry.subject}
+                                          onChange={(e) =>
+                                            updateSubjectGradeList(
+                                              "uacePrincipalSubjects",
+                                              index,
+                                              "subject",
+                                              e.target.value,
+                                            )
+                                          }
+                                          list="uace-subject-options"
+                                          className="w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                          type="text"
+                                          placeholder={`Principal subject ${index + 1}`}
+                                        />
+                                        {errors[
+                                          `uacePrincipalSubject${index}`
+                                        ] && (
+                                          <p className="text-xs text-destructive mt-2">
+                                            {
+                                              errors[
+                                                `uacePrincipalSubject${index}`
+                                              ]
+                                            }
+                                          </p>
+                                        )}
+                                      </div>
+                                      <div>
+                                        <select
+                                          value={entry.grade}
+                                          onChange={(e) =>
+                                            updateSubjectGradeList(
+                                              "uacePrincipalSubjects",
+                                              index,
+                                              "grade",
+                                              e.target.value,
+                                            )
+                                          }
+                                          className="w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                        >
+                                          <option value="">Grade</option>
+                                          {uaceGradeOptions.map((grade) => (
+                                            <option key={grade} value={grade}>
+                                              {grade}
+                                            </option>
+                                          ))}
+                                        </select>
+                                        {errors[
+                                          `uacePrincipalGrade${index}`
+                                        ] && (
+                                          <p className="text-xs text-destructive mt-2">
+                                            {
+                                              errors[
+                                                `uacePrincipalGrade${index}`
+                                              ]
+                                            }
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ),
+                                )}
+                                {errors.uacePrincipalSubjects && (
+                                  <p className="text-xs text-destructive mt-1">
+                                    {errors.uacePrincipalSubjects}
+                                  </p>
+                                )}
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                   <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                    ICT or Sub Math
+                                    General Paper Grade
                                   </label>
                                   <select
-                                    value={formData.uaceIctOrSubMathSubject}
+                                    value={formData.uaceGeneralPaperGrade}
                                     onChange={(e) =>
                                       updateField(
-                                        "uaceIctOrSubMathSubject",
-                                        e.target.value,
-                                      )
-                                    }
-                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                  >
-                                    <option value="">Select subject</option>
-                                    <option value="ICT">ICT</option>
-                                    <option value="Subsidiary Mathematics">
-                                      Subsidiary Mathematics
-                                    </option>
-                                  </select>
-                                  {errors.uaceIctOrSubMathSubject && (
-                                    <p className="text-xs text-destructive mt-2">
-                                      {errors.uaceIctOrSubMathSubject}
-                                    </p>
-                                  )}
-                                </div>
-                                <div>
-                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                    Grade
-                                  </label>
-                                  <select
-                                    value={formData.uaceIctOrSubMathGrade}
-                                    onChange={(e) =>
-                                      updateField(
-                                        "uaceIctOrSubMathGrade",
+                                        "uaceGeneralPaperGrade",
                                         e.target.value,
                                       )
                                     }
@@ -2570,52 +2919,185 @@ const ApplicationStartPage = () => {
                                   >
                                     <option value="">Select grade</option>
                                     {uaceGradeOptions.map((grade) => (
-                                      <option
-                                        key={`sub-${grade}`}
-                                        value={grade}
-                                      >
+                                      <option key={`gp-${grade}`} value={grade}>
                                         {grade}
                                       </option>
                                     ))}
                                   </select>
-                                  {errors.uaceIctOrSubMathGrade && (
+                                  {errors.uaceGeneralPaperGrade && (
                                     <p className="text-xs text-destructive mt-2">
-                                      {errors.uaceIctOrSubMathGrade}
+                                      {errors.uaceGeneralPaperGrade}
                                     </p>
                                   )}
                                 </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  <div>
+                                    <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                      ICT or Sub Math
+                                    </label>
+                                    <select
+                                      value={formData.uaceIctOrSubMathSubject}
+                                      onChange={(e) =>
+                                        updateField(
+                                          "uaceIctOrSubMathSubject",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                    >
+                                      <option value="">Select subject</option>
+                                      <option value="ICT">ICT</option>
+                                      <option value="Subsidiary Mathematics">
+                                        Subsidiary Mathematics
+                                      </option>
+                                    </select>
+                                    {errors.uaceIctOrSubMathSubject && (
+                                      <p className="text-xs text-destructive mt-2">
+                                        {errors.uaceIctOrSubMathSubject}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div>
+                                    <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                      Grade
+                                    </label>
+                                    <select
+                                      value={formData.uaceIctOrSubMathGrade}
+                                      onChange={(e) =>
+                                        updateField(
+                                          "uaceIctOrSubMathGrade",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                    >
+                                      <option value="">Select grade</option>
+                                      {uaceGradeOptions.map((grade) => (
+                                        <option
+                                          key={`sub-${grade}`}
+                                          value={grade}
+                                        >
+                                          {grade}
+                                        </option>
+                                      ))}
+                                    </select>
+                                    {errors.uaceIctOrSubMathGrade && (
+                                      <p className="text-xs text-destructive mt-2">
+                                        {errors.uaceIctOrSubMathGrade}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="space-y-3">
+                                <p className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                  O-Level Subjects And Grades
+                                </p>
+                                {formData.oLevelSubjects.map((entry, index) => (
+                                  <div
+                                    key={`olevel-${index}`}
+                                    className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_180px_auto] gap-3"
+                                  >
+                                    <input
+                                      value={entry.subject}
+                                      onChange={(e) =>
+                                        updateSubjectGradeList(
+                                          "oLevelSubjects",
+                                          index,
+                                          "subject",
+                                          e.target.value,
+                                        )
+                                      }
+                                      list="olevel-subject-options"
+                                      className="w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                      type="text"
+                                      placeholder="Search/select O-Level subject"
+                                    />
+                                    <select
+                                      value={entry.grade}
+                                      onChange={(e) =>
+                                        updateSubjectGradeList(
+                                          "oLevelSubjects",
+                                          index,
+                                          "grade",
+                                          e.target.value,
+                                        )
+                                      }
+                                      className="w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                    >
+                                      <option value="">Grade</option>
+                                      {oLevelGradeOptions.map((grade) => (
+                                        <option
+                                          key={`olevel-${index}-${grade}`}
+                                          value={grade}
+                                        >
+                                          {grade}
+                                        </option>
+                                      ))}
+                                    </select>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        removeSubjectGradeRow(
+                                          "oLevelSubjects",
+                                          index,
+                                        )
+                                      }
+                                      className="px-3 py-2 border border-border rounded-[10px] font-body text-xs uppercase tracking-[0.16em]"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+                                ))}
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    addSubjectGradeRow("oLevelSubjects")
+                                  }
+                                  className="px-4 py-2 rounded-[10px] border border-accent/40 text-accent font-body text-xs tracking-[0.16em] uppercase"
+                                >
+                                  Add O-Level Subject
+                                </button>
+                                {errors.oLevelSubjects && (
+                                  <p className="text-xs text-destructive mt-2">
+                                    {errors.oLevelSubjects}
+                                  </p>
+                                )}
                               </div>
                             </div>
+                          ) : null}
 
-                            <div className="space-y-3">
-                              <p className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                O-Level Subjects And Grades
-                              </p>
-                              {formData.oLevelSubjects.map((entry, index) => (
+                          <div className="space-y-3 border border-border rounded-[14px] p-4 bg-secondary/10">
+                            <p className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Certificate Subjects And Grades (If Applicable)
+                            </p>
+                            {formData.certificateSubjects.map(
+                              (entry, index) => (
                                 <div
-                                  key={`olevel-${index}`}
+                                  key={`certificate-${index}`}
                                   className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_180px_auto] gap-3"
                                 >
                                   <input
                                     value={entry.subject}
                                     onChange={(e) =>
                                       updateSubjectGradeList(
-                                        "oLevelSubjects",
+                                        "certificateSubjects",
                                         index,
                                         "subject",
                                         e.target.value,
                                       )
                                     }
-                                    list="olevel-subject-options"
+                                    list="certificate-subject-options"
                                     className="w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
                                     type="text"
-                                    placeholder="Search/select O-Level subject"
+                                    placeholder="Search/select certificate subject"
                                   />
                                   <select
                                     value={entry.grade}
                                     onChange={(e) =>
                                       updateSubjectGradeList(
-                                        "oLevelSubjects",
+                                        "certificateSubjects",
                                         index,
                                         "grade",
                                         e.target.value,
@@ -2624,9 +3106,9 @@ const ApplicationStartPage = () => {
                                     className="w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
                                   >
                                     <option value="">Grade</option>
-                                    {oLevelGradeOptions.map((grade) => (
+                                    {certificateGradeOptions.map((grade) => (
                                       <option
-                                        key={`olevel-${index}-${grade}`}
+                                        key={`certificate-${index}-${grade}`}
                                         value={grade}
                                       >
                                         {grade}
@@ -2637,7 +3119,7 @@ const ApplicationStartPage = () => {
                                     type="button"
                                     onClick={() =>
                                       removeSubjectGradeRow(
-                                        "oLevelSubjects",
+                                        "certificateSubjects",
                                         index,
                                       )
                                     }
@@ -2646,342 +3128,210 @@ const ApplicationStartPage = () => {
                                     Remove
                                   </button>
                                 </div>
-                              ))}
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  addSubjectGradeRow("oLevelSubjects")
-                                }
-                                className="px-4 py-2 rounded-[10px] border border-accent/40 text-accent font-body text-xs tracking-[0.16em] uppercase"
-                              >
-                                Add O-Level Subject
-                              </button>
-                              {errors.oLevelSubjects && (
-                                <p className="text-xs text-destructive mt-2">
-                                  {errors.oLevelSubjects}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        ) : null}
-
-                        <div className="space-y-3 border border-border rounded-[14px] p-4 bg-secondary/10">
-                          <p className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            Certificate Subjects And Grades (If Applicable)
-                          </p>
-                          {formData.certificateSubjects.map((entry, index) => (
-                            <div
-                              key={`certificate-${index}`}
-                              className="grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_180px_auto] gap-3"
-                            >
-                              <input
-                                value={entry.subject}
-                                onChange={(e) =>
-                                  updateSubjectGradeList(
-                                    "certificateSubjects",
-                                    index,
-                                    "subject",
-                                    e.target.value,
-                                  )
-                                }
-                                list="certificate-subject-options"
-                                className="w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                type="text"
-                                placeholder="Search/select certificate subject"
-                              />
-                              <select
-                                value={entry.grade}
-                                onChange={(e) =>
-                                  updateSubjectGradeList(
-                                    "certificateSubjects",
-                                    index,
-                                    "grade",
-                                    e.target.value,
-                                  )
-                                }
-                                className="w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                              >
-                                <option value="">Grade</option>
-                                {certificateGradeOptions.map((grade) => (
-                                  <option
-                                    key={`certificate-${index}-${grade}`}
-                                    value={grade}
-                                  >
-                                    {grade}
-                                  </option>
-                                ))}
-                              </select>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  removeSubjectGradeRow(
-                                    "certificateSubjects",
-                                    index,
-                                  )
-                                }
-                                className="px-3 py-2 border border-border rounded-[10px] font-body text-xs uppercase tracking-[0.16em]"
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          ))}
-                          <button
-                            type="button"
-                            onClick={() =>
-                              addSubjectGradeRow("certificateSubjects")
-                            }
-                            className="px-4 py-2 rounded-[10px] border border-accent/40 text-accent font-body text-xs tracking-[0.16em] uppercase"
-                          >
-                            Add Certificate Subject
-                          </button>
-                          {errors.certificateSubjects && (
-                            <p className="text-xs text-destructive mt-2">
-                              {errors.certificateSubjects}
-                            </p>
-                          )}
-                        </div>
-
-                        <datalist id="uace-subject-options">
-                          {uaceSubjectOptions.map((subject) => (
-                            <option key={subject} value={subject} />
-                          ))}
-                        </datalist>
-                        <datalist id="olevel-subject-options">
-                          {oLevelSubjectOptions.map((subject) => (
-                            <option key={subject} value={subject} />
-                          ))}
-                        </datalist>
-                        <datalist id="certificate-subject-options">
-                          {[
-                            ...new Set([
-                              ...uaceSubjectOptions,
-                              ...oLevelSubjectOptions,
-                            ]),
-                          ].map((subject) => (
-                            <option key={subject} value={subject} />
-                          ))}
-                        </datalist>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Highest Qualification
-                            </label>
-                            <select
-                              value={formData.highestQualification}
-                              onChange={(e) =>
-                                updateField(
-                                  "highestQualification",
-                                  e.target.value,
-                                )
+                              ),
+                            )}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                addSubjectGradeRow("certificateSubjects")
                               }
-                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              className="px-4 py-2 rounded-[10px] border border-accent/40 text-accent font-body text-xs tracking-[0.16em] uppercase"
                             >
-                              <option value="">Select qualification</option>
-                              {qualifications.map((q) => (
-                                <option key={q} value={q}>
-                                  {q}
-                                </option>
-                              ))}
-                            </select>
-                            {errors.highestQualification && (
+                              Add Certificate Subject
+                            </button>
+                            {errors.certificateSubjects && (
                               <p className="text-xs text-destructive mt-2">
-                                {errors.highestQualification}
+                                {errors.certificateSubjects}
                               </p>
                             )}
                           </div>
-                          {!isDirectEntry ? (
+
+                          <datalist id="uace-subject-options">
+                            {uaceSubjectOptions.map((subject) => (
+                              <option key={subject} value={subject} />
+                            ))}
+                          </datalist>
+                          <datalist id="olevel-subject-options">
+                            {oLevelSubjectOptions.map((subject) => (
+                              <option key={subject} value={subject} />
+                            ))}
+                          </datalist>
+                          <datalist id="certificate-subject-options">
+                            {[
+                              ...new Set([
+                                ...uaceSubjectOptions,
+                                ...oLevelSubjectOptions,
+                              ]),
+                            ].map((subject) => (
+                              <option key={subject} value={subject} />
+                            ))}
+                          </datalist>
+                        </div>
+
+                        <div
+                          className={
+                            academicSubStep === 2 ? "space-y-4" : "hidden"
+                          }
+                        >
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                GPA / Score
+                                Highest Qualification
                               </label>
-                              <input
-                                value={formData.gpa}
+                              <select
+                                value={formData.highestQualification}
                                 onChange={(e) =>
-                                  updateField("gpa", e.target.value)
+                                  updateField(
+                                    "highestQualification",
+                                    e.target.value,
+                                  )
                                 }
                                 className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                type="text"
-                              />
-                              {errors.gpa && (
+                              >
+                                <option value="">Select qualification</option>
+                                {qualifications.map((q) => (
+                                  <option key={q} value={q}>
+                                    {q}
+                                  </option>
+                                ))}
+                              </select>
+                              {errors.highestQualification && (
                                 <p className="text-xs text-destructive mt-2">
-                                  {errors.gpa}
+                                  {errors.highestQualification}
                                 </p>
                               )}
                             </div>
-                          ) : null}
-                        </div>
+                            {!isDirectEntry ? (
+                              <div>
+                                <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                  GPA / Score
+                                </label>
+                                <input
+                                  value={formData.gpa}
+                                  onChange={(e) =>
+                                    updateField("gpa", e.target.value)
+                                  }
+                                  className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                  type="text"
+                                />
+                                {errors.gpa && (
+                                  <p className="text-xs text-destructive mt-2">
+                                    {errors.gpa}
+                                  </p>
+                                )}
+                              </div>
+                            ) : null}
+                          </div>
 
-                        <div>
-                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            Personal Statement
-                          </label>
-                          <textarea
-                            value={formData.personalStatement}
-                            onChange={(e) =>
-                              updateField("personalStatement", e.target.value)
-                            }
-                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm min-h-[160px]"
-                            placeholder="Tell us why you want to join Veritas (minimum 50 characters)."
-                          />
-                          <p className="text-xs text-muted-foreground mt-2">
-                            {formData.personalStatement.length} characters
-                            {formData.applicationType === "Mature Age" ? " (required for Mature Age applications)" : " (optional)"}
-                          </p>
-                          {errors.personalStatement && (
-                            <p className="text-xs text-destructive mt-2">
-                              {errors.personalStatement}
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Personal Statement
+                            </label>
+                            <textarea
+                              value={formData.personalStatement}
+                              onChange={(e) =>
+                                updateField("personalStatement", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm min-h-[160px]"
+                              placeholder="Tell us why you want to join Veritas (minimum 50 characters)."
+                            />
+                            <p className="text-xs text-muted-foreground mt-2">
+                              {formData.personalStatement.length} characters
+                              {formData.applicationType === "Mature Age"
+                                ? " (required for Mature Age applications)"
+                                : " (optional)"}
                             </p>
-                          )}
-                        </div>
+                            {errors.personalStatement && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.personalStatement}
+                              </p>
+                            )}
+                          </div>
 
-                        <div>
-                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            How did you hear about us?
-                          </label>
-                          <select
-                            value={formData.howDidYouHear}
-                            onChange={(e) =>
-                              updateField("howDidYouHear", e.target.value)
-                            }
-                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                          >
-                            <option value="">Select one option</option>
-                            {hearAboutOptions.map((option) => (
-                              <option key={option} value={option}>
-                                {option}
-                              </option>
-                            ))}
-                          </select>
-                          {errors.howDidYouHear && (
-                            <p className="text-xs text-destructive mt-2">
-                              {errors.howDidYouHear}
-                            </p>
-                          )}
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              How did you hear about us?
+                            </label>
+                            <select
+                              value={formData.howDidYouHear}
+                              onChange={(e) =>
+                                updateField("howDidYouHear", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            >
+                              <option value="">Select one option</option>
+                              {hearAboutOptions.map((option) => (
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                            {errors.howDidYouHear && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.howDidYouHear}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       </>
                     )}
 
                     {activeStep === 3 && (
-                      <div className="space-y-4">
-                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
-                          <input
-                            type="checkbox"
-                            checked={formData.documentsConfirmed}
-                            onChange={(e) =>
-                              updateField(
-                                "documentsConfirmed",
-                                e.target.checked,
-                              )
-                            }
-                            className="mt-1"
-                          />
-                          I confirm I have prepared all required documents.
-                        </label>
-                        {errors.documentsConfirmed && (
-                          <p className="text-xs text-destructive mt-1">
-                            {errors.documentsConfirmed}
-                          </p>
-                        )}
-
-                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
-                          <input
-                            type="checkbox"
-                            checked={formData.transcriptUploaded}
-                            onChange={(e) =>
-                              updateField(
-                                "transcriptUploaded",
-                                e.target.checked,
-                              )
-                            }
-                            className="mt-1"
-                          />
-                          Academic transcript uploaded.
-                        </label>
-                        {errors.transcriptUploaded && (
-                          <p className="text-xs text-destructive mt-1">
-                            {errors.transcriptUploaded}
-                          </p>
-                        )}
-
-                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
-                          <input
-                            type="checkbox"
-                            checked={formData.idUploaded}
-                            onChange={(e) =>
-                              updateField("idUploaded", e.target.checked)
-                            }
-                            className="mt-1"
-                          />
-                          National ID/Passport uploaded.
-                        </label>
-                        {errors.idUploaded && (
-                          <p className="text-xs text-destructive mt-1">
-                            {errors.idUploaded}
-                          </p>
-                        )}
-
-                        {formData.isUgandan === "no" ? (
-                          <>
-                            <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
-                              <input
-                                type="checkbox"
-                                checked={formData.countryIdUploaded}
-                                onChange={(e) =>
-                                  updateField(
-                                    "countryIdUploaded",
-                                    e.target.checked,
-                                  )
-                                }
-                                className="mt-1"
-                              />
-                              Country of origin ID uploaded.
-                            </label>
-                            {errors.countryIdUploaded && (
-                              <p className="text-xs text-destructive mt-1">
-                                {errors.countryIdUploaded}
+                      <>
+                        <div className="mb-6 rounded-[18px] border border-border bg-secondary/10 p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                              <p className="font-body text-[11px] tracking-[0.24em] uppercase text-accent">
+                                Part {documentSubStep + 1}/3
                               </p>
-                            )}
-                          </>
-                        ) : null}
-
-                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
-                          <input
-                            type="checkbox"
-                            checked={formData.recommendationUploaded}
-                            onChange={(e) =>
-                              updateField(
-                                "recommendationUploaded",
-                                e.target.checked,
-                              )
-                            }
-                            className="mt-1"
-                          />
-                          Recommendation letter uploaded.
-                        </label>
-                        {errors.recommendationUploaded && (
-                          <p className="text-xs text-destructive mt-1">
-                            {errors.recommendationUploaded}
+                              <p className="font-body text-sm text-foreground mt-1">
+                                {documentStepLabels[documentSubStep]}
+                              </p>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {documentStepLabels.map((label, index) => (
+                                <span
+                                  key={label}
+                                  className={`rounded-full border px-3 py-1 text-[11px] uppercase tracking-[0.16em] ${
+                                    index === documentSubStep
+                                      ? "border-accent bg-accent/10 text-accent"
+                                      : "border-border text-muted-foreground"
+                                  }`}
+                                >
+                                  {index + 1}/3 {label}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
+                            Files upload directly to Firebase Storage. Image files show a preview after upload.
                           </p>
-                        )}
+                        </div>
 
-                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
-                          <input
-                            type="checkbox"
-                            checked={formData.statementUploaded}
-                            onChange={(e) =>
-                              updateField("statementUploaded", e.target.checked)
-                            }
-                            className="mt-1"
-                          />
-                          Personal statement uploaded.
-                        </label>
-                        {errors.statementUploaded && (
-                          <p className="text-xs text-destructive mt-1">
-                            {errors.statementUploaded}
-                          </p>
-                        )}
-                      </div>
+                        <div
+                          className={
+                            documentSubStep === 0 ? "space-y-4" : "hidden"
+                          }
+                        >
+                          {documentUploadSteps[0].map(renderUploadCard)}
+                        </div>
+
+                        <div
+                          className={
+                            documentSubStep === 1 ? "space-y-4" : "hidden"
+                          }
+                        >
+                          {documentUploadSteps[1].map(renderUploadCard)}
+                        </div>
+
+                        <div
+                          className={
+                            documentSubStep === 2 ? "space-y-4" : "hidden"
+                          }
+                        >
+                          {documentUploadSteps[2].map(renderUploadCard)}
+                        </div>
+                      </>
                     )}
 
                     {activeStep === 4 && (
@@ -3136,9 +3486,7 @@ const ApplicationStartPage = () => {
 
                   <div className="flex flex-wrap items-center gap-4">
                     <button
-                      onClick={() =>
-                        setActiveStep((prev) => (prev > 0 ? prev - 1 : prev))
-                      }
+                      onClick={handlePrevious}
                       disabled={activeStep === 0}
                       className="px-6 py-3 border border-border rounded-[14px] font-body text-xs tracking-[0.2em] uppercase text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
                     >
