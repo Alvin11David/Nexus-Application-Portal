@@ -42,6 +42,12 @@ const applicationSteps = [
 ] as const;
 
 type ApplicationStartData = {
+  hasSecondSittingUce: boolean;
+  secondSittingUceIndexNumber: string | number | readonly string[];
+  secondSittingUceYearOfSitting: string | number | readonly string[];
+  hasSecondSittingUace: boolean;
+  secondSittingUaceIndexNumber: string | number | readonly string[];
+  secondSittingUaceYearOfSitting: string | number | readonly string[];
   email: string;
   otherNames: string;
   gender: "" | "Male" | "Female" | "Other";
@@ -62,16 +68,29 @@ type ApplicationStartData = {
   birthCertificateOrNationalIdDetails: string;
   passportPhotoUploaded: boolean;
   guardianName: string;
+  guardianType: "" | "Parent" | "Guardian" | "Sponsor" | "Other";
   guardianPhone: string;
   nextOfKinRelationship: string;
   isUgandan: "" | "yes" | "no";
+  applicationType: string;
+  entryScheme: string;
   program: string;
   startDate: string;
   previousInstitution: string;
   highestQualification: string;
   academicCredentialLevel: string;
   academicCredentialsDetails: string;
+  uceIndexNumber: string;
+  uceYearOfSitting: string;
+  uceSecondSitting: boolean;
+  uceSecondIndexNumber: string;
+  uceSecondYearOfSitting: string;
   oLevelSchoolName: string;
+  uaceIndexNumber: string;
+  uaceYearOfSitting: string;
+  uaceSecondSitting: boolean;
+  uaceSecondIndexNumber: string;
+  uaceSecondYearOfSitting: string;
   uacePrincipalSubjects: { subject: string; grade: string }[];
   uaceGeneralPaperGrade: string;
   uaceIctOrSubMathSubject: string;
@@ -95,12 +114,84 @@ type ApplicationStartData = {
 };
 
 const programOptions = [
-  "Bachelor Of Scinece In Computer Science",
-  "Electrical Installation",
-  "Welding & Fabrication",
-  "Beauty Therapy",
-  "Auto Mechanics",
-  "Soap & Cosmetics Making",
+  "Bachelor of Science in Computer Science",
+  "Bachelor of Information Technology",
+  "Bachelor of Software Engineering",
+  "Bachelor of Data Science and Analytics",
+  "Bachelor of Medicine and Bachelor of Surgery",
+  "Bachelor of Dental Surgery",
+  "Bachelor of Pharmacy",
+  "Bachelor of Nursing Science",
+  "Bachelor of Public Health",
+  "Bachelor of Laws",
+  "Bachelor of Business Administration",
+  "Bachelor of Commerce",
+  "Bachelor of Procurement and Supply Chain Management",
+  "Bachelor of Arts",
+  "Bachelor of Arts with Education",
+  "Bachelor of Science with Education",
+  "Bachelor of Journalism and Communication",
+  "Bachelor of Social Work and Social Administration",
+  "Bachelor of Development Studies",
+  "Bachelor of Fine Art",
+  "Bachelor of Music",
+  "Bachelor of Architecture",
+  "Bachelor of Quantity Surveying",
+  "Bachelor of Civil Engineering",
+  "Bachelor of Electrical Engineering",
+  "Bachelor of Mechanical Engineering",
+  "Bachelor of Agricultural Engineering",
+  "Bachelor of Agriculture",
+  "Bachelor of Animal Science",
+  "Bachelor of Veterinary Medicine",
+  "Bachelor of Environmental Science",
+  "Bachelor of Forestry",
+  "Bachelor of Statistics",
+  "Bachelor of Actuarial Science",
+  "Bachelor of Economics",
+  "Bachelor of Tourism and Hospitality Management",
+  "Bachelor of Records and Archives Management",
+  "Bachelor of Library and Information Science",
+  "Bachelor of Industrial and Fine Arts",
+  "Bachelor of Urban and Regional Planning",
+  "Bachelor of Population Studies",
+  "Bachelor of Education (Early Childhood)",
+  "Bachelor of Sports Science",
+  "Bachelor of Performing Arts",
+];
+
+const applicationTypeOptions = [
+  "Direct Entry (A-Level)",
+  "Diploma Holder",
+  "Mature Age",
+  "International",
+  "Degree Holder",
+  "Other",
+];
+
+const entrySchemeOptions = [
+  "Government Sponsorship",
+  "Private Sponsorship",
+  "International Applicants Scheme",
+  "Mature Age Entry Scheme",
+  "Diploma Entry Scheme",
+  "Degree Entry Scheme",
+];
+
+const guardianTypeOptions = ["Parent", "Guardian", "Sponsor", "Other"];
+
+const relationshipOptions = [
+  "Father",
+  "Mother",
+  "Brother",
+  "Sister",
+  "Spouse",
+  "Aunt",
+  "Uncle",
+  "Grandparent",
+  "Guardian",
+  "Sponsor",
+  "Other",
 ];
 
 const qualifications = [
@@ -422,16 +513,29 @@ const initialFormData: ApplicationStartData = {
   birthCertificateOrNationalIdDetails: "",
   passportPhotoUploaded: false,
   guardianName: "",
+  guardianType: "",
   guardianPhone: "",
   nextOfKinRelationship: "",
   isUgandan: "",
+  applicationType: "",
+  entryScheme: "",
   program: "",
   startDate: "",
   previousInstitution: "",
   highestQualification: "",
   academicCredentialLevel: "",
   academicCredentialsDetails: "",
+  uceIndexNumber: "",
+  uceYearOfSitting: "",
+  uceSecondSitting: false,
+  uceSecondIndexNumber: "",
+  uceSecondYearOfSitting: "",
   oLevelSchoolName: "",
+  uaceIndexNumber: "",
+  uaceYearOfSitting: "",
+  uaceSecondSitting: false,
+  uaceSecondIndexNumber: "",
+  uaceSecondYearOfSitting: "",
   uacePrincipalSubjects: [
     { subject: "", grade: "" },
     { subject: "", grade: "" },
@@ -459,6 +563,12 @@ const initialFormData: ApplicationStartData = {
   paymentReference: "",
   interviewPreference: "",
   termsAccepted: false,
+  hasSecondSittingUce: false,
+  secondSittingUceIndexNumber: "",
+  secondSittingUceYearOfSitting: "",
+  hasSecondSittingUace: false,
+  secondSittingUaceIndexNumber: "",
+  secondSittingUaceYearOfSitting: ""
 };
 
 type ApplicationDraftPayload = {
@@ -486,7 +596,30 @@ const ApplicationStartPage = () => {
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [draftHydrated, setDraftHydrated] = useState(false);
+  const [academicSubStep, setAcademicSubStep] = useState(0);
+  const [documentSubStep, setDocumentSubStep] = useState(0);
   const isUaceSelected = formData.academicCredentialLevel.includes("UACE");
+  const isDirectEntry = formData.applicationType === "Direct Entry (A-Level)";
+  const shouldCaptureUceAndUace = isDirectEntry || isUaceSelected;
+  const academicStepLabels = [
+    "Application Setup",
+    "Qualification Record",
+    "Subjects & Motivation",
+  ];
+  const documentStepLabels = [
+    "Required Documents",
+    "Identity Confirmation",
+    "Supporting Declarations",
+  ];
+
+  useEffect(() => {
+    if (activeStep !== 2) {
+      setAcademicSubStep(0);
+    }
+    if (activeStep !== 3) {
+      setDocumentSubStep(0);
+    }
+  }, [activeStep]);
 
   const updateSubjectGradeList = (
     key: "uacePrincipalSubjects" | "oLevelSubjects" | "certificateSubjects",
@@ -683,6 +816,9 @@ const ApplicationStartPage = () => {
       }
       if (!formData.guardianName.trim())
         nextErrors.guardianName = "Guardian name is required.";
+      if (!formData.guardianType) {
+        nextErrors.guardianType = "Please select Parent/Guardian type.";
+      }
       if (!formData.guardianPhone.trim())
         nextErrors.guardianPhone = "Guardian phone is required.";
       if (!formData.nextOfKinRelationship.trim()) {
@@ -696,6 +832,12 @@ const ApplicationStartPage = () => {
     }
 
     if (step === 2) {
+      if (!formData.applicationType.trim()) {
+        nextErrors.applicationType = "Please select your application type.";
+      }
+      if (!formData.entryScheme.trim()) {
+        nextErrors.entryScheme = "Please select your entry scheme.";
+      }
       if (!formData.program.trim())
         nextErrors.program = "Please select a program.";
       if (!formData.startDate.trim())
@@ -713,6 +855,42 @@ const ApplicationStartPage = () => {
       if (!formData.academicCredentialsDetails.trim()) {
         nextErrors.academicCredentialsDetails =
           "Please enter your academic results or transcript details.";
+      }
+
+      if (shouldCaptureUceAndUace) {
+        if (!formData.uceIndexNumber.trim()) {
+          nextErrors.uceIndexNumber = "UCE index number is required.";
+        }
+        if (!formData.uceYearOfSitting.trim()) {
+          nextErrors.uceYearOfSitting = "UCE year of sitting is required.";
+        }
+        if (formData.uceSecondSitting) {
+          if (!formData.uceSecondIndexNumber.trim()) {
+            nextErrors.uceSecondIndexNumber =
+              "Second sitting UCE index number is required.";
+          }
+          if (!formData.uceSecondYearOfSitting.trim()) {
+            nextErrors.uceSecondYearOfSitting =
+              "Second sitting UCE year is required.";
+          }
+        }
+
+        if (!formData.uaceIndexNumber.trim()) {
+          nextErrors.uaceIndexNumber = "UACE index number is required.";
+        }
+        if (!formData.uaceYearOfSitting.trim()) {
+          nextErrors.uaceYearOfSitting = "UACE year of sitting is required.";
+        }
+        if (formData.uaceSecondSitting) {
+          if (!formData.uaceSecondIndexNumber.trim()) {
+            nextErrors.uaceSecondIndexNumber =
+              "Second sitting UACE index number is required.";
+          }
+          if (!formData.uaceSecondYearOfSitting.trim()) {
+            nextErrors.uaceSecondYearOfSitting =
+              "Second sitting UACE year is required.";
+          }
+        }
       }
 
       if (isUaceSelected) {
@@ -810,10 +988,15 @@ const ApplicationStartPage = () => {
         }
       }
 
-      if (!formData.gpa.trim()) nextErrors.gpa = "GPA/score is required.";
-      if (formData.personalStatement.trim().length < 50) {
+      if (!isDirectEntry && !formData.gpa.trim()) {
+        nextErrors.gpa = "GPA/score is required for this entry type.";
+      }
+      if (
+        formData.applicationType === "Mature Age" &&
+        formData.personalStatement.trim().length < 50
+      ) {
         nextErrors.personalStatement =
-          "Personal statement must be at least 50 characters.";
+          "Personal statement must be at least 50 characters for Mature Age entry.";
       }
       if (!formData.howDidYouHear.trim()) {
         nextErrors.howDidYouHear = "Please tell us how you heard about us.";
@@ -865,10 +1048,41 @@ const ApplicationStartPage = () => {
   };
 
   const handleNext = () => {
+    if (activeStep === 2 && academicSubStep < academicStepLabels.length - 1) {
+      setAcademicSubStep((prev) => prev + 1);
+      return;
+    }
+
+    if (activeStep === 3 && documentSubStep < documentStepLabels.length - 1) {
+      setDocumentSubStep((prev) => prev + 1);
+      return;
+    }
+
     if (!validateStep(activeStep)) return;
+
     const nextStep = Math.min(activeStep + 1, applicationSteps.length - 1);
     setFurthestStep((prev) => Math.max(prev, nextStep));
     setActiveStep(nextStep);
+  };
+
+  const handlePrevious = () => {
+    if (activeStep === 2 && academicSubStep > 0) {
+      setAcademicSubStep((prev) => prev - 1);
+      return;
+    }
+
+    if (activeStep === 3 && documentSubStep > 0) {
+      setDocumentSubStep((prev) => prev - 1);
+      return;
+    }
+
+    if (activeStep === 3) {
+      setActiveStep(2);
+      setAcademicSubStep(academicStepLabels.length - 1);
+      return;
+    }
+
+    setActiveStep((prev) => (prev > 0 ? prev - 1 : prev));
   };
 
   const handleSubmit = async () => {
@@ -900,16 +1114,29 @@ const ApplicationStartPage = () => {
           formData.birthCertificateOrNationalIdDetails.trim(),
         passportPhotoUploaded: formData.passportPhotoUploaded,
         guardianName: formData.guardianName.trim(),
+        guardianType: formData.guardianType,
         guardianPhone: formData.guardianPhone.trim(),
         nextOfKinRelationship: formData.nextOfKinRelationship.trim(),
         isUgandan: ugandanStatus,
+        applicationType: formData.applicationType,
+        entryScheme: formData.entryScheme,
         program: formData.program,
         startDate: formData.startDate,
         previousInstitution: formData.previousInstitution.trim(),
         highestQualification: formData.highestQualification,
         academicCredentialLevel: formData.academicCredentialLevel,
         academicCredentialsDetails: formData.academicCredentialsDetails.trim(),
+        uceIndexNumber: formData.uceIndexNumber.trim(),
+        uceYearOfSitting: formData.uceYearOfSitting.trim(),
+        uceSecondSitting: formData.uceSecondSitting,
+        uceSecondIndexNumber: formData.uceSecondIndexNumber.trim(),
+        uceSecondYearOfSitting: formData.uceSecondYearOfSitting.trim(),
         oLevelSchoolName: formData.oLevelSchoolName.trim(),
+        uaceIndexNumber: formData.uaceIndexNumber.trim(),
+        uaceYearOfSitting: formData.uaceYearOfSitting.trim(),
+        uaceSecondSitting: formData.uaceSecondSitting,
+        uaceSecondIndexNumber: formData.uaceSecondIndexNumber.trim(),
+        uaceSecondYearOfSitting: formData.uaceSecondYearOfSitting.trim(),
         uacePrincipalSubjects: formData.uacePrincipalSubjects,
         uaceGeneralPaperGrade: formData.uaceGeneralPaperGrade,
         uaceIctOrSubMathSubject: formData.uaceIctOrSubMathSubject,
@@ -1189,6 +1416,100 @@ const ApplicationStartPage = () => {
                             </p>
                           )}
                         </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Other Names
+                            </label>
+                            <input
+                              value={formData.otherNames}
+                              onChange={(e) =>
+                                updateField("otherNames", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="text"
+                              placeholder="Middle/additional names"
+                            />
+                            {errors.otherNames && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.otherNames}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Gender
+                            </label>
+                            <select
+                              value={formData.gender}
+                              onChange={(e) =>
+                                updateField(
+                                  "gender",
+                                  e.target.value as
+                                    | ""
+                                    | "Male"
+                                    | "Female"
+                                    | "Other",
+                                )
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            >
+                              <option value="">Select gender</option>
+                              <option value="Male">Male</option>
+                              <option value="Female">Female</option>
+                              <option value="Other">Other</option>
+                            </select>
+                            {errors.gender && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.gender}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Date of Birth
+                            </label>
+                            <input
+                              value={formData.dateOfBirth}
+                              onChange={(e) =>
+                                updateField("dateOfBirth", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="date"
+                            />
+                            {errors.dateOfBirth && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.dateOfBirth}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Marital Status
+                            </label>
+                            <select
+                              value={formData.maritalStatus}
+                              onChange={(e) =>
+                                updateField("maritalStatus", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            >
+                              <option value="">Select marital status</option>
+                              <option value="Single">Single</option>
+                              <option value="Married">Married</option>
+                              <option value="Divorced">Divorced</option>
+                              <option value="Widowed">Widowed</option>
+                              <option value="Separated">Separated</option>
+                            </select>
+                            {errors.maritalStatus && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.maritalStatus}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
@@ -1331,7 +1652,7 @@ const ApplicationStartPage = () => {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
                               Phone Number
@@ -1347,24 +1668,6 @@ const ApplicationStartPage = () => {
                             {errors.phone && (
                               <p className="text-xs text-destructive mt-2">
                                 {errors.phone}
-                              </p>
-                            )}
-                          </div>
-                          <div>
-                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Date of Birth
-                            </label>
-                            <input
-                              value={formData.dateOfBirth}
-                              onChange={(e) =>
-                                updateField("dateOfBirth", e.target.value)
-                              }
-                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                              type="date"
-                            />
-                            {errors.dateOfBirth && (
-                              <p className="text-xs text-destructive mt-2">
-                                {errors.dateOfBirth}
                               </p>
                             )}
                           </div>
@@ -1424,6 +1727,72 @@ const ApplicationStartPage = () => {
                           )}
                         </div>
 
+                        {formData.isUgandan === "yes" ? (
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              District of Origin
+                            </label>
+                            <input
+                              value={formData.districtOfOrigin}
+                              onChange={(e) =>
+                                updateField("districtOfOrigin", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="text"
+                              placeholder="Enter district of origin"
+                            />
+                            {errors.districtOfOrigin && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.districtOfOrigin}
+                              </p>
+                            )}
+                          </div>
+                        ) : null}
+
+                        <div>
+                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            Birth Certificate / National ID Details
+                          </label>
+                          <input
+                            value={formData.birthCertificateOrNationalIdDetails}
+                            onChange={(e) =>
+                              updateField(
+                                "birthCertificateOrNationalIdDetails",
+                                e.target.value,
+                              )
+                            }
+                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            type="text"
+                            placeholder="Document number or reference details"
+                          />
+                          {errors.birthCertificateOrNationalIdDetails && (
+                            <p className="text-xs text-destructive mt-2">
+                              {errors.birthCertificateOrNationalIdDetails}
+                            </p>
+                          )}
+                        </div>
+
+                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
+                          <input
+                            type="checkbox"
+                            checked={formData.passportPhotoUploaded}
+                            onChange={(e) =>
+                              updateField(
+                                "passportPhotoUploaded",
+                                e.target.checked,
+                              )
+                            }
+                            className="mt-1"
+                          />
+                          Passport-size photo uploaded and meets admissions
+                          requirements.
+                        </label>
+                        {errors.passportPhotoUploaded && (
+                          <p className="text-xs text-destructive mt-1">
+                            {errors.passportPhotoUploaded}
+                          </p>
+                        )}
+
                         <div>
                           <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
                             Address
@@ -1439,6 +1808,26 @@ const ApplicationStartPage = () => {
                           {errors.address && (
                             <p className="text-xs text-destructive mt-2">
                               {errors.address}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            Postal Address
+                          </label>
+                          <input
+                            value={formData.postalAddress}
+                            onChange={(e) =>
+                              updateField("postalAddress", e.target.value)
+                            }
+                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            type="text"
+                            placeholder="P.O. Box / mailing address"
+                          />
+                          {errors.postalAddress && (
+                            <p className="text-xs text-destructive mt-2">
+                              {errors.postalAddress}
                             </p>
                           )}
                         </div>
@@ -1498,7 +1887,7 @@ const ApplicationStartPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Guardian Name
+                              Parent/Guardian Name
                             </label>
                             <input
                               value={formData.guardianName}
@@ -1514,6 +1903,41 @@ const ApplicationStartPage = () => {
                               </p>
                             )}
                           </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Parent/Guardian Type
+                            </label>
+                            <select
+                              value={formData.guardianType}
+                              onChange={(e) =>
+                                updateField(
+                                  "guardianType",
+                                  e.target.value as
+                                    | ""
+                                    | "Parent"
+                                    | "Guardian"
+                                    | "Sponsor"
+                                    | "Other",
+                                )
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            >
+                              <option value="">Select type</option>
+                              {guardianTypeOptions.map((option) => (
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                            {errors.guardianType && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.guardianType}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
                               Guardian Phone
@@ -1538,7 +1962,7 @@ const ApplicationStartPage = () => {
                           <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
                             Relationship to Next of Kin
                           </label>
-                          <input
+                          <select
                             value={formData.nextOfKinRelationship}
                             onChange={(e) =>
                               updateField(
@@ -1547,9 +1971,14 @@ const ApplicationStartPage = () => {
                               )
                             }
                             className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                            type="text"
-                            placeholder="e.g. Father, Mother, Guardian, Sibling"
-                          />
+                          >
+                            <option value="">Select relationship</option>
+                            {relationshipOptions.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
                           <p className="text-xs text-muted-foreground mt-2">
                             Tell us how the applicant is related to the next of
                             kin.
@@ -1568,22 +1997,293 @@ const ApplicationStartPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Program
+                              Application Type
                             </label>
                             <select
+                              value={formData.applicationType}
+                              onChange={(e) =>
+                                updateField("applicationType", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            >
+                              <option value="">Select application type</option>
+                              {applicationTypeOptions.map((option) => (
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                            {errors.applicationType && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.applicationType}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Entry Scheme
+                            </label>
+                            <select
+                              value={formData.entryScheme}
+                              onChange={(e) =>
+                                updateField("entryScheme", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            >
+                              <option value="">Select entry scheme</option>
+                              {entrySchemeOptions.map((option) => (
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                            {errors.entryScheme && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.entryScheme}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        {shouldCaptureUceAndUace ? (
+                          <div className="space-y-4 border border-border rounded-[14px] p-4 bg-secondary/10">
+                            <p className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              UNEB Index Details
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                  UCE Index Number
+                                </label>
+                                <input
+                                  value={formData.uceIndexNumber}
+                                  onChange={(e) =>
+                                    updateField("uceIndexNumber", e.target.value)
+                                  }
+                                  className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                  type="text"
+                                  placeholder="e.g. U0123/001"
+                                />
+                                {errors.uceIndexNumber && (
+                                  <p className="text-xs text-destructive mt-2">
+                                    {errors.uceIndexNumber}
+                                  </p>
+                                )}
+                              </div>
+                              <div>
+                                <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                  UCE Year of Sitting
+                                </label>
+                                <input
+                                  value={formData.uceYearOfSitting}
+                                  onChange={(e) =>
+                                    updateField(
+                                      "uceYearOfSitting",
+                                      e.target.value.replace(/\D/g, "").slice(0, 4),
+                                    )
+                                  }
+                                  className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                  type="text"
+                                  inputMode="numeric"
+                                  placeholder="YYYY"
+                                />
+                                {errors.uceYearOfSitting && (
+                                  <p className="text-xs text-destructive mt-2">
+                                    {errors.uceYearOfSitting}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
+                              <input
+                                type="checkbox"
+                                checked={formData.hasSecondSittingUce}
+                                onChange={(e) =>
+                                  updateField("hasSecondSittingUce", e.target.checked)
+                                }
+                                className="mt-1"
+                              />
+                              I sat UCE in more than one sitting.
+                            </label>
+
+                            {formData.hasSecondSittingUce ? (
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                    Second Sitting UCE Index Number
+                                  </label>
+                                  <input
+                                    value={formData.secondSittingUceIndexNumber}
+                                    onChange={(e) =>
+                                      updateField(
+                                        "secondSittingUceIndexNumber",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                    type="text"
+                                  />
+                                  {errors.secondSittingUceIndexNumber && (
+                                    <p className="text-xs text-destructive mt-2">
+                                      {errors.secondSittingUceIndexNumber}
+                                    </p>
+                                  )}
+                                </div>
+                                <div>
+                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                    Second Sitting UCE Year
+                                  </label>
+                                  <input
+                                    value={formData.secondSittingUceYearOfSitting}
+                                    onChange={(e) =>
+                                      updateField(
+                                        "secondSittingUceYearOfSitting",
+                                        e.target.value.replace(/\D/g, "").slice(0, 4),
+                                      )
+                                    }
+                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                    type="text"
+                                    inputMode="numeric"
+                                    placeholder="YYYY"
+                                  />
+                                  {errors.secondSittingUceYearOfSitting && (
+                                    <p className="text-xs text-destructive mt-2">
+                                      {errors.secondSittingUceYearOfSitting}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            ) : null}
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                  UACE Index Number
+                                </label>
+                                <input
+                                  value={formData.uaceIndexNumber}
+                                  onChange={(e) =>
+                                    updateField("uaceIndexNumber", e.target.value)
+                                  }
+                                  className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                  type="text"
+                                  placeholder="e.g. U0123/002"
+                                />
+                                {errors.uaceIndexNumber && (
+                                  <p className="text-xs text-destructive mt-2">
+                                    {errors.uaceIndexNumber}
+                                  </p>
+                                )}
+                              </div>
+                              <div>
+                                <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                  UACE Year of Sitting
+                                </label>
+                                <input
+                                  value={formData.uaceYearOfSitting}
+                                  onChange={(e) =>
+                                    updateField(
+                                      "uaceYearOfSitting",
+                                      e.target.value.replace(/\D/g, "").slice(0, 4),
+                                    )
+                                  }
+                                  className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                  type="text"
+                                  inputMode="numeric"
+                                  placeholder="YYYY"
+                                />
+                                {errors.uaceYearOfSitting && (
+                                  <p className="text-xs text-destructive mt-2">
+                                    {errors.uaceYearOfSitting}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+
+                            <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
+                              <input
+                                type="checkbox"
+                                checked={formData.hasSecondSittingUace}
+                                onChange={(e) =>
+                                  updateField("hasSecondSittingUace", e.target.checked)
+                                }
+                                className="mt-1"
+                              />
+                              I sat UACE in more than one sitting.
+                            </label>
+
+                            {formData.hasSecondSittingUace ? (
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                    Second Sitting UACE Index Number
+                                  </label>
+                                  <input
+                                    value={formData.secondSittingUaceIndexNumber}
+                                    onChange={(e) =>
+                                      updateField(
+                                        "secondSittingUaceIndexNumber",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                    type="text"
+                                  />
+                                  {errors.secondSittingUaceIndexNumber && (
+                                    <p className="text-xs text-destructive mt-2">
+                                      {errors.secondSittingUaceIndexNumber}
+                                    </p>
+                                  )}
+                                </div>
+                                <div>
+                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                    Second Sitting UACE Year
+                                  </label>
+                                  <input
+                                    value={formData.secondSittingUaceYearOfSitting}
+                                    onChange={(e) =>
+                                      updateField(
+                                        "secondSittingUaceYearOfSitting",
+                                        e.target.value.replace(/\D/g, "").slice(0, 4),
+                                      )
+                                    }
+                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                    type="text"
+                                    inputMode="numeric"
+                                    placeholder="YYYY"
+                                  />
+                                  {errors.secondSittingUaceYearOfSitting && (
+                                    <p className="text-xs text-destructive mt-2">
+                                      {errors.secondSittingUaceYearOfSitting}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : null}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Program
+                            </label>
+                            <input
                               value={formData.program}
                               onChange={(e) =>
                                 updateField("program", e.target.value)
                               }
                               className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                            >
-                              <option value="">Select a program</option>
+                              type="text"
+                              list="program-options"
+                              placeholder="Search/select a program"
+                            />
+                            <datalist id="program-options">
                               {programOptions.map((program) => (
-                                <option key={program} value={program}>
-                                  {program}
-                                </option>
+                                <option key={program} value={program} />
                               ))}
-                            </select>
+                            </datalist>
                             {errors.program && (
                               <p className="text-xs text-destructive mt-2">
                                 {errors.program}
@@ -2090,24 +2790,26 @@ const ApplicationStartPage = () => {
                               </p>
                             )}
                           </div>
-                          <div>
-                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              GPA / Score
-                            </label>
-                            <input
-                              value={formData.gpa}
-                              onChange={(e) =>
-                                updateField("gpa", e.target.value)
-                              }
-                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                              type="text"
-                            />
-                            {errors.gpa && (
-                              <p className="text-xs text-destructive mt-2">
-                                {errors.gpa}
-                              </p>
-                            )}
-                          </div>
+                          {!isDirectEntry ? (
+                            <div>
+                              <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                GPA / Score
+                              </label>
+                              <input
+                                value={formData.gpa}
+                                onChange={(e) =>
+                                  updateField("gpa", e.target.value)
+                                }
+                                className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                type="text"
+                              />
+                              {errors.gpa && (
+                                <p className="text-xs text-destructive mt-2">
+                                  {errors.gpa}
+                                </p>
+                              )}
+                            </div>
+                          ) : null}
                         </div>
 
                         <div>
@@ -2124,6 +2826,7 @@ const ApplicationStartPage = () => {
                           />
                           <p className="text-xs text-muted-foreground mt-2">
                             {formData.personalStatement.length} characters
+                            {formData.applicationType === "Mature Age" ? " (required for Mature Age applications)" : " (optional)"}
                           </p>
                           {errors.personalStatement && (
                             <p className="text-xs text-destructive mt-2">

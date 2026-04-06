@@ -32,16 +32,29 @@ export type ApplicationSubmissionInput = {
   birthCertificateOrNationalIdDetails: string;
   passportPhotoUploaded: boolean;
   guardianName: string;
+  guardianType: string;
   guardianPhone: string;
   nextOfKinRelationship: string;
   isUgandan: "yes" | "no";
+  applicationType: string;
+  entryScheme: string;
   program: string;
   startDate: string;
   previousInstitution: string;
   highestQualification: string;
   academicCredentialLevel: string;
   academicCredentialsDetails: string;
+  uceIndexNumber: string;
+  uceYearOfSitting: string;
+  uceSecondSitting: boolean;
+  uceSecondIndexNumber: string;
+  uceSecondYearOfSitting: string;
   oLevelSchoolName: string;
+  uaceIndexNumber: string;
+  uaceYearOfSitting: string;
+  uaceSecondSitting: boolean;
+  uaceSecondIndexNumber: string;
+  uaceSecondYearOfSitting: string;
   uacePrincipalSubjects: SubjectGradeEntry[];
   uaceGeneralPaperGrade: string;
   uaceIctOrSubMathSubject: string;
@@ -110,16 +123,29 @@ export const submitApplicationSubmission = async (
       payload.birthCertificateOrNationalIdDetails,
     passport_photo_uploaded: payload.passportPhotoUploaded,
     guardian_name: payload.guardianName,
+    guardian_type: payload.guardianType,
     guardian_phone: payload.guardianPhone,
     next_of_kin_relationship: payload.nextOfKinRelationship,
     is_ugandan: payload.isUgandan === "yes",
+    application_type: payload.applicationType,
+    entry_scheme: payload.entryScheme,
     program: payload.program,
     start_date: payload.startDate,
     previous_institution: payload.previousInstitution,
     highest_qualification: payload.highestQualification,
     academic_credential_level: payload.academicCredentialLevel,
     academic_credentials_details: payload.academicCredentialsDetails,
+    uce_index_number: payload.uceIndexNumber,
+    uce_year_of_sitting: payload.uceYearOfSitting,
+    uce_second_sitting: payload.uceSecondSitting,
+    uce_second_index_number: payload.uceSecondIndexNumber,
+    uce_second_year_of_sitting: payload.uceSecondYearOfSitting,
     o_level_school_name: payload.oLevelSchoolName,
+    uace_index_number: payload.uaceIndexNumber,
+    uace_year_of_sitting: payload.uaceYearOfSitting,
+    uace_second_sitting: payload.uaceSecondSitting,
+    uace_second_index_number: payload.uaceSecondIndexNumber,
+    uace_second_year_of_sitting: payload.uaceSecondYearOfSitting,
     uace_principal_subjects: payload.uacePrincipalSubjects,
     uace_general_paper_grade: payload.uaceGeneralPaperGrade,
     uace_ict_or_sub_math_subject: payload.uaceIctOrSubMathSubject,
