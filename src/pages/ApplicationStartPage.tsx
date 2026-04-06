@@ -56,16 +56,21 @@ type ApplicationStartData = {
   country: string;
   guardianName: string;
   guardianPhone: string;
+  nextOfKinRelationship: string;
+  isUgandan: "" | "yes" | "no";
   program: string;
   startDate: string;
   previousInstitution: string;
   highestQualification: string;
+  academicCredentialLevel: string;
+  academicCredentialsDetails: string;
   gpa: string;
   personalStatement: string;
   howDidYouHear: string;
   documentsConfirmed: boolean;
   transcriptUploaded: boolean;
   idUploaded: boolean;
+  countryIdUploaded: boolean;
   recommendationUploaded: boolean;
   statementUploaded: boolean;
   applicationFeePaid: boolean;
@@ -90,6 +95,14 @@ const qualifications = [
   "Bachelor's Degree",
   "Master's Degree",
   "Other",
+];
+
+const academicCredentialOptions = [
+  "Uganda Certificate of Education (UCE)",
+  "Uganda Advanced Level Certificate of Education (UACE)",
+  "Diploma",
+  "Degree",
+  "Other / Equivalent",
 ];
 
 const hearAboutOptions = [
@@ -319,16 +332,21 @@ const ApplicationStartPage = () => {
     country: "",
     guardianName: "",
     guardianPhone: "",
+    nextOfKinRelationship: "",
+    isUgandan: "",
     program: "",
     startDate: "",
     previousInstitution: "",
     highestQualification: "",
+    academicCredentialLevel: "",
+    academicCredentialsDetails: "",
     gpa: "",
     personalStatement: "",
     howDidYouHear: "",
     documentsConfirmed: false,
     transcriptUploaded: false,
     idUploaded: false,
+    countryIdUploaded: false,
     recommendationUploaded: false,
     statementUploaded: false,
     applicationFeePaid: false,
@@ -404,6 +422,14 @@ const ApplicationStartPage = () => {
         nextErrors.guardianName = "Guardian name is required.";
       if (!formData.guardianPhone.trim())
         nextErrors.guardianPhone = "Guardian phone is required.";
+      if (!formData.nextOfKinRelationship.trim()) {
+        nextErrors.nextOfKinRelationship =
+          "Relationship to next of kin is required.";
+      }
+      if (!formData.isUgandan) {
+        nextErrors.isUgandan =
+          "Please specify whether the applicant is Ugandan.";
+      }
     }
 
     if (step === 2) {
@@ -416,6 +442,14 @@ const ApplicationStartPage = () => {
       }
       if (!formData.highestQualification.trim()) {
         nextErrors.highestQualification = "Highest qualification is required.";
+      }
+      if (!formData.academicCredentialLevel.trim()) {
+        nextErrors.academicCredentialLevel =
+          "Please select your academic credential level.";
+      }
+      if (!formData.academicCredentialsDetails.trim()) {
+        nextErrors.academicCredentialsDetails =
+          "Please enter your academic results or transcript details.";
       }
       if (!formData.gpa.trim()) nextErrors.gpa = "GPA/score is required.";
       if (formData.personalStatement.trim().length < 50) {
@@ -436,6 +470,10 @@ const ApplicationStartPage = () => {
       }
       if (!formData.idUploaded) {
         nextErrors.idUploaded = "ID/Passport confirmation is required.";
+      }
+      if (formData.isUgandan === "no" && !formData.countryIdUploaded) {
+        nextErrors.countryIdUploaded =
+          "Country ID upload confirmation is required for non-Ugandan applicants.";
       }
       if (!formData.recommendationUploaded) {
         nextErrors.recommendationUploaded =
@@ -481,6 +519,8 @@ const ApplicationStartPage = () => {
     setSubmissionStatus("");
 
     try {
+      const ugandanStatus = formData.isUgandan === "no" ? "no" : "yes";
+
       const payload: ApplicationSubmissionInput = {
         email: formData.email.trim().toLowerCase(),
         firstName: formData.firstName.trim(),
@@ -494,16 +534,21 @@ const ApplicationStartPage = () => {
         country: formData.country.trim(),
         guardianName: formData.guardianName.trim(),
         guardianPhone: formData.guardianPhone.trim(),
+        nextOfKinRelationship: formData.nextOfKinRelationship.trim(),
+        isUgandan: ugandanStatus,
         program: formData.program,
         startDate: formData.startDate,
         previousInstitution: formData.previousInstitution.trim(),
         highestQualification: formData.highestQualification,
+        academicCredentialLevel: formData.academicCredentialLevel,
+        academicCredentialsDetails: formData.academicCredentialsDetails.trim(),
         gpa: formData.gpa.trim(),
         personalStatement: formData.personalStatement.trim(),
         howDidYouHear: formData.howDidYouHear,
         documentsConfirmed: formData.documentsConfirmed,
         transcriptUploaded: formData.transcriptUploaded,
         idUploaded: formData.idUploaded,
+        countryIdUploaded: formData.countryIdUploaded,
         recommendationUploaded: formData.recommendationUploaded,
         statementUploaded: formData.statementUploaded,
         applicationFeePaid: formData.applicationFeePaid,
@@ -981,6 +1026,31 @@ const ApplicationStartPage = () => {
 
                         <div>
                           <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            Is the Applicant Ugandan?
+                          </label>
+                          <select
+                            value={formData.isUgandan}
+                            onChange={(e) =>
+                              updateField(
+                                "isUgandan",
+                                e.target.value as "" | "yes" | "no",
+                              )
+                            }
+                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                          >
+                            <option value="">Select an option</option>
+                            <option value="yes">Yes, Ugandan</option>
+                            <option value="no">No, non-Ugandan</option>
+                          </select>
+                          {errors.isUgandan && (
+                            <p className="text-xs text-destructive mt-2">
+                              {errors.isUgandan}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
                             Address
                           </label>
                           <input
@@ -1088,6 +1158,33 @@ const ApplicationStartPage = () => {
                             )}
                           </div>
                         </div>
+
+                        <div>
+                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            Relationship to Next of Kin
+                          </label>
+                          <input
+                            value={formData.nextOfKinRelationship}
+                            onChange={(e) =>
+                              updateField(
+                                "nextOfKinRelationship",
+                                e.target.value,
+                              )
+                            }
+                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            type="text"
+                            placeholder="e.g. Father, Mother, Guardian, Sibling"
+                          />
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Tell us how the applicant is related to the next of
+                            kin.
+                          </p>
+                          {errors.nextOfKinRelationship && (
+                            <p className="text-xs text-destructive mt-2">
+                              {errors.nextOfKinRelationship}
+                            </p>
+                          )}
+                        </div>
                       </>
                     )}
 
@@ -1161,6 +1258,67 @@ const ApplicationStartPage = () => {
                               {errors.previousInstitution}
                             </p>
                           )}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Academic Credential Level
+                            </label>
+                            <select
+                              value={formData.academicCredentialLevel}
+                              onChange={(e) =>
+                                updateField(
+                                  "academicCredentialLevel",
+                                  e.target.value,
+                                )
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            >
+                              <option value="">Select credential level</option>
+                              {academicCredentialOptions.map((option) => (
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                            <p className="text-xs text-muted-foreground mt-2">
+                              For Uganda applicants, choose UCE, UACE, Diploma,
+                              Degree, or an equivalent result.
+                            </p>
+                            {errors.academicCredentialLevel && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.academicCredentialLevel}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Academic Results / Transcript Details
+                            </label>
+                            <input
+                              value={formData.academicCredentialsDetails}
+                              onChange={(e) =>
+                                updateField(
+                                  "academicCredentialsDetails",
+                                  e.target.value,
+                                )
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="text"
+                              placeholder="Example: UCE - 8 passes, UACE - 2 principal passes, Diploma transcript attached"
+                            />
+                            <p className="text-xs text-muted-foreground mt-2">
+                              UCE: minimum of five passes. UACE: at least two
+                              principal passes. Diploma/Degree holders should
+                              provide certified transcript details.
+                            </p>
+                            {errors.academicCredentialsDetails && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.academicCredentialsDetails}
+                              </p>
+                            )}
+                          </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1318,6 +1476,30 @@ const ApplicationStartPage = () => {
                             {errors.idUploaded}
                           </p>
                         )}
+
+                        {formData.isUgandan === "no" ? (
+                          <>
+                            <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
+                              <input
+                                type="checkbox"
+                                checked={formData.countryIdUploaded}
+                                onChange={(e) =>
+                                  updateField(
+                                    "countryIdUploaded",
+                                    e.target.checked,
+                                  )
+                                }
+                                className="mt-1"
+                              />
+                              Country of origin ID uploaded.
+                            </label>
+                            {errors.countryIdUploaded && (
+                              <p className="text-xs text-destructive mt-1">
+                                {errors.countryIdUploaded}
+                              </p>
+                            )}
+                          </>
+                        ) : null}
 
                         <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
                           <input

@@ -21,16 +21,21 @@ export type ApplicationSubmissionInput = {
   country: string;
   guardianName: string;
   guardianPhone: string;
+  nextOfKinRelationship: string;
+  isUgandan: "yes" | "no";
   program: string;
   startDate: string;
   previousInstitution: string;
   highestQualification: string;
+  academicCredentialLevel: string;
+  academicCredentialsDetails: string;
   gpa: string;
   personalStatement: string;
   howDidYouHear: string;
   documentsConfirmed: boolean;
   transcriptUploaded: boolean;
   idUploaded: boolean;
+  countryIdUploaded: boolean;
   recommendationUploaded: boolean;
   statementUploaded: boolean;
   applicationFeePaid: boolean;
@@ -79,16 +84,21 @@ export const submitApplicationSubmission = async (
     country: payload.country,
     guardian_name: payload.guardianName,
     guardian_phone: payload.guardianPhone,
+    next_of_kin_relationship: payload.nextOfKinRelationship,
+    is_ugandan: payload.isUgandan === "yes",
     program: payload.program,
     start_date: payload.startDate,
     previous_institution: payload.previousInstitution,
     highest_qualification: payload.highestQualification,
+    academic_credential_level: payload.academicCredentialLevel,
+    academic_credentials_details: payload.academicCredentialsDetails,
     gpa: payload.gpa,
     personal_statement: payload.personalStatement,
     how_did_you_hear: payload.howDidYouHear,
     documents_confirmed: payload.documentsConfirmed,
     transcript_uploaded: payload.transcriptUploaded,
     id_uploaded: payload.idUploaded,
+    country_id_uploaded: payload.countryIdUploaded,
     recommendation_uploaded: payload.recommendationUploaded,
     statement_uploaded: payload.statementUploaded,
     application_fee_paid: payload.applicationFeePaid,
