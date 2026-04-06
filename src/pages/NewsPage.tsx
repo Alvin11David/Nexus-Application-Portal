@@ -36,6 +36,19 @@ type NewsItem = {
   featured?: boolean;
 };
 
+type FirestoreNewsArticle = Record<string, unknown> & {
+  id: string;
+  title?: string;
+  slug?: string;
+  excerpt?: string;
+  content?: string;
+  category?: string;
+  createdAt?: string;
+  published_date?: string;
+  featured?: boolean;
+  published?: boolean;
+};
+
 type EventItem = {
   id: string;
   title: string;
@@ -54,6 +67,12 @@ const formatDate = (value: string | undefined, fallback = "TBA") => {
   });
 };
 
+const toSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
 const fallbackNews: NewsItem[] = newsArticles.map((article) => ({
   id: article.slug,
   slug: article.slug,
@@ -69,11 +88,11 @@ const NewsPage = () => {
   const newsRef = useRef<HTMLDivElement>(null);
   const eventsRef = useRef<HTMLDivElement>(null);
 
-  const { data: newsData } = useFirestoreCollection<NewsItem>(
-    "news",
-    fallbackNews,
+  const { data: rawNewsData } = useFirestoreCollection<FirestoreNewsArticle>(
+    "NewsArticles",
+    [],
     {
-      orderBy: { field: "published_date", direction: "desc" },
+      orderBy: { field: "createdAt", direction: "desc" },
     },
   );
   const { data: eventsData } = useFirestoreCollection<EventItem>(
@@ -81,6 +100,40 @@ const NewsPage = () => {
     fallbackEvents.map((item) => ({ ...item, id: item.title })),
     { orderBy: { field: "date", direction: "asc" } },
   );
+
+  const newsData: NewsItem[] =
+    rawNewsData.length > 0
+      ? rawNewsData
+          .filter((item) => item.published !== false)
+          .map((item) => {
+            const title =
+              typeof item.title === "string" && item.title.trim().length > 0
+                ? item.title
+                : "Untitled News";
+            const generatedSlug = `${toSlug(title)}-${item.id.slice(0, 6)}`;
+            return {
+              id: item.id,
+              title,
+              slug:
+                typeof item.slug === "string" && item.slug.trim().length > 0
+                  ? item.slug
+                  : generatedSlug,
+              excerpt:
+                typeof item.excerpt === "string" && item.excerpt.trim().length > 0
+                  ? item.excerpt
+                  : "Read the full story for details.",
+              category:
+                typeof item.category === "string" && item.category.trim().length > 0
+                  ? item.category
+                  : "News",
+              date:
+                (typeof item.createdAt === "string" && item.createdAt) ||
+                (typeof item.published_date === "string" && item.published_date) ||
+                "",
+              featured: Boolean(item.featured),
+            };
+          })
+      : fallbackNews;
 
   const featuredNews =
     newsData.find((article) => article.featured) ??

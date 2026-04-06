@@ -19,6 +19,19 @@ type Article = {
   highlights?: string[];
 };
 
+type FirestoreNewsArticle = Record<string, unknown> & {
+  id: string;
+  title?: string;
+  slug?: string;
+  excerpt?: string;
+  content?: string;
+  category?: string;
+  createdAt?: string;
+  published_date?: string;
+  featured?: boolean;
+  published?: boolean;
+};
+
 const fallbackArticles: Article[] = newsArticles.map((item) => ({
   id: item.slug,
   slug: item.slug,
@@ -47,20 +60,62 @@ const toParagraphs = (article: Article): string[] => {
   return [];
 };
 
+const toSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
 const NewsArticlePage = () => {
   const { slug } = useParams();
-  const { data: remoteMatch } = useFirestoreCollection<Article>("news", [], {
-    where: { field: "slug", operator: "==", value: slug ?? "" },
-    limit: 1,
-  });
-  const { data: allArticles } = useFirestoreCollection<Article>(
-    "news",
-    fallbackArticles,
-    { orderBy: { field: "published_date", direction: "desc" } },
+  const { data: firestoreArticles } = useFirestoreCollection<FirestoreNewsArticle>(
+    "NewsArticles",
+    [],
+    { orderBy: { field: "createdAt", direction: "desc" } },
   );
 
+  const allArticles: Article[] =
+    firestoreArticles.length > 0
+      ? firestoreArticles
+          .filter((item) => item.published !== false)
+          .map((item) => {
+            const title =
+              typeof item.title === "string" && item.title.trim().length > 0
+                ? item.title
+                : "Untitled News";
+            const generatedSlug = `${toSlug(title)}-${item.id.slice(0, 6)}`;
+            return {
+              id: item.id,
+              slug:
+                typeof item.slug === "string" && item.slug.trim().length > 0
+                  ? item.slug
+                  : generatedSlug,
+              title,
+              date:
+                (typeof item.createdAt === "string" && item.createdAt) ||
+                (typeof item.published_date === "string" && item.published_date) ||
+                "",
+              published_date:
+                (typeof item.published_date === "string" && item.published_date) ||
+                (typeof item.createdAt === "string" && item.createdAt) ||
+                "",
+              category:
+                typeof item.category === "string" && item.category.trim().length > 0
+                  ? item.category
+                  : "News",
+              excerpt:
+                typeof item.excerpt === "string" && item.excerpt.trim().length > 0
+                  ? item.excerpt
+                  : "Read the full story for details.",
+              content:
+                typeof item.content === "string" && item.content.trim().length > 0
+                  ? item.content
+                  : undefined,
+            };
+          })
+      : fallbackArticles;
+
   const article =
-    (slug ? remoteMatch.find((item) => item.slug === slug) : undefined) ??
     (slug ? allArticles.find((item) => item.slug === slug) : undefined) ??
     (slug ? getNewsArticleBySlug(slug) : undefined);
 
