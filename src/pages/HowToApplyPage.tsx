@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
@@ -220,6 +221,23 @@ const HowToApplyPage = () => {
                 Decision
               </p>
             </div>
+          </div>
+
+          <div className="mt-10 pt-8 border-t border-accent/20 flex flex-wrap items-center gap-4">
+            <Link
+              to="/admissions/application/start"
+              className="group inline-flex items-center gap-2 px-8 py-3 bg-accent text-accent-foreground rounded-[14px] font-body text-xs tracking-[0.2em] uppercase"
+            >
+              Start Application
+              <ArrowRight
+                size={14}
+                className="group-hover:translate-x-0.5 transition-transform duration-300"
+              />
+            </Link>
+            <p className="font-body text-xs text-muted-foreground">
+              This takes you to the application start page and follows all six
+              steps above.
+            </p>
           </div>
         </div>
       </div>

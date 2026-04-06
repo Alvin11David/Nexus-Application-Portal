@@ -34,6 +34,9 @@ const AdmissionsListsPage = lazy(
   () => import("./pages/AdmissionsListsPage.tsx"),
 );
 const HowToApplyPage = lazy(() => import("./pages/HowToApplyPage.tsx"));
+const ApplicationStartPage = lazy(
+  () => import("./pages/ApplicationStartPage.tsx"),
+);
 const CoursesListingsPage = lazy(
   () => import("./pages/CoursesListingsPage.tsx"),
 );
@@ -98,6 +101,10 @@ const AnimatedRoutes = () => {
             <Route
               path="/admissions/how-to-apply"
               element={<HowToApplyPage />}
+            />
+            <Route
+              path="/admissions/application/start"
+              element={<ApplicationStartPage />}
             />
             <Route
               path="/admissions/courses"
