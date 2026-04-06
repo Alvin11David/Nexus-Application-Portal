@@ -35,7 +35,10 @@ const toParagraphs = (article: Article): string[] => {
   if (Array.isArray(article.body) && article.body.length > 0) {
     return article.body;
   }
-  if (typeof article.content === "string" && article.content.trim().length > 0) {
+  if (
+    typeof article.content === "string" &&
+    article.content.trim().length > 0
+  ) {
     return article.content
       .split(/\n\n+/)
       .map((item) => item.trim())
@@ -69,7 +72,9 @@ const NewsArticlePage = () => {
     .filter((item) => item.slug !== article.slug)
     .slice(0, 3);
   const paragraphs = toParagraphs(article);
-  const highlights = Array.isArray(article.highlights) ? article.highlights : [];
+  const highlights = Array.isArray(article.highlights)
+    ? article.highlights
+    : [];
   const articleDate = article.published_date ?? article.date;
 
   return (

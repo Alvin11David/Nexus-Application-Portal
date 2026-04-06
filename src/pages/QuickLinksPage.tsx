@@ -76,13 +76,16 @@ const QuickLinksPage = () => {
     { orderBy: { field: "order", direction: "asc" } },
   );
 
-  const grouped = quickLinks.reduce<Record<string, QuickLinkDoc[]>>((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = [];
-    }
-    acc[item.category].push(item);
-    return acc;
-  }, {});
+  const grouped = quickLinks.reduce<Record<string, QuickLinkDoc[]>>(
+    (acc, item) => {
+      if (!acc[item.category]) {
+        acc[item.category] = [];
+      }
+      acc[item.category].push(item);
+      return acc;
+    },
+    {},
+  );
 
   const linkGroups = Object.entries(grouped).map(([title, links]) => ({
     title,

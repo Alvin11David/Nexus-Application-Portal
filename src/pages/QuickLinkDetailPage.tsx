@@ -17,12 +17,18 @@ type QuickLinkDoc = {
 const QuickLinkDetailPage = () => {
   const { slug } = useParams();
   const staticGuide = slug ? getResourceGuideBySlug(slug) : undefined;
-  const { data: quickLinks } = useFirestoreCollection<QuickLinkDoc>("quick_links", [], {
-    where: { field: "slug", operator: "==", value: slug ?? "" },
-    limit: 1,
-  });
+  const { data: quickLinks } = useFirestoreCollection<QuickLinkDoc>(
+    "quick_links",
+    [],
+    {
+      where: { field: "slug", operator: "==", value: slug ?? "" },
+      limit: 1,
+    },
+  );
 
-  const firestoreLink = slug ? quickLinks.find((item) => item.slug === slug) : undefined;
+  const firestoreLink = slug
+    ? quickLinks.find((item) => item.slug === slug)
+    : undefined;
 
   const guide =
     staticGuide ??
@@ -31,7 +37,9 @@ const QuickLinkDetailPage = () => {
           slug: firestoreLink.slug,
           title: firestoreLink.title,
           category: firestoreLink.category,
-          excerpt: firestoreLink.description ?? "Resource detail and access information.",
+          excerpt:
+            firestoreLink.description ??
+            "Resource detail and access information.",
           overview:
             firestoreLink.description ??
             "This resource is maintained in the institute portal and can be accessed from the link below.",
@@ -43,14 +51,16 @@ const QuickLinkDetailPage = () => {
           sections: [
             {
               title: "How to Use",
-              body:
-                "Open the primary action below to access the target resource. If you need additional support, use Contact Us from the quick links directory.",
+              body: "Open the primary action below to access the target resource. If you need additional support, use Contact Us from the quick links directory.",
             },
           ],
           primaryAction: firestoreLink.link_url
             ? { label: "Open Resource", href: firestoreLink.link_url }
             : undefined,
-          secondaryAction: { label: "Back to Quick Links", href: "/quick-links" },
+          secondaryAction: {
+            label: "Back to Quick Links",
+            href: "/quick-links",
+          },
         }
       : undefined);
 
@@ -130,8 +140,8 @@ const QuickLinkDetailPage = () => {
                     Next Steps
                   </p>
                   <div className="space-y-3">
-                    {guide.primaryAction && (
-                      isExternalUrl(guide.primaryAction.href) ? (
+                    {guide.primaryAction &&
+                      (isExternalUrl(guide.primaryAction.href) ? (
                         <a
                           href={guide.primaryAction.href}
                           target="_blank"
@@ -149,8 +159,7 @@ const QuickLinkDetailPage = () => {
                           {guide.primaryAction.label}
                           <ArrowRight size={14} />
                         </Link>
-                      )
-                    )}
+                      ))}
                     {guide.secondaryAction && (
                       <Link
                         to={guide.secondaryAction.href}

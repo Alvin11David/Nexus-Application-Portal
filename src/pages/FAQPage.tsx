@@ -145,17 +145,24 @@ const FAQPage = () => {
   const heroTextRef = useRef<HTMLDivElement>(null);
   const faqRef = useRef<HTMLDivElement>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const { data: faqs } = useFirestoreCollection<FirestoreFaq>("faqs", fallbackFaqs, {
-    orderBy: { field: "order", direction: "asc" },
-  });
+  const { data: faqs } = useFirestoreCollection<FirestoreFaq>(
+    "faqs",
+    fallbackFaqs,
+    {
+      orderBy: { field: "order", direction: "asc" },
+    },
+  );
 
-  const groupedFaqs = faqs.reduce<Record<string, FirestoreFaq[]>>((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = [];
-    }
-    acc[item.category].push(item);
-    return acc;
-  }, {});
+  const groupedFaqs = faqs.reduce<Record<string, FirestoreFaq[]>>(
+    (acc, item) => {
+      if (!acc[item.category]) {
+        acc[item.category] = [];
+      }
+      acc[item.category].push(item);
+      return acc;
+    },
+    {},
+  );
 
   const dynamicFaqCategories = Object.entries(groupedFaqs).map(
     ([category, questions]) => ({

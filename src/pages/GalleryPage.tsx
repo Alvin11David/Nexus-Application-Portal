@@ -33,21 +33,111 @@ interface GalleryItem {
 }
 
 const fallbackGalleryItems: GalleryItem[] = [
-  { id: "tailoring-class", src: tailoringClass, alt: "Tailoring class in session", caption: "Tailoring students perfecting their craft", category: "Training", span: "wide" },
-  { id: "graduation-ceremony", src: graduationCeremony, alt: "Graduation ceremony", caption: "Class of 2024 Graduation Day", category: "Graduation", span: "normal" },
-  { id: "electrical-training", src: electricalTraining, alt: "Electrical installation training", caption: "Students practice electrical wiring", category: "Training", span: "tall" },
-  { id: "community-outreach", src: communityOutreach, alt: "Community outreach event", caption: "Outreach day in Nakawa", category: "Community", span: "wide" },
-  { id: "soap-products", src: soapProducts, alt: "Handmade soap products", caption: "Graduate showcases her soap business", category: "Projects", span: "tall" },
-  { id: "beauty-therapy", src: beautyTherapy, alt: "Beauty therapy class", caption: "Beauty therapy practical session", category: "Training", span: "normal" },
-  { id: "welding-workshop", src: weldingWorkshop, alt: "Welding in workshop", caption: "Welding fabrication workshop", category: "Training", span: "wide" },
-  { id: "graduates-group", src: graduatesGroup, alt: "Graduation group photo", caption: "Proud graduates with certificates", category: "Graduation", span: "wide" },
-  { id: "plumbing-training", src: plumbingTraining, alt: "Plumbing training", caption: "Students in plumbing practical session", category: "Training", span: "tall" },
-  { id: "community-market", src: communityMarket, alt: "Community market", caption: "Graduates sell products at community market", category: "Projects", span: "normal" },
-  { id: "auto-mechanics", src: autoMechanics, alt: "Auto mechanics training", caption: "Auto mechanics hands-on learning", category: "Training", span: "normal" },
-  { id: "tailoring-business", src: tailoringBusiness, alt: "Graduate running her business", caption: "A graduate runs her own tailoring shop", category: "Projects", span: "tall" },
+  {
+    id: "tailoring-class",
+    src: tailoringClass,
+    alt: "Tailoring class in session",
+    caption: "Tailoring students perfecting their craft",
+    category: "Training",
+    span: "wide",
+  },
+  {
+    id: "graduation-ceremony",
+    src: graduationCeremony,
+    alt: "Graduation ceremony",
+    caption: "Class of 2024 Graduation Day",
+    category: "Graduation",
+    span: "normal",
+  },
+  {
+    id: "electrical-training",
+    src: electricalTraining,
+    alt: "Electrical installation training",
+    caption: "Students practice electrical wiring",
+    category: "Training",
+    span: "tall",
+  },
+  {
+    id: "community-outreach",
+    src: communityOutreach,
+    alt: "Community outreach event",
+    caption: "Outreach day in Nakawa",
+    category: "Community",
+    span: "wide",
+  },
+  {
+    id: "soap-products",
+    src: soapProducts,
+    alt: "Handmade soap products",
+    caption: "Graduate showcases her soap business",
+    category: "Projects",
+    span: "tall",
+  },
+  {
+    id: "beauty-therapy",
+    src: beautyTherapy,
+    alt: "Beauty therapy class",
+    caption: "Beauty therapy practical session",
+    category: "Training",
+    span: "normal",
+  },
+  {
+    id: "welding-workshop",
+    src: weldingWorkshop,
+    alt: "Welding in workshop",
+    caption: "Welding fabrication workshop",
+    category: "Training",
+    span: "wide",
+  },
+  {
+    id: "graduates-group",
+    src: graduatesGroup,
+    alt: "Graduation group photo",
+    caption: "Proud graduates with certificates",
+    category: "Graduation",
+    span: "wide",
+  },
+  {
+    id: "plumbing-training",
+    src: plumbingTraining,
+    alt: "Plumbing training",
+    caption: "Students in plumbing practical session",
+    category: "Training",
+    span: "tall",
+  },
+  {
+    id: "community-market",
+    src: communityMarket,
+    alt: "Community market",
+    caption: "Graduates sell products at community market",
+    category: "Projects",
+    span: "normal",
+  },
+  {
+    id: "auto-mechanics",
+    src: autoMechanics,
+    alt: "Auto mechanics training",
+    caption: "Auto mechanics hands-on learning",
+    category: "Training",
+    span: "normal",
+  },
+  {
+    id: "tailoring-business",
+    src: tailoringBusiness,
+    alt: "Graduate running her business",
+    caption: "A graduate runs her own tailoring shop",
+    category: "Projects",
+    span: "tall",
+  },
 ];
 
-const fallbackCategories: Category[] = ["All", "Training", "Graduation", "Community", "Projects"];
+const fallbackCategories: Category[] = [
+  "All",
+  "Training",
+  "Graduation",
+  "Community",
+  "Projects",
+];
 
 const GalleryPage = () => {
   const [activeCategory, setActiveCategory] = useState<Category>("All");
@@ -63,11 +153,17 @@ const GalleryPage = () => {
 
   const categories = [
     "All",
-    ...Array.from(new Set(galleryItems.map((item) => item.category).filter(Boolean))),
+    ...Array.from(
+      new Set(galleryItems.map((item) => item.category).filter(Boolean)),
+    ),
   ];
-  const visibleCategories = categories.length > 1 ? categories : fallbackCategories;
+  const visibleCategories =
+    categories.length > 1 ? categories : fallbackCategories;
 
-  const filtered = activeCategory === "All" ? galleryItems : galleryItems.filter((item) => item.category === activeCategory);
+  const filtered =
+    activeCategory === "All"
+      ? galleryItems
+      : galleryItems.filter((item) => item.category === activeCategory);
   const lightboxItem = lightboxIndex !== null ? filtered[lightboxIndex] : null;
 
   const openLightbox = (i: number) => setLightboxIndex(i);
@@ -99,9 +195,18 @@ const GalleryPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
     const ctx = gsap.context(() => {
-      gsap.fromTo(".gallery-hero-text > *",
+      gsap.fromTo(
+        ".gallery-hero-text > *",
         { y: 60, opacity: 0, filter: "blur(6px)" },
-        { y: 0, opacity: 1, filter: "blur(0px)", duration: 1.1, stagger: 0.15, ease: "power3.out", delay: 0.3 }
+        {
+          y: 0,
+          opacity: 1,
+          filter: "blur(0px)",
+          duration: 1.1,
+          stagger: 0.15,
+          ease: "power3.out",
+          delay: 0.3,
+        },
       );
     });
     return () => ctx.revert();
@@ -112,9 +217,18 @@ const GalleryPage = () => {
     if (!gridRef.current) return;
     const items = gridRef.current.querySelectorAll(".gallery-item");
     const ctx = gsap.context(() => {
-      gsap.fromTo(items,
+      gsap.fromTo(
+        items,
         { scale: 0.92, opacity: 0, y: 40, filter: "blur(4px)" },
-        { scale: 1, opacity: 1, y: 0, filter: "blur(0px)", duration: 0.6, stagger: 0.06, ease: "power3.out" }
+        {
+          scale: 1,
+          opacity: 1,
+          y: 0,
+          filter: "blur(0px)",
+          duration: 0.6,
+          stagger: 0.06,
+          ease: "power3.out",
+        },
       );
     });
     return () => ctx.revert();
@@ -124,18 +238,29 @@ const GalleryPage = () => {
   useEffect(() => {
     if (lightboxItem && lightboxRef.current) {
       document.body.style.overflow = "hidden";
-      gsap.fromTo(lightboxRef.current,
+      gsap.fromTo(
+        lightboxRef.current,
         { opacity: 0 },
-        { opacity: 1, duration: 0.3, ease: "power2.out" }
+        { opacity: 1, duration: 0.3, ease: "power2.out" },
       );
-      gsap.fromTo(lightboxRef.current.querySelector(".lightbox-content"),
+      gsap.fromTo(
+        lightboxRef.current.querySelector(".lightbox-content"),
         { scale: 0.92, y: 20, filter: "blur(6px)" },
-        { scale: 1, y: 0, filter: "blur(0px)", duration: 0.5, ease: "power3.out", delay: 0.1 }
+        {
+          scale: 1,
+          y: 0,
+          filter: "blur(0px)",
+          duration: 0.5,
+          ease: "power3.out",
+          delay: 0.1,
+        },
       );
     } else {
       document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [lightboxItem]);
 
   // Scroll-triggered parallax on hero
@@ -145,7 +270,12 @@ const GalleryPage = () => {
       gsap.to(".gallery-hero-img", {
         y: 80,
         ease: "none",
-        scrollTrigger: { trigger: heroRef.current, start: "top top", end: "bottom top", scrub: 1.2 },
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: 1.2,
+        },
       });
     });
     return () => ctx.revert();
@@ -153,9 +283,12 @@ const GalleryPage = () => {
 
   const getSpanClass = (span?: string) => {
     switch (span) {
-      case "tall": return "row-span-2";
-      case "wide": return "col-span-1 sm:col-span-2";
-      default: return "";
+      case "tall":
+        return "row-span-2";
+      case "wide":
+        return "col-span-1 sm:col-span-2";
+      default:
+        return "";
     }
   };
 
@@ -164,16 +297,28 @@ const GalleryPage = () => {
       <Navbar />
 
       {/* Hero */}
-      <div ref={heroRef} className="relative min-h-[55vh] flex items-end overflow-hidden">
-        <img src={graduatesGroup} alt="Gallery hero" className="gallery-hero-img absolute inset-0 w-full h-full object-cover rounded-none" />
+      <div
+        ref={heroRef}
+        className="relative min-h-[55vh] flex items-end overflow-hidden"
+      >
+        <img
+          src={graduatesGroup}
+          alt="Gallery hero"
+          className="gallery-hero-img absolute inset-0 w-full h-full object-cover rounded-none"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/60 to-primary/20 rounded-none" />
         <div className="relative z-10 px-8 md:px-16 pb-20 pt-40 gallery-hero-text max-w-4xl">
-          <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-5 opacity-0">Photo Gallery</p>
+          <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-5 opacity-0">
+            Photo Gallery
+          </p>
           <h1 className="font-heading text-5xl md:text-7xl font-light text-primary-foreground leading-[0.92] mb-6 opacity-0">
-            See the Impact<br /><em className="text-accent">In Action</em>
+            See the Impact
+            <br />
+            <em className="text-accent">In Action</em>
           </h1>
           <p className="font-body text-base text-primary-foreground/70 max-w-xl leading-relaxed opacity-0">
-            Photos from our training sessions, graduation ceremonies, student projects, and community activities.
+            Photos from our training sessions, graduation ceremonies, student
+            projects, and community activities.
           </p>
         </div>
       </div>
@@ -195,7 +340,7 @@ const GalleryPage = () => {
                 {cat}
                 {cat !== "All" && (
                   <span className="ml-1.5 text-[10px] opacity-60">
-                    ({galleryItems.filter(g => g.category === cat).length})
+                    ({galleryItems.filter((g) => g.category === cat).length})
                   </span>
                 )}
               </button>
@@ -223,7 +368,9 @@ const GalleryPage = () => {
               {/* Hover overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-5">
                 <div className="translate-y-4 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                  <p className="font-body text-sm text-primary-foreground/90 leading-snug">{caption}</p>
+                  <p className="font-body text-sm text-primary-foreground/90 leading-snug">
+                    {caption}
+                  </p>
                 </div>
                 <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-accent/20 backdrop-blur-sm flex items-center justify-center scale-75 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-400 delay-100">
                   <ZoomIn className="w-4 h-4 text-accent-foreground" />
@@ -243,7 +390,10 @@ const GalleryPage = () => {
           className="fixed inset-0 z-[200] bg-primary/95 backdrop-blur-md flex items-center justify-center opacity-0"
           onClick={closeLightbox}
         >
-          <div className="lightbox-content relative max-w-5xl w-full mx-4 md:mx-8" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="lightbox-content relative max-w-5xl w-full mx-4 md:mx-8"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Close */}
             <button
               onClick={closeLightbox}
@@ -255,14 +405,20 @@ const GalleryPage = () => {
 
             {/* Navigation arrows */}
             <button
-              onClick={(e) => { e.stopPropagation(); goPrev(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                goPrev();
+              }}
               className="absolute left-2 md:-left-14 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-primary-foreground/10 backdrop-blur-sm flex items-center justify-center hover:bg-primary-foreground/20 transition-colors duration-300 active:scale-95 z-10"
               aria-label="Previous image"
             >
               <ChevronLeft className="w-5 h-5 text-primary-foreground" />
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); goNext(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                goNext();
+              }}
               className="absolute right-2 md:-right-14 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-primary-foreground/10 backdrop-blur-sm flex items-center justify-center hover:bg-primary-foreground/20 transition-colors duration-300 active:scale-95 z-10"
               aria-label="Next image"
             >
@@ -278,9 +434,12 @@ const GalleryPage = () => {
 
             {/* Caption bar */}
             <div className="flex items-center justify-between mt-4 px-1">
-              <p className="font-body text-sm text-primary-foreground/70">{lightboxItem.caption}</p>
+              <p className="font-body text-sm text-primary-foreground/70">
+                {lightboxItem.caption}
+              </p>
               <p className="font-body text-xs text-primary-foreground/40 tabular-nums">
-                {lightboxIndex !== null ? lightboxIndex + 1 : 0} / {filtered.length}
+                {lightboxIndex !== null ? lightboxIndex + 1 : 0} /{" "}
+                {filtered.length}
               </p>
             </div>
           </div>
