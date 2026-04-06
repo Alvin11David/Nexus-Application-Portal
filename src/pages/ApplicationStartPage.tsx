@@ -12,41 +12,61 @@ const applicationSteps = [
   },
   {
     number: "02",
-    title: "Complete Application",
-    desc: "Fill out the comprehensive application form with your academic history, personal background, and program preferences.",
+    title: "Complete Profile",
+    desc: "Provide your personal and contact details exactly as they appear on official documents.",
   },
   {
     number: "03",
-    title: "Upload Documents",
-    desc: "Submit required documents including transcripts, test scores, essays, and letters of recommendation.",
+    title: "Academic Background",
+    desc: "Submit your academic history, selected program, and personal statement.",
   },
   {
     number: "04",
-    title: "Pay Application Fee",
-    desc: "Non-refundable application fee ($75 for domestic, $150 for international applicants).",
+    title: "Upload Documents",
+    desc: "Confirm all required documents are ready and uploaded.",
   },
   {
     number: "05",
-    title: "Interview (Optional)",
-    desc: "Selected candidates will be invited for interviews conducted online or in-person at our campus.",
+    title: "Pay Application Fee",
+    desc: "Confirm payment details and provide your transaction reference.",
   },
   {
     number: "06",
-    title: "Decision",
-    desc: "Receive your admission decision via email. Awarded students have 30 days to confirm enrollment.",
+    title: "Review & Submit",
+    desc: "Review all details and submit your application for admissions processing.",
   },
-];
+] as const;
 
 type ApplicationStartData = {
   email: string;
   password: string;
+  confirmPassword: string;
   firstName: string;
   lastName: string;
   phone: string;
+  dateOfBirth: string;
+  nationality: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  guardianName: string;
+  guardianPhone: string;
   program: string;
   startDate: string;
+  previousInstitution: string;
+  highestQualification: string;
+  gpa: string;
+  personalStatement: string;
+  howDidYouHear: string;
   documentsConfirmed: boolean;
+  transcriptUploaded: boolean;
+  idUploaded: boolean;
+  recommendationUploaded: boolean;
+  statementUploaded: boolean;
   applicationFeePaid: boolean;
+  paymentMethod: string;
+  paymentReference: string;
   interviewPreference: string;
   termsAccepted: boolean;
 };
@@ -60,24 +80,76 @@ const programOptions = [
   "Soap & Cosmetics Making",
 ];
 
+const qualifications = [
+  "High School Diploma",
+  "Associate Degree",
+  "Bachelor's Degree",
+  "Master's Degree",
+  "Other",
+];
+
+const hearAboutOptions = [
+  "University Website",
+  "Social Media",
+  "Education Fair",
+  "Recommendation",
+  "Publication",
+  "Other",
+];
+
 const ApplicationStartPage = () => {
   const [formData, setFormData] = useState<ApplicationStartData>({
     email: "",
     password: "",
+    confirmPassword: "",
     firstName: "",
     lastName: "",
     phone: "",
+    dateOfBirth: "",
+    nationality: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    country: "",
+    guardianName: "",
+    guardianPhone: "",
     program: "",
     startDate: "",
+    previousInstitution: "",
+    highestQualification: "",
+    gpa: "",
+    personalStatement: "",
+    howDidYouHear: "",
     documentsConfirmed: false,
+    transcriptUploaded: false,
+    idUploaded: false,
+    recommendationUploaded: false,
+    statementUploaded: false,
     applicationFeePaid: false,
+    paymentMethod: "",
+    paymentReference: "",
     interviewPreference: "",
     termsAccepted: false,
   });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [activeStep, setActiveStep] = useState(0);
   const [furthestStep, setFurthestStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+
+  const updateField = <K extends keyof ApplicationStartData>(
+    key: K,
+    value: ApplicationStartData[K],
+  ) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+    if (errors[key]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[key];
+        return next;
+      });
+    }
+  };
 
   const validateStep = (step: number) => {
     const nextErrors: Record<string, string> = {};
@@ -89,22 +161,84 @@ const ApplicationStartPage = () => {
       } else if (formData.password.trim().length < 6) {
         nextErrors.password = "Password must be at least 6 characters.";
       }
+      if (!formData.confirmPassword.trim()) {
+        nextErrors.confirmPassword = "Please confirm your password.";
+      } else if (formData.confirmPassword !== formData.password) {
+        nextErrors.confirmPassword = "Passwords do not match.";
+      }
     }
 
     if (step === 1) {
-      if (!formData.firstName.trim()) nextErrors.firstName = "First name is required.";
-      if (!formData.lastName.trim()) nextErrors.lastName = "Last name is required.";
-      if (!formData.phone.trim()) nextErrors.phone = "Phone number is required.";
-      if (!formData.program.trim()) nextErrors.program = "Please select a program.";
-      if (!formData.startDate.trim()) nextErrors.startDate = "Please select a start date.";
+      if (!formData.firstName.trim())
+        nextErrors.firstName = "First name is required.";
+      if (!formData.lastName.trim())
+        nextErrors.lastName = "Last name is required.";
+      if (!formData.phone.trim())
+        nextErrors.phone = "Phone number is required.";
+      if (!formData.dateOfBirth.trim())
+        nextErrors.dateOfBirth = "Date of birth is required.";
+      if (!formData.nationality.trim())
+        nextErrors.nationality = "Nationality is required.";
+      if (!formData.address.trim()) nextErrors.address = "Address is required.";
+      if (!formData.city.trim()) nextErrors.city = "City is required.";
+      if (!formData.country.trim()) nextErrors.country = "Country is required.";
+      if (!formData.guardianName.trim())
+        nextErrors.guardianName = "Guardian name is required.";
+      if (!formData.guardianPhone.trim())
+        nextErrors.guardianPhone = "Guardian phone is required.";
     }
 
-    if (step === 2 && !formData.documentsConfirmed) {
-      nextErrors.documentsConfirmed = "Please confirm document upload readiness.";
+    if (step === 2) {
+      if (!formData.program.trim())
+        nextErrors.program = "Please select a program.";
+      if (!formData.startDate.trim())
+        nextErrors.startDate = "Please select a start date.";
+      if (!formData.previousInstitution.trim()) {
+        nextErrors.previousInstitution = "Previous institution is required.";
+      }
+      if (!formData.highestQualification.trim()) {
+        nextErrors.highestQualification = "Highest qualification is required.";
+      }
+      if (!formData.gpa.trim()) nextErrors.gpa = "GPA/score is required.";
+      if (formData.personalStatement.trim().length < 50) {
+        nextErrors.personalStatement =
+          "Personal statement must be at least 50 characters.";
+      }
+      if (!formData.howDidYouHear.trim()) {
+        nextErrors.howDidYouHear = "Please tell us how you heard about us.";
+      }
     }
 
-    if (step === 3 && !formData.applicationFeePaid) {
-      nextErrors.applicationFeePaid = "Please confirm application fee payment.";
+    if (step === 3) {
+      if (!formData.documentsConfirmed) {
+        nextErrors.documentsConfirmed = "Please confirm document readiness.";
+      }
+      if (!formData.transcriptUploaded) {
+        nextErrors.transcriptUploaded = "Transcript confirmation is required.";
+      }
+      if (!formData.idUploaded) {
+        nextErrors.idUploaded = "ID/Passport confirmation is required.";
+      }
+      if (!formData.recommendationUploaded) {
+        nextErrors.recommendationUploaded =
+          "Recommendation letter confirmation is required.";
+      }
+      if (!formData.statementUploaded) {
+        nextErrors.statementUploaded =
+          "Personal statement confirmation is required.";
+      }
+    }
+
+    if (step === 4) {
+      if (!formData.applicationFeePaid) {
+        nextErrors.applicationFeePaid = "Please confirm fee payment.";
+      }
+      if (!formData.paymentMethod.trim()) {
+        nextErrors.paymentMethod = "Payment method is required.";
+      }
+      if (!formData.paymentReference.trim()) {
+        nextErrors.paymentReference = "Payment reference is required.";
+      }
     }
 
     if (step === 5 && !formData.termsAccepted) {
@@ -158,8 +292,8 @@ const ApplicationStartPage = () => {
               Start Your Application
             </h1>
             <p className="font-body text-muted-foreground leading-relaxed max-w-2xl">
-              Follow the same six-step process from the admissions guide. Use
-              the step controls below to move through each stage in order.
+              Complete every section to submit a full application. You can only
+              move to the next step once the current step is valid.
             </p>
           </div>
 
@@ -201,7 +335,9 @@ const ApplicationStartPage = () => {
                         </div>
                         <p className="font-body text-xs tracking-[0.08em] uppercase text-foreground flex items-center gap-2">
                           {step.title}
-                          {isLocked ? <Lock size={12} className="text-muted-foreground" /> : null}
+                          {isLocked ? (
+                            <Lock size={12} className="text-muted-foreground" />
+                          ) : null}
                         </p>
                       </div>
                     </button>
@@ -220,8 +356,8 @@ const ApplicationStartPage = () => {
                     Thank You, {formData.firstName || "Applicant"}
                   </h2>
                   <p className="font-body text-muted-foreground leading-relaxed mb-8 max-w-2xl">
-                    Your application has been recorded and follows the full six-step admissions process.
-                    We will contact you using {formData.email || "your email"} with next actions.
+                    Your full application has been received. We will contact you
+                    at {formData.email || "your email"} with next steps.
                   </p>
                   <Link
                     to="/admissions/how-to-apply"
@@ -233,210 +369,739 @@ const ApplicationStartPage = () => {
                 </div>
               ) : (
                 <>
-              <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">
-                Step {applicationSteps[activeStep].number}
-              </p>
-              <h2 className="font-heading text-3xl md:text-4xl font-light text-foreground mb-6">
-                {applicationSteps[activeStep].title}
-              </h2>
-              <p className="font-body text-muted-foreground leading-relaxed mb-10 max-w-2xl">
-                {applicationSteps[activeStep].desc}
-              </p>
+                  <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">
+                    Step {applicationSteps[activeStep].number}
+                  </p>
+                  <h2 className="font-heading text-3xl md:text-4xl font-light text-foreground mb-6">
+                    {applicationSteps[activeStep].title}
+                  </h2>
+                  <p className="font-body text-muted-foreground leading-relaxed mb-10 max-w-2xl">
+                    {applicationSteps[activeStep].desc}
+                  </p>
 
-              <div className="space-y-6 mb-10">
-                {activeStep === 0 && (
-                  <>
-                    <div>
-                      <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">Email</label>
-                      <input
-                        value={formData.email}
-                        onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
-                        className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                        type="email"
-                        placeholder="you@example.com"
-                      />
-                      {errors.email && <p className="text-xs text-destructive mt-2">{errors.email}</p>}
-                    </div>
-                    <div>
-                      <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">Password</label>
-                      <input
-                        value={formData.password}
-                        onChange={(e) => setFormData((p) => ({ ...p, password: e.target.value }))}
-                        className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                        type="password"
-                        placeholder="At least 6 characters"
-                      />
-                      {errors.password && <p className="text-xs text-destructive mt-2">{errors.password}</p>}
-                    </div>
-                  </>
-                )}
+                  <div className="space-y-6 mb-10">
+                    {activeStep === 0 && (
+                      <>
+                        <div>
+                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            Email
+                          </label>
+                          <input
+                            value={formData.email}
+                            onChange={(e) =>
+                              updateField("email", e.target.value)
+                            }
+                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            type="email"
+                            placeholder="you@example.com"
+                          />
+                          {errors.email && (
+                            <p className="text-xs text-destructive mt-2">
+                              {errors.email}
+                            </p>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Password
+                            </label>
+                            <input
+                              value={formData.password}
+                              onChange={(e) =>
+                                updateField("password", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="password"
+                              placeholder="At least 6 characters"
+                            />
+                            {errors.password && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.password}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Confirm Password
+                            </label>
+                            <input
+                              value={formData.confirmPassword}
+                              onChange={(e) =>
+                                updateField("confirmPassword", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="password"
+                              placeholder="Re-enter password"
+                            />
+                            {errors.confirmPassword && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.confirmPassword}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
 
-                {activeStep === 1 && (
-                  <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">First Name</label>
-                        <input
-                          value={formData.firstName}
-                          onChange={(e) => setFormData((p) => ({ ...p, firstName: e.target.value }))}
-                          className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                          type="text"
-                        />
-                        {errors.firstName && <p className="text-xs text-destructive mt-2">{errors.firstName}</p>}
-                      </div>
-                      <div>
-                        <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">Last Name</label>
-                        <input
-                          value={formData.lastName}
-                          onChange={(e) => setFormData((p) => ({ ...p, lastName: e.target.value }))}
-                          className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                          type="text"
-                        />
-                        {errors.lastName && <p className="text-xs text-destructive mt-2">{errors.lastName}</p>}
-                      </div>
-                    </div>
-                    <div>
-                      <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">Phone Number</label>
-                      <input
-                        value={formData.phone}
-                        onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))}
-                        className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                        type="tel"
-                      />
-                      {errors.phone && <p className="text-xs text-destructive mt-2">{errors.phone}</p>}
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">Program</label>
-                        <select
-                          value={formData.program}
-                          onChange={(e) => setFormData((p) => ({ ...p, program: e.target.value }))}
-                          className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                        >
-                          <option value="">Select a program</option>
-                          {programOptions.map((program) => (
-                            <option key={program} value={program}>{program}</option>
-                          ))}
-                        </select>
-                        {errors.program && <p className="text-xs text-destructive mt-2">{errors.program}</p>}
-                      </div>
-                      <div>
-                        <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">Preferred Start Date</label>
-                        <select
-                          value={formData.startDate}
-                          onChange={(e) => setFormData((p) => ({ ...p, startDate: e.target.value }))}
-                          className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                        >
-                          <option value="">Select date</option>
-                          <option value="June 2026">June 2026</option>
-                          <option value="September 2026">September 2026</option>
-                          <option value="January 2027">January 2027</option>
-                        </select>
-                        {errors.startDate && <p className="text-xs text-destructive mt-2">{errors.startDate}</p>}
-                      </div>
-                    </div>
-                  </>
-                )}
+                    {activeStep === 1 && (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              First Name
+                            </label>
+                            <input
+                              value={formData.firstName}
+                              onChange={(e) =>
+                                updateField("firstName", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="text"
+                            />
+                            {errors.firstName && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.firstName}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Last Name
+                            </label>
+                            <input
+                              value={formData.lastName}
+                              onChange={(e) =>
+                                updateField("lastName", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="text"
+                            />
+                            {errors.lastName && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.lastName}
+                              </p>
+                            )}
+                          </div>
+                        </div>
 
-                {activeStep === 2 && (
-                  <div>
-                    <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
-                      <input
-                        type="checkbox"
-                        checked={formData.documentsConfirmed}
-                        onChange={(e) => setFormData((p) => ({ ...p, documentsConfirmed: e.target.checked }))}
-                        className="mt-1"
-                      />
-                      I have prepared and uploaded all required documents (transcripts, scores, essay, recommendations).
-                    </label>
-                    {errors.documentsConfirmed && (
-                      <p className="text-xs text-destructive mt-2">{errors.documentsConfirmed}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Phone Number
+                            </label>
+                            <input
+                              value={formData.phone}
+                              onChange={(e) =>
+                                updateField("phone", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="tel"
+                            />
+                            {errors.phone && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.phone}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Date of Birth
+                            </label>
+                            <input
+                              value={formData.dateOfBirth}
+                              onChange={(e) =>
+                                updateField("dateOfBirth", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="date"
+                            />
+                            {errors.dateOfBirth && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.dateOfBirth}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Nationality
+                            </label>
+                            <input
+                              value={formData.nationality}
+                              onChange={(e) =>
+                                updateField("nationality", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="text"
+                            />
+                            {errors.nationality && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.nationality}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            Address
+                          </label>
+                          <input
+                            value={formData.address}
+                            onChange={(e) =>
+                              updateField("address", e.target.value)
+                            }
+                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            type="text"
+                          />
+                          {errors.address && (
+                            <p className="text-xs text-destructive mt-2">
+                              {errors.address}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              City
+                            </label>
+                            <input
+                              value={formData.city}
+                              onChange={(e) =>
+                                updateField("city", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="text"
+                            />
+                            {errors.city && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.city}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Postal Code
+                            </label>
+                            <input
+                              value={formData.postalCode}
+                              onChange={(e) =>
+                                updateField("postalCode", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="text"
+                            />
+                          </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Country
+                            </label>
+                            <input
+                              value={formData.country}
+                              onChange={(e) =>
+                                updateField("country", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="text"
+                            />
+                            {errors.country && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.country}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Guardian Name
+                            </label>
+                            <input
+                              value={formData.guardianName}
+                              onChange={(e) =>
+                                updateField("guardianName", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="text"
+                            />
+                            {errors.guardianName && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.guardianName}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Guardian Phone
+                            </label>
+                            <input
+                              value={formData.guardianPhone}
+                              onChange={(e) =>
+                                updateField("guardianPhone", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="tel"
+                            />
+                            {errors.guardianPhone && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.guardianPhone}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {activeStep === 2 && (
+                      <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Program
+                            </label>
+                            <select
+                              value={formData.program}
+                              onChange={(e) =>
+                                updateField("program", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            >
+                              <option value="">Select a program</option>
+                              {programOptions.map((program) => (
+                                <option key={program} value={program}>
+                                  {program}
+                                </option>
+                              ))}
+                            </select>
+                            {errors.program && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.program}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Preferred Start Date
+                            </label>
+                            <select
+                              value={formData.startDate}
+                              onChange={(e) =>
+                                updateField("startDate", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            >
+                              <option value="">Select date</option>
+                              <option value="June 2026">June 2026</option>
+                              <option value="September 2026">
+                                September 2026
+                              </option>
+                              <option value="January 2027">January 2027</option>
+                            </select>
+                            {errors.startDate && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.startDate}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            Previous Institution
+                          </label>
+                          <input
+                            value={formData.previousInstitution}
+                            onChange={(e) =>
+                              updateField("previousInstitution", e.target.value)
+                            }
+                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            type="text"
+                          />
+                          {errors.previousInstitution && (
+                            <p className="text-xs text-destructive mt-2">
+                              {errors.previousInstitution}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              Highest Qualification
+                            </label>
+                            <select
+                              value={formData.highestQualification}
+                              onChange={(e) =>
+                                updateField(
+                                  "highestQualification",
+                                  e.target.value,
+                                )
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            >
+                              <option value="">Select qualification</option>
+                              {qualifications.map((q) => (
+                                <option key={q} value={q}>
+                                  {q}
+                                </option>
+                              ))}
+                            </select>
+                            {errors.highestQualification && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.highestQualification}
+                              </p>
+                            )}
+                          </div>
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              GPA / Score
+                            </label>
+                            <input
+                              value={formData.gpa}
+                              onChange={(e) =>
+                                updateField("gpa", e.target.value)
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="text"
+                            />
+                            {errors.gpa && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.gpa}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            Personal Statement
+                          </label>
+                          <textarea
+                            value={formData.personalStatement}
+                            onChange={(e) =>
+                              updateField("personalStatement", e.target.value)
+                            }
+                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm min-h-[160px]"
+                            placeholder="Tell us why you want to join Veritas (minimum 50 characters)."
+                          />
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {formData.personalStatement.length} characters
+                          </p>
+                          {errors.personalStatement && (
+                            <p className="text-xs text-destructive mt-2">
+                              {errors.personalStatement}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            How did you hear about us?
+                          </label>
+                          <select
+                            value={formData.howDidYouHear}
+                            onChange={(e) =>
+                              updateField("howDidYouHear", e.target.value)
+                            }
+                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                          >
+                            <option value="">Select one option</option>
+                            {hearAboutOptions.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                          {errors.howDidYouHear && (
+                            <p className="text-xs text-destructive mt-2">
+                              {errors.howDidYouHear}
+                            </p>
+                          )}
+                        </div>
+                      </>
+                    )}
+
+                    {activeStep === 3 && (
+                      <div className="space-y-4">
+                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
+                          <input
+                            type="checkbox"
+                            checked={formData.documentsConfirmed}
+                            onChange={(e) =>
+                              updateField(
+                                "documentsConfirmed",
+                                e.target.checked,
+                              )
+                            }
+                            className="mt-1"
+                          />
+                          I confirm I have prepared all required documents.
+                        </label>
+                        {errors.documentsConfirmed && (
+                          <p className="text-xs text-destructive mt-1">
+                            {errors.documentsConfirmed}
+                          </p>
+                        )}
+
+                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
+                          <input
+                            type="checkbox"
+                            checked={formData.transcriptUploaded}
+                            onChange={(e) =>
+                              updateField(
+                                "transcriptUploaded",
+                                e.target.checked,
+                              )
+                            }
+                            className="mt-1"
+                          />
+                          Academic transcript uploaded.
+                        </label>
+                        {errors.transcriptUploaded && (
+                          <p className="text-xs text-destructive mt-1">
+                            {errors.transcriptUploaded}
+                          </p>
+                        )}
+
+                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
+                          <input
+                            type="checkbox"
+                            checked={formData.idUploaded}
+                            onChange={(e) =>
+                              updateField("idUploaded", e.target.checked)
+                            }
+                            className="mt-1"
+                          />
+                          National ID/Passport uploaded.
+                        </label>
+                        {errors.idUploaded && (
+                          <p className="text-xs text-destructive mt-1">
+                            {errors.idUploaded}
+                          </p>
+                        )}
+
+                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
+                          <input
+                            type="checkbox"
+                            checked={formData.recommendationUploaded}
+                            onChange={(e) =>
+                              updateField(
+                                "recommendationUploaded",
+                                e.target.checked,
+                              )
+                            }
+                            className="mt-1"
+                          />
+                          Recommendation letter uploaded.
+                        </label>
+                        {errors.recommendationUploaded && (
+                          <p className="text-xs text-destructive mt-1">
+                            {errors.recommendationUploaded}
+                          </p>
+                        )}
+
+                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
+                          <input
+                            type="checkbox"
+                            checked={formData.statementUploaded}
+                            onChange={(e) =>
+                              updateField("statementUploaded", e.target.checked)
+                            }
+                            className="mt-1"
+                          />
+                          Personal statement uploaded.
+                        </label>
+                        {errors.statementUploaded && (
+                          <p className="text-xs text-destructive mt-1">
+                            {errors.statementUploaded}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {activeStep === 4 && (
+                      <div className="space-y-4">
+                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
+                          <input
+                            type="checkbox"
+                            checked={formData.applicationFeePaid}
+                            onChange={(e) =>
+                              updateField(
+                                "applicationFeePaid",
+                                e.target.checked,
+                              )
+                            }
+                            className="mt-1"
+                          />
+                          I confirm application fee payment (Domestic: $75,
+                          International: $150).
+                        </label>
+                        {errors.applicationFeePaid && (
+                          <p className="text-xs text-destructive mt-1">
+                            {errors.applicationFeePaid}
+                          </p>
+                        )}
+
+                        <div>
+                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            Payment Method
+                          </label>
+                          <select
+                            value={formData.paymentMethod}
+                            onChange={(e) =>
+                              updateField("paymentMethod", e.target.value)
+                            }
+                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                          >
+                            <option value="">Select method</option>
+                            <option value="Mobile Money">Mobile Money</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Card Payment">Card Payment</option>
+                          </select>
+                          {errors.paymentMethod && (
+                            <p className="text-xs text-destructive mt-2">
+                              {errors.paymentMethod}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            Payment Reference
+                          </label>
+                          <input
+                            value={formData.paymentReference}
+                            onChange={(e) =>
+                              updateField("paymentReference", e.target.value)
+                            }
+                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                            type="text"
+                            placeholder="Transaction ID / receipt number"
+                          />
+                          {errors.paymentReference && (
+                            <p className="text-xs text-destructive mt-2">
+                              {errors.paymentReference}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                            Interview Preference (Optional)
+                          </label>
+                          <select
+                            value={formData.interviewPreference}
+                            onChange={(e) =>
+                              updateField("interviewPreference", e.target.value)
+                            }
+                            className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                          >
+                            <option value="">No preference</option>
+                            <option value="Online">Online</option>
+                            <option value="In-person">In-person</option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+
+                    {activeStep === 5 && (
+                      <div className="space-y-4">
+                        <p className="font-body text-sm text-muted-foreground leading-relaxed">
+                          Review completed details and submit your application.
+                          Admission decisions are sent via email.
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm font-body text-foreground">
+                          <p>
+                            <span className="text-muted-foreground">
+                              Applicant:
+                            </span>{" "}
+                            {formData.firstName} {formData.lastName}
+                          </p>
+                          <p>
+                            <span className="text-muted-foreground">
+                              Email:
+                            </span>{" "}
+                            {formData.email}
+                          </p>
+                          <p>
+                            <span className="text-muted-foreground">
+                              Program:
+                            </span>{" "}
+                            {formData.program}
+                          </p>
+                          <p>
+                            <span className="text-muted-foreground">
+                              Start Date:
+                            </span>{" "}
+                            {formData.startDate}
+                          </p>
+                          <p>
+                            <span className="text-muted-foreground">
+                              Payment Method:
+                            </span>{" "}
+                            {formData.paymentMethod || "Not selected"}
+                          </p>
+                          <p>
+                            <span className="text-muted-foreground">
+                              Reference:
+                            </span>{" "}
+                            {formData.paymentReference || "Not provided"}
+                          </p>
+                        </div>
+                        <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
+                          <input
+                            type="checkbox"
+                            checked={formData.termsAccepted}
+                            onChange={(e) =>
+                              updateField("termsAccepted", e.target.checked)
+                            }
+                            className="mt-1"
+                          />
+                          I confirm the information provided is accurate and I
+                          accept the application terms.
+                        </label>
+                        {errors.termsAccepted && (
+                          <p className="text-xs text-destructive">
+                            {errors.termsAccepted}
+                          </p>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
 
-                {activeStep === 3 && (
-                  <div>
-                    <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
-                      <input
-                        type="checkbox"
-                        checked={formData.applicationFeePaid}
-                        onChange={(e) => setFormData((p) => ({ ...p, applicationFeePaid: e.target.checked }))}
-                        className="mt-1"
-                      />
-                      I confirm application fee payment (Domestic: $75, International: $150).
-                    </label>
-                    {errors.applicationFeePaid && (
-                      <p className="text-xs text-destructive mt-2">{errors.applicationFeePaid}</p>
-                    )}
-                  </div>
-                )}
-
-                {activeStep === 4 && (
-                  <div>
-                    <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">Interview Preference (Optional)</label>
-                    <select
-                      value={formData.interviewPreference}
-                      onChange={(e) => setFormData((p) => ({ ...p, interviewPreference: e.target.value }))}
-                      className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                  <div className="flex flex-wrap items-center gap-4">
+                    <button
+                      onClick={() =>
+                        setActiveStep((prev) => (prev > 0 ? prev - 1 : prev))
+                      }
+                      disabled={activeStep === 0}
+                      className="px-6 py-3 border border-border rounded-[14px] font-body text-xs tracking-[0.2em] uppercase text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                      <option value="">No preference</option>
-                      <option value="Online">Online</option>
-                      <option value="In-person">In-person</option>
-                    </select>
-                  </div>
-                )}
+                      Previous
+                    </button>
 
-                {activeStep === 5 && (
-                  <div className="space-y-4">
-                    <p className="font-body text-sm text-muted-foreground leading-relaxed">
-                      Review completed details and submit your application. Admission decisions are sent via email.
-                    </p>
-                    <label className="inline-flex items-start gap-3 font-body text-sm text-foreground">
-                      <input
-                        type="checkbox"
-                        checked={formData.termsAccepted}
-                        onChange={(e) => setFormData((p) => ({ ...p, termsAccepted: e.target.checked }))}
-                        className="mt-1"
-                      />
-                      I confirm the information provided is accurate and I accept the application terms.
-                    </label>
-                    {errors.termsAccepted && (
-                      <p className="text-xs text-destructive">{errors.termsAccepted}</p>
+                    {activeStep < applicationSteps.length - 1 ? (
+                      <button
+                        onClick={handleNext}
+                        className="group inline-flex items-center gap-2 px-6 py-3 bg-accent text-accent-foreground rounded-[14px] font-body text-xs tracking-[0.2em] uppercase"
+                      >
+                        Next Step
+                        <ArrowRight
+                          size={14}
+                          className="group-hover:translate-x-0.5 transition-transform duration-300"
+                        />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={handleSubmit}
+                        className="px-6 py-3 bg-accent text-accent-foreground rounded-[14px] font-body text-xs tracking-[0.2em] uppercase"
+                      >
+                        Submit Application
+                      </button>
                     )}
                   </div>
-                )}
-              </div>
-
-              <div className="flex flex-wrap items-center gap-4">
-                <button
-                  onClick={() => setActiveStep((prev) => (prev > 0 ? prev - 1 : prev))}
-                  disabled={activeStep === 0}
-                  className="px-6 py-3 border border-border rounded-[14px] font-body text-xs tracking-[0.2em] uppercase text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-
-                {activeStep < applicationSteps.length - 1 ? (
-                  <button
-                    onClick={handleNext}
-                    className="group inline-flex items-center gap-2 px-6 py-3 bg-accent text-accent-foreground rounded-[14px] font-body text-xs tracking-[0.2em] uppercase"
-                  >
-                    Next Step
-                    <ArrowRight
-                      size={14}
-                      className="group-hover:translate-x-0.5 transition-transform duration-300"
-                    />
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleSubmit}
-                    className="px-6 py-3 bg-accent text-accent-foreground rounded-[14px] font-body text-xs tracking-[0.2em] uppercase"
-                  >
-                    Submit Application
-                  </button>
-                )}
-              </div>
                 </>
               )}
             </section>
