@@ -316,45 +316,57 @@ const OTP_API_BASE =
   import.meta.env.VITE_OTP_API_BASE ??
   (import.meta.env.DEV ? "http://127.0.0.1:5055" : window.location.origin);
 
+const APPLICATION_DRAFT_STORAGE_KEY = "application_start_draft_v1";
+
+const initialFormData: ApplicationStartData = {
+  email: "",
+  password: "",
+  confirmPassword: "",
+  firstName: "",
+  lastName: "",
+  phone: "",
+  dateOfBirth: "",
+  nationality: "",
+  address: "",
+  city: "",
+  postalCode: "",
+  country: "",
+  guardianName: "",
+  guardianPhone: "",
+  nextOfKinRelationship: "",
+  isUgandan: "",
+  program: "",
+  startDate: "",
+  previousInstitution: "",
+  highestQualification: "",
+  academicCredentialLevel: "",
+  academicCredentialsDetails: "",
+  gpa: "",
+  personalStatement: "",
+  howDidYouHear: "",
+  documentsConfirmed: false,
+  transcriptUploaded: false,
+  idUploaded: false,
+  countryIdUploaded: false,
+  recommendationUploaded: false,
+  statementUploaded: false,
+  applicationFeePaid: false,
+  paymentMethod: "",
+  paymentReference: "",
+  interviewPreference: "",
+  termsAccepted: false,
+};
+
+type ApplicationDraftPayload = {
+  formData: Omit<ApplicationStartData, "password" | "confirmPassword">;
+  activeStep: number;
+  furthestStep: number;
+  otpVerified: boolean;
+};
+
 const ApplicationStartPage = () => {
-  const [formData, setFormData] = useState<ApplicationStartData>({
-    email: "",
-    password: "",
-    confirmPassword: "",
-    firstName: "",
-    lastName: "",
-    phone: "",
-    dateOfBirth: "",
-    nationality: "",
-    address: "",
-    city: "",
-    postalCode: "",
-    country: "",
-    guardianName: "",
-    guardianPhone: "",
-    nextOfKinRelationship: "",
-    isUgandan: "",
-    program: "",
-    startDate: "",
-    previousInstitution: "",
-    highestQualification: "",
-    academicCredentialLevel: "",
-    academicCredentialsDetails: "",
-    gpa: "",
-    personalStatement: "",
-    howDidYouHear: "",
-    documentsConfirmed: false,
-    transcriptUploaded: false,
-    idUploaded: false,
-    countryIdUploaded: false,
-    recommendationUploaded: false,
-    statementUploaded: false,
-    applicationFeePaid: false,
-    paymentMethod: "",
-    paymentReference: "",
-    interviewPreference: "",
-    termsAccepted: false,
-  });
+  const [formData, setFormData] =
+    useState<ApplicationStartData>(initialFormData);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [activeStep, setActiveStep] = useState(0);
@@ -369,6 +381,86 @@ const ApplicationStartPage = () => {
   const [otpStatus, setOtpStatus] = useState<string>("");
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [draftHydrated, setDraftHydrated] = useState(false);
+
+  useEffect(() => {
+    try {
+      const rawDraft = localStorage.getItem(APPLICATION_DRAFT_STORAGE_KEY);
+      if (!rawDraft) {
+        setDraftHydrated(true);
+        return;
+      }
+
+      const parsed = JSON.parse(rawDraft) as Partial<ApplicationDraftPayload>;
+      if (!parsed.formData) {
+        setDraftHydrated(true);
+        return;
+      }
+
+      const safeActiveStep = Math.max(
+        0,
+        Math.min(Number(parsed.activeStep ?? 0), applicationSteps.length - 1),
+      );
+      const safeFurthestStep = Math.max(
+        safeActiveStep,
+        Math.min(
+          Number(parsed.furthestStep ?? safeActiveStep),
+          applicationSteps.length - 1,
+        ),
+      );
+
+      setFormData((prev) => ({
+        ...prev,
+        ...parsed.formData,
+        password: "",
+        confirmPassword: "",
+      }));
+      setActiveStep(safeActiveStep);
+      setFurthestStep(safeFurthestStep);
+      setOtpVerified(Boolean(parsed.otpVerified));
+      setOtpSent(Boolean(parsed.otpVerified));
+      setSubmissionStatus(
+        "Saved draft restored. Continue from where you left off.",
+      );
+    } catch {
+      localStorage.removeItem(APPLICATION_DRAFT_STORAGE_KEY);
+    } finally {
+      setDraftHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!draftHydrated || submitted) return;
+
+    const {
+      password: _password,
+      confirmPassword: _confirmPassword,
+      ...safeForm
+    } = formData;
+
+    const payload: ApplicationDraftPayload = {
+      formData: safeForm,
+      activeStep,
+      furthestStep,
+      otpVerified,
+    };
+
+    try {
+      localStorage.setItem(
+        APPLICATION_DRAFT_STORAGE_KEY,
+        JSON.stringify(payload),
+      );
+    } catch {
+      // Ignore storage failures (private mode/quota), form still works normally.
+    }
+  }, [
+    activeStep,
+    draftHydrated,
+    formData,
+    furthestStep,
+    otpVerified,
+    submitted,
+  ]);
 
   const updateField = <K extends keyof ApplicationStartData>(
     key: K,
@@ -560,6 +652,7 @@ const ApplicationStartPage = () => {
       };
 
       const submission = await submitApplicationSubmission(payload);
+      localStorage.removeItem(APPLICATION_DRAFT_STORAGE_KEY);
       setApplicationId(submission.id);
       setSubmitted(true);
       setSubmissionStatus(
