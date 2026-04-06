@@ -1,5 +1,15 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import { db } from "@/integrations/firebase/config";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
 interface NewsArticle {
@@ -20,7 +31,7 @@ interface NewsArticle {
   image_url: string | null;
   published: boolean;
   published_at: string | null;
-  created_at: string;
+  created_at?: string;
 }
 
 const emptyForm = { title: "", slug: "", excerpt: "", content: "", image_url: "", published: false };
@@ -33,9 +44,45 @@ const AdminNewsPage = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  const normalizeDate = (value: unknown) => {
+    if (!value) return "";
+    if (typeof value === "string") return value;
+    if (
+      typeof value === "object" &&
+      value !== null &&
+      "toDate" in value &&
+      typeof (value as { toDate?: () => Date }).toDate === "function"
+    ) {
+      return (value as { toDate: () => Date }).toDate().toISOString();
+    }
+    return "";
+  };
+
   const fetchArticles = async () => {
-    const { data } = await supabase.from("news_articles").select("*").order("created_at", { ascending: false });
-    if (data) setArticles(data);
+    if (!db) {
+      setArticles([]);
+      return;
+    }
+
+    const newsQuery = query(collection(db, "news"), orderBy("created_at", "desc"));
+    const snapshot = await getDocs(newsQuery);
+
+    const mapped = snapshot.docs.map((newsDoc) => {
+      const data = newsDoc.data();
+      return {
+        id: newsDoc.id,
+        title: String(data.title ?? ""),
+        slug: String(data.slug ?? ""),
+        excerpt: (data.excerpt as string | null | undefined) ?? null,
+        content: (data.content as string | null | undefined) ?? null,
+        image_url: (data.image_url as string | null | undefined) ?? null,
+        published: Boolean(data.published),
+        published_at: normalizeDate(data.published_at) || null,
+        created_at: normalizeDate(data.created_at),
+      } as NewsArticle;
+    });
+
+    setArticles(mapped);
   };
 
   useEffect(() => { fetchArticles(); }, []);
@@ -43,6 +90,15 @@ const AdminNewsPage = () => {
   const generateSlug = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
   const handleSave = async () => {
+    if (!db) {
+      toast({
+        title: "Firebase not configured",
+        description: "Unable to save while Firestore is not available.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     const payload = {
       title: form.title,
@@ -51,25 +107,27 @@ const AdminNewsPage = () => {
       content: form.content || null,
       image_url: form.image_url || null,
       published: form.published,
-      published_at: form.published ? new Date().toISOString() : null,
-      updated_at: new Date().toISOString(),
+      published_at: form.published ? serverTimestamp() : null,
+      updated_at: serverTimestamp(),
     };
 
-    let error;
-    if (editing) {
-      ({ error } = await supabase.from("news_articles").update(payload).eq("id", editing));
-    } else {
-      ({ error } = await supabase.from("news_articles").insert(payload));
-    }
-
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
+    try {
+      if (editing) {
+        await updateDoc(doc(db, "news", editing), payload);
+      } else {
+        await addDoc(collection(db, "news"), {
+          ...payload,
+          created_at: serverTimestamp(),
+        });
+      }
       toast({ title: editing ? "Updated" : "Created", description: "News article saved." });
       setDialogOpen(false);
       setEditing(null);
       setForm(emptyForm);
-      fetchArticles();
+      await fetchArticles();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to save article.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     }
     setLoading(false);
   };
@@ -88,13 +146,23 @@ const AdminNewsPage = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (!db) {
+      toast({
+        title: "Firebase not configured",
+        description: "Unable to delete while Firestore is not available.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!confirm("Delete this article?")) return;
-    const { error } = await supabase.from("news_articles").delete().eq("id", id);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
+    try {
+      await deleteDoc(doc(db, "news", id));
       toast({ title: "Deleted" });
-      fetchArticles();
+      await fetchArticles();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to delete article.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     }
   };
 
@@ -127,7 +195,9 @@ const AdminNewsPage = () => {
                       {a.published ? "Published" : "Draft"}
                     </span>
                   </TableCell>
-                  <TableCell className="text-muted-foreground text-sm">{new Date(a.created_at).toLocaleDateString()}</TableCell>
+                  <TableCell className="text-muted-foreground text-sm">
+                    {a.created_at ? new Date(a.created_at).toLocaleDateString() : "-"}
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(a)}><Pencil className="w-4 h-4" /></Button>

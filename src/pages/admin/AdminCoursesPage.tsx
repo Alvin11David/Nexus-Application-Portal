@@ -1,5 +1,15 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +19,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import { db } from "@/integrations/firebase/config";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
 interface Course {
@@ -35,8 +46,33 @@ const AdminCoursesPage = () => {
   const { toast } = useToast();
 
   const fetchCourses = async () => {
-    const { data } = await supabase.from("courses").select("*").order("name");
-    if (data) setCourses(data);
+    if (!db) {
+      setCourses([]);
+      return;
+    }
+
+    const coursesQuery = query(collection(db, "courses"), orderBy("name", "asc"));
+    const snapshot = await getDocs(coursesQuery);
+    const mapped = snapshot.docs.map((courseDoc) => {
+      const data = courseDoc.data();
+      return {
+        id: courseDoc.id,
+        name: String(data.name ?? data.title ?? ""),
+        slug: String(data.slug ?? ""),
+        description: (data.description as string | null | undefined) ?? null,
+        department: (data.department as string | null | undefined) ?? null,
+        duration: (data.duration as string | null | undefined) ?? null,
+        level: (data.level as string | null | undefined) ?? null,
+        credits:
+          typeof data.credits === "number"
+            ? data.credits
+            : Number(data.credits ?? 0) || null,
+        image_url: (data.image_url as string | null | undefined) ?? null,
+        published: Boolean(data.published),
+      } as Course;
+    });
+
+    setCourses(mapped);
   };
 
   useEffect(() => { fetchCourses(); }, []);
@@ -44,35 +80,49 @@ const AdminCoursesPage = () => {
   const generateSlug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
   const handleSave = async () => {
+    if (!db) {
+      toast({
+        title: "Firebase not configured",
+        description: "Unable to save while Firestore is not available.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     const payload = {
       name: form.name,
+      title: form.name,
       slug: form.slug || generateSlug(form.name),
       description: form.description || null,
       department: form.department || null,
+      college: form.department || null,
       duration: form.duration || null,
       level: form.level || null,
       credits: form.credits || null,
+      code: form.slug || generateSlug(form.name),
       image_url: form.image_url || null,
       published: form.published,
-      updated_at: new Date().toISOString(),
+      updated_at: serverTimestamp(),
     };
 
-    let error;
-    if (editing) {
-      ({ error } = await supabase.from("courses").update(payload).eq("id", editing));
-    } else {
-      ({ error } = await supabase.from("courses").insert(payload));
-    }
-
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
+    try {
+      if (editing) {
+        await updateDoc(doc(db, "courses", editing), payload);
+      } else {
+        await addDoc(collection(db, "courses"), {
+          ...payload,
+          created_at: serverTimestamp(),
+        });
+      }
       toast({ title: editing ? "Updated" : "Created" });
       setDialogOpen(false);
       setEditing(null);
       setForm(emptyForm);
-      fetchCourses();
+      await fetchCourses();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to save course.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     }
     setLoading(false);
   };
@@ -88,10 +138,24 @@ const AdminCoursesPage = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (!db) {
+      toast({
+        title: "Firebase not configured",
+        description: "Unable to delete while Firestore is not available.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!confirm("Delete this course?")) return;
-    const { error } = await supabase.from("courses").delete().eq("id", id);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Deleted" }); fetchCourses(); }
+    try {
+      await deleteDoc(doc(db, "courses", id));
+      toast({ title: "Deleted" });
+      await fetchCourses();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to delete course.";
+      toast({ title: "Error", description: message, variant: "destructive" });
+    }
   };
 
   return (

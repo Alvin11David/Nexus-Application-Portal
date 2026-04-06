@@ -27,7 +27,8 @@ const LegalPage = () => {
     ? {
         slug: legalDocs[0].slug,
         title: legalDocs[0].title,
-        intro: "Official legal page content from the Veritas Firestore database.",
+        intro:
+          "Official legal page content from the Veritas Firestore database.",
         sections: legalDocs[0].content
           .split(/\n\n+/)
           .filter(Boolean)

@@ -80,8 +80,7 @@ const AlumniPage = () => {
             role: [item.occupation, item.company].filter(Boolean).join(", "),
             year: item.graduation_year ? String(item.graduation_year) : "-",
             bio:
-              item.bio ||
-              "Alumni profile from the Veritas community network.",
+              item.bio || "Alumni profile from the Veritas community network.",
           }))
       : spotlights;
 
@@ -211,7 +210,10 @@ const AlumniPage = () => {
             return (
               <div key={item.label} className="stat-item opacity-0">
                 <div className="card-hover p-8 rounded-[24px] border border-border/40 bg-background hover:border-accent/40 text-center transition-all duration-500">
-                  <Icon size={40} className="icon-hover text-accent mx-auto mb-6" />
+                  <Icon
+                    size={40}
+                    className="icon-hover text-accent mx-auto mb-6"
+                  />
                   <p className="font-heading text-3xl font-light text-foreground mb-3">
                     {item.value}
                   </p>

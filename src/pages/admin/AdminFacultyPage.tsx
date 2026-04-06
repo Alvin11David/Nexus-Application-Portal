@@ -1,5 +1,15 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +18,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import { db } from "@/integrations/firebase/config";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
 interface FacultyMember {
@@ -33,13 +44,49 @@ const AdminFacultyPage = () => {
   const { toast } = useToast();
 
   const fetchMembers = async () => {
-    const { data } = await supabase.from("faculty_members").select("*").order("display_order");
-    if (data) setMembers(data);
+    if (!db) {
+      setMembers([]);
+      return;
+    }
+
+    const facultyQuery = query(collection(db, "faculty"), orderBy("display_order", "asc"));
+    const snapshot = await getDocs(facultyQuery);
+    const mapped = snapshot.docs.map((facultyDoc) => {
+      const data = facultyDoc.data();
+      return {
+        id: facultyDoc.id,
+        name: String(data.name ?? ""),
+        title: (data.title as string | null | undefined) ?? null,
+        department: (data.department as string | null | undefined) ?? null,
+        bio: (data.bio as string | null | undefined) ?? null,
+        image_url: (data.image_url as string | null | undefined) ?? null,
+        email: (data.email as string | null | undefined) ?? null,
+        specialization:
+          Array.isArray(data.specialization)
+            ? data.specialization.join(", ")
+            : ((data.specialization as string | null | undefined) ?? null),
+        display_order:
+          typeof data.display_order === "number"
+            ? data.display_order
+            : Number(data.display_order ?? 0) || 0,
+      } as FacultyMember;
+    });
+
+    setMembers(mapped);
   };
 
   useEffect(() => { fetchMembers(); }, []);
 
   const handleSave = async () => {
+    if (!db) {
+      toast({
+        title: "Firebase not configured",
+        description: "Unable to save while Firestore is not available.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     const payload = {
       name: form.name,
@@ -50,24 +97,26 @@ const AdminFacultyPage = () => {
       email: form.email || null,
       specialization: form.specialization || null,
       display_order: form.display_order,
-      updated_at: new Date().toISOString(),
+      updated_at: serverTimestamp(),
     };
 
-    let error;
-    if (editing) {
-      ({ error } = await supabase.from("faculty_members").update(payload).eq("id", editing));
-    } else {
-      ({ error } = await supabase.from("faculty_members").insert(payload));
-    }
-
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
+    try {
+      if (editing) {
+        await updateDoc(doc(db, "faculty", editing), payload);
+      } else {
+        await addDoc(collection(db, "faculty"), {
+          ...payload,
+          created_at: serverTimestamp(),
+        });
+      }
       toast({ title: editing ? "Updated" : "Created" });
       setDialogOpen(false);
       setEditing(null);
       setForm(emptyForm);
-      fetchMembers();
+      await fetchMembers();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to save faculty member.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     }
     setLoading(false);
   };
@@ -83,10 +132,24 @@ const AdminFacultyPage = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (!db) {
+      toast({
+        title: "Firebase not configured",
+        description: "Unable to delete while Firestore is not available.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!confirm("Delete this faculty member?")) return;
-    const { error } = await supabase.from("faculty_members").delete().eq("id", id);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Deleted" }); fetchMembers(); }
+    try {
+      await deleteDoc(doc(db, "faculty", id));
+      toast({ title: "Deleted" });
+      await fetchMembers();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to delete faculty member.";
+      toast({ title: "Error", description: message, variant: "destructive" });
+    }
   };
 
   return (

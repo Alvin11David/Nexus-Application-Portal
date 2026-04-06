@@ -85,7 +85,10 @@ const ScholarshipsPage = () => {
   const dynamicStats = [
     {
       label: "Total Scholarships",
-      value: totalAmount > 0 ? `$${Math.round(totalAmount).toLocaleString()}` : "$18M+",
+      value:
+        totalAmount > 0
+          ? `$${Math.round(totalAmount).toLocaleString()}`
+          : "$18M+",
       desc: "Recorded in database",
     },
     {

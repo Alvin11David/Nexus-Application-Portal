@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { collection, getCountFromServer } from "firebase/firestore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { db } from "@/integrations/firebase/config";
 import { Newspaper, Users, BookOpen, Layout } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -8,17 +9,23 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const fetchCounts = async () => {
+      if (!db) {
+        setCounts({ news: 0, faculty: 0, courses: 0, pages: 0 });
+        return;
+      }
+
       const [news, faculty, courses, pages] = await Promise.all([
-        supabase.from("news_articles").select("id", { count: "exact", head: true }),
-        supabase.from("faculty_members").select("id", { count: "exact", head: true }),
-        supabase.from("courses").select("id", { count: "exact", head: true }),
-        supabase.from("page_content").select("id", { count: "exact", head: true }),
+        getCountFromServer(collection(db, "news")),
+        getCountFromServer(collection(db, "faculty")),
+        getCountFromServer(collection(db, "courses")),
+        getCountFromServer(collection(db, "page_content")),
       ]);
+
       setCounts({
-        news: news.count ?? 0,
-        faculty: faculty.count ?? 0,
-        courses: courses.count ?? 0,
-        pages: pages.count ?? 0,
+        news: news.data().count,
+        faculty: faculty.data().count,
+        courses: courses.data().count,
+        pages: pages.data().count,
       });
     };
     fetchCounts();

@@ -72,39 +72,44 @@ const CoursesListingsPage = () => {
   const imageRef = useRef<HTMLImageElement>(null);
   const heroTextRef = useRef<HTMLDivElement>(null);
   const collegesRef = useRef<HTMLDivElement>(null);
-  const { data: courseDocs } = useFirestoreCollection<CourseDoc>("courses", [], {
-    orderBy: { field: "college", direction: "asc" },
-  });
+  const { data: courseDocs } = useFirestoreCollection<CourseDoc>(
+    "courses",
+    [],
+    {
+      orderBy: { field: "college", direction: "asc" },
+    },
+  );
 
   const collegesData: CollegeCard[] =
     courseDocs.length > 0
       ? Object.values(
-          courseDocs.reduce<Record<string, CollegeCard & { levels: Set<string> }>>(
-            (acc, course) => {
-              const key = (course.college || "General Studies").trim();
-              if (!acc[key]) {
-                acc[key] = {
-                  name: key,
-                  programs: 0,
-                  focus: "Program pathways and career-ready learning tracks.",
-                  levels: new Set<string>(),
-                };
-              }
+          courseDocs.reduce<
+            Record<string, CollegeCard & { levels: Set<string> }>
+          >((acc, course) => {
+            const key = (course.college || "General Studies").trim();
+            if (!acc[key]) {
+              acc[key] = {
+                name: key,
+                programs: 0,
+                focus: "Program pathways and career-ready learning tracks.",
+                levels: new Set<string>(),
+              };
+            }
 
-              acc[key].programs += 1;
-              if (course.level) {
-                acc[key].levels.add(course.level);
-              }
+            acc[key].programs += 1;
+            if (course.level) {
+              acc[key].levels.add(course.level);
+            }
 
-              const levelSummary = Array.from(acc[key].levels).slice(0, 3).join(", ");
-              if (levelSummary) {
-                acc[key].focus = levelSummary;
-              }
+            const levelSummary = Array.from(acc[key].levels)
+              .slice(0, 3)
+              .join(", ");
+            if (levelSummary) {
+              acc[key].focus = levelSummary;
+            }
 
-              return acc;
-            },
-            {},
-          ),
+            return acc;
+          }, {}),
         ).map(({ levels: _levels, ...college }) => college)
       : colleges;
 

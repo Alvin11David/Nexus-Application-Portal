@@ -29,15 +29,16 @@ type ResearchOpportunityDoc = {
 };
 
 const ResearchOpportunitiesPage = () => {
-  const { data: opportunities } = useFirestoreCollection<ResearchOpportunityDoc>(
-    "research_opportunities",
-    opportunityTracks.map((track) => ({
-      id: track.title,
-      title: track.title,
-      description: track.description,
-    })),
-    { orderBy: { field: "published_date", direction: "desc" }, limit: 6 },
-  );
+  const { data: opportunities } =
+    useFirestoreCollection<ResearchOpportunityDoc>(
+      "research_opportunities",
+      opportunityTracks.map((track) => ({
+        id: track.title,
+        title: track.title,
+        description: track.description,
+      })),
+      { orderBy: { field: "published_date", direction: "desc" }, limit: 6 },
+    );
 
   return (
     <div className="min-h-screen bg-background">

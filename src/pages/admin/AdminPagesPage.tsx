@@ -1,5 +1,15 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +18,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
+import { db } from "@/integrations/firebase/config";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
 interface PageContent {
@@ -31,13 +42,41 @@ const AdminPagesPage = () => {
   const { toast } = useToast();
 
   const fetchPages = async () => {
-    const { data } = await supabase.from("page_content").select("*").order("page_key");
-    if (data) setPages(data);
+    if (!db) {
+      setPages([]);
+      return;
+    }
+
+    const pagesQuery = query(collection(db, "page_content"), orderBy("page_key", "asc"));
+    const snapshot = await getDocs(pagesQuery);
+    const mapped = snapshot.docs.map((pageDoc) => {
+      const data = pageDoc.data();
+      return {
+        id: pageDoc.id,
+        page_key: String(data.page_key ?? ""),
+        section_key: String(data.section_key ?? ""),
+        title: (data.title as string | null | undefined) ?? null,
+        subtitle: (data.subtitle as string | null | undefined) ?? null,
+        body: (data.body as string | null | undefined) ?? null,
+        image_url: (data.image_url as string | null | undefined) ?? null,
+      } as PageContent;
+    });
+
+    setPages(mapped);
   };
 
   useEffect(() => { fetchPages(); }, []);
 
   const handleSave = async () => {
+    if (!db) {
+      toast({
+        title: "Firebase not configured",
+        description: "Unable to save while Firestore is not available.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     const payload = {
       page_key: form.page_key,
@@ -46,24 +85,26 @@ const AdminPagesPage = () => {
       subtitle: form.subtitle || null,
       body: form.body || null,
       image_url: form.image_url || null,
-      updated_at: new Date().toISOString(),
+      updated_at: serverTimestamp(),
     };
 
-    let error;
-    if (editing) {
-      ({ error } = await supabase.from("page_content").update(payload).eq("id", editing));
-    } else {
-      ({ error } = await supabase.from("page_content").insert(payload));
-    }
-
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
+    try {
+      if (editing) {
+        await updateDoc(doc(db, "page_content", editing), payload);
+      } else {
+        await addDoc(collection(db, "page_content"), {
+          ...payload,
+          created_at: serverTimestamp(),
+        });
+      }
       toast({ title: editing ? "Updated" : "Created" });
       setDialogOpen(false);
       setEditing(null);
       setForm(emptyForm);
-      fetchPages();
+      await fetchPages();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to save page content.";
+      toast({ title: "Error", description: message, variant: "destructive" });
     }
     setLoading(false);
   };
@@ -79,10 +120,24 @@ const AdminPagesPage = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (!db) {
+      toast({
+        title: "Firebase not configured",
+        description: "Unable to delete while Firestore is not available.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!confirm("Delete this section?")) return;
-    const { error } = await supabase.from("page_content").delete().eq("id", id);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: "Deleted" }); fetchPages(); }
+    try {
+      await deleteDoc(doc(db, "page_content", id));
+      toast({ title: "Deleted" });
+      await fetchPages();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to delete page content.";
+      toast({ title: "Error", description: message, variant: "destructive" });
+    }
   };
 
   return (
