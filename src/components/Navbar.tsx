@@ -95,14 +95,22 @@ const Navbar = () => {
               />
             </button>
           ))}
-          {/* Donate CTA */}
-          <button
-            onClick={() => navigate("/donate")}
-            className="flex items-center gap-2 px-5 py-2.5 bg-accent text-accent-foreground font-body text-xs tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:bg-accent/90 hover:scale-105"
-          >
-            <Heart size={12} className="fill-current" />
-            Donate
-          </button>
+          {/* CTA Buttons */}
+          <div className="flex items-center gap-3 pl-4 border-l border-accent/20">
+            <button
+              onClick={() => navigate("/admissions/how-to-apply")}
+              className="px-5 py-2.5 bg-accent text-accent-foreground font-body text-xs tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:bg-accent/90 hover:scale-105"
+            >
+              Apply Now
+            </button>
+            <button
+              onClick={() => navigate("/donate")}
+              className="flex items-center gap-2 px-5 py-2.5 bg-foreground/10 text-foreground font-body text-xs tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:bg-foreground/20 hover:scale-105"
+            >
+              <Heart size={12} className="fill-current" />
+              Donate
+            </button>
+          </div>
         </div>
 
         {/* Mobile Toggle */}
@@ -147,8 +155,14 @@ const Navbar = () => {
               </button>
             ))}
             <button
+              onClick={() => handleNavClick("/admissions/how-to-apply")}
+              className="px-8 py-4 bg-accent text-accent-foreground font-body text-sm tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:bg-accent/90 mt-6"
+            >
+              Apply Now
+            </button>
+            <button
               onClick={() => handleNavClick("/donate")}
-              className="flex items-center gap-2 px-8 py-4 bg-accent text-accent-foreground font-body text-sm tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:bg-accent/90 mt-4"
+              className="flex items-center gap-2 px-8 py-4 bg-foreground/10 text-foreground font-body text-sm tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:bg-foreground/20 mt-4"
             >
               <Heart size={16} className="fill-current" />
               Donate Now

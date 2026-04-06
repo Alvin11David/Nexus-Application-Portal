@@ -23,7 +23,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 type Category = string;
 
-interface GalleryItem {
+interface GalleryItem extends Record<string, unknown> {
   id: string;
   src: string;
   alt: string;
