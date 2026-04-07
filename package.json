@@ -9,6 +9,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
+    "hosting:build": "npm run build",
+    "hosting:deploy": "npm run build && npx firebase-tools deploy --only hosting",
     "test": "vitest run",
     "test:watch": "vitest"
   },

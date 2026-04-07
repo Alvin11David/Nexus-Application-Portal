@@ -265,8 +265,8 @@ const oLevelSubjectOptions = [
   "Christian Religious Education",
   "Islamic Religious Education",
   "Fine Art",
-  "Agriculture",
   "Commerce",
+  "Agriculture",
   "Entrepreneurship",
   "Computer Studies",
   "Literature in English",
@@ -278,6 +278,22 @@ const oLevelSubjectOptions = [
 const uaceGradeOptions = ["A", "B", "C", "D", "E"];
 
 const oLevelGradeOptions = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
+const uacePrincipalGradeToPoints: Record<string, number> = {
+  A: 6,
+  B: 5,
+  C: 4,
+  D: 3,
+  E: 2,
+};
+
+const uaceSubsidiaryGradeToPoints: Record<string, number> = {
+  A: 1,
+  B: 1,
+  C: 1,
+  D: 1,
+  E: 1,
+};
 
 const certificateGradeOptions = [
   "A",
@@ -965,6 +981,78 @@ const ApplicationStartPage = () => {
     }
   }, [activeStep]);
 
+  useEffect(() => {
+    const principalPoints = formData.uacePrincipalSubjects
+      .map((entry) => uacePrincipalGradeToPoints[entry.grade.trim()] ?? 0)
+      .reduce((sum, points) => sum + points, 0);
+
+    const gpPoints =
+      uaceSubsidiaryGradeToPoints[formData.uaceGeneralPaperGrade.trim()] ?? 0;
+    const ictOrSubMathPoints =
+      uaceSubsidiaryGradeToPoints[formData.uaceIctOrSubMathGrade.trim()] ?? 0;
+
+    const hasAnyUaceGrade =
+      formData.uacePrincipalSubjects.some((entry) => entry.grade.trim()) ||
+      Boolean(formData.uaceGeneralPaperGrade.trim()) ||
+      Boolean(formData.uaceIctOrSubMathGrade.trim());
+
+    const calculatedTotal = hasAnyUaceGrade
+      ? String(Math.min(20, principalPoints + gpPoints + ictOrSubMathPoints))
+      : "";
+
+    setFormData((prev) =>
+      prev.uaceTotalPoints === calculatedTotal
+        ? prev
+        : { ...prev, uaceTotalPoints: calculatedTotal },
+    );
+  }, [
+    formData.uaceGeneralPaperGrade,
+    formData.uaceIctOrSubMathGrade,
+    formData.uacePrincipalSubjects,
+  ]);
+
+  useEffect(() => {
+    const numericGrades = formData.oLevelSubjects
+      .map((entry) => Number(entry.grade.trim()))
+      .filter((grade) => Number.isInteger(grade) && grade >= 1 && grade <= 9)
+      .sort((a, b) => a - b);
+
+    if (!numericGrades.length) {
+      setFormData((prev) =>
+        prev.uceTotalAggregates === "" && prev.uceDivision === ""
+          ? prev
+          : { ...prev, uceTotalAggregates: "", uceDivision: "" },
+      );
+      return;
+    }
+
+    const gradesForAggregate =
+      numericGrades.length >= 8 ? numericGrades.slice(0, 8) : numericGrades;
+    const aggregate = gradesForAggregate.reduce((sum, grade) => sum + grade, 0);
+
+    const derivedDivision: "1" | "2" | "3" | "4" | "U" =
+      aggregate <= 32
+        ? "1"
+        : aggregate <= 45
+          ? "2"
+          : aggregate <= 57
+            ? "3"
+            : aggregate <= 69
+              ? "4"
+              : "U";
+
+    setFormData((prev) =>
+      prev.uceTotalAggregates === String(aggregate) &&
+      prev.uceDivision === derivedDivision
+        ? prev
+        : {
+            ...prev,
+            uceTotalAggregates: String(aggregate),
+            uceDivision: derivedDivision,
+          },
+    );
+  }, [formData.oLevelSubjects]);
+
   const updateSubjectGradeList = (
     key: "uacePrincipalSubjects" | "oLevelSubjects" | "certificateSubjects",
     index: number,
@@ -1245,14 +1333,16 @@ const ApplicationStartPage = () => {
         }
 
         if (!formData.uaceTotalPoints.trim()) {
-          nextErrors.uaceTotalPoints = "UACE total points are required.";
+          nextErrors.uaceTotalPoints =
+            "Enter UACE grades to auto-calculate total points.";
         } else if (!/^\d+$/.test(formData.uaceTotalPoints.trim())) {
           nextErrors.uaceTotalPoints =
             "UACE total points must be a numeric value.";
         }
 
         if (!formData.uceTotalAggregates.trim()) {
-          nextErrors.uceTotalAggregates = "UCE total aggregates are required.";
+          nextErrors.uceTotalAggregates =
+            "Enter O-Level grades to auto-calculate total aggregates.";
         } else if (!/^\d+$/.test(formData.uceTotalAggregates.trim())) {
           nextErrors.uceTotalAggregates =
             "UCE total aggregates must be a numeric value.";
@@ -2696,30 +2786,6 @@ const ApplicationStartPage = () => {
                                     </div>
                                   </div>
                                 ) : null}
-
-                                <div>
-                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                    UACE Total Points *
-                                  </label>
-                                  <input
-                                    value={formData.uaceTotalPoints}
-                                    onChange={(e) =>
-                                      updateField(
-                                        "uaceTotalPoints",
-                                        e.target.value.replace(/\D/g, ""),
-                                      )
-                                    }
-                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                    type="text"
-                                    inputMode="numeric"
-                                    placeholder="e.g. 18"
-                                  />
-                                  {errors.uaceTotalPoints && (
-                                    <p className="text-xs text-destructive mt-2">
-                                      {errors.uaceTotalPoints}
-                                    </p>
-                                  )}
-                                </div>
                               </div>
 
                               <div className="space-y-4 border border-border rounded-[12px] p-4 bg-background/50">
@@ -2846,65 +2912,6 @@ const ApplicationStartPage = () => {
                                     </div>
                                   </div>
                                 ) : null}
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                  <div>
-                                    <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                      UCE Total Aggregates *
-                                    </label>
-                                    <input
-                                      value={formData.uceTotalAggregates}
-                                      onChange={(e) =>
-                                        updateField(
-                                          "uceTotalAggregates",
-                                          e.target.value.replace(/\D/g, ""),
-                                        )
-                                      }
-                                      className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                      type="text"
-                                      inputMode="numeric"
-                                      placeholder="e.g. 12"
-                                    />
-                                    {errors.uceTotalAggregates && (
-                                      <p className="text-xs text-destructive mt-2">
-                                        {errors.uceTotalAggregates}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <div>
-                                    <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                                      UCE Division *
-                                    </label>
-                                    <select
-                                      value={formData.uceDivision}
-                                      onChange={(e) =>
-                                        updateField(
-                                          "uceDivision",
-                                          e.target.value as
-                                            | ""
-                                            | "1"
-                                            | "2"
-                                            | "3"
-                                            | "4"
-                                            | "U",
-                                        )
-                                      }
-                                      className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                                    >
-                                      <option value="">Select division</option>
-                                      <option value="1">Division One</option>
-                                      <option value="2">Division Two</option>
-                                      <option value="3">Division Three</option>
-                                      <option value="4">Division Four</option>
-                                      <option value="U">Division U</option>
-                                    </select>
-                                    {errors.uceDivision && (
-                                      <p className="text-xs text-destructive mt-2">
-                                        {errors.uceDivision}
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
                               </div>
                             </div>
                           ) : null}
@@ -3251,6 +3258,29 @@ const ApplicationStartPage = () => {
                                 </div>
                               </div>
 
+                              <div>
+                                <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                  UACE Total Points *
+                                </label>
+                                <input
+                                  value={formData.uaceTotalPoints}
+                                  className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-secondary/10 font-body text-sm"
+                                  type="text"
+                                  inputMode="numeric"
+                                  placeholder="Auto-calculated from UACE grades"
+                                  readOnly
+                                />
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  Calculated out of 20 from principal and
+                                  subsidiary grades.
+                                </p>
+                                {errors.uaceTotalPoints && (
+                                  <p className="text-xs text-destructive mt-2">
+                                    {errors.uaceTotalPoints}
+                                  </p>
+                                )}
+                              </div>
+
                               <div className="space-y-3">
                                 <p className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
                                   O-Level Subjects And Grades
@@ -3325,6 +3355,51 @@ const ApplicationStartPage = () => {
                                     {errors.oLevelSubjects}
                                   </p>
                                 )}
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                    UCE Total Aggregates *
+                                  </label>
+                                  <input
+                                    value={formData.uceTotalAggregates}
+                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-secondary/10 font-body text-sm"
+                                    type="text"
+                                    inputMode="numeric"
+                                    placeholder="Auto-calculated from O-Level grades"
+                                    readOnly
+                                  />
+                                  <p className="text-xs text-muted-foreground mt-2">
+                                    Derived from best O-Level grades using the
+                                    UCE aggregate system.
+                                  </p>
+                                  {errors.uceTotalAggregates && (
+                                    <p className="text-xs text-destructive mt-2">
+                                      {errors.uceTotalAggregates}
+                                    </p>
+                                  )}
+                                </div>
+                                <div>
+                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                    UCE Division *
+                                  </label>
+                                  <input
+                                    value={formData.uceDivision}
+                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-secondary/10 font-body text-sm"
+                                    type="text"
+                                    placeholder="Auto-calculated"
+                                    readOnly
+                                  />
+                                  <p className="text-xs text-muted-foreground mt-2">
+                                    Automatically assigned as 1, 2, 3, 4, or U.
+                                  </p>
+                                  {errors.uceDivision && (
+                                    <p className="text-xs text-destructive mt-2">
+                                      {errors.uceDivision}
+                                    </p>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           ) : null}
@@ -3564,10 +3639,6 @@ const ApplicationStartPage = () => {
                               ))}
                             </div>
                           </div>
-                          <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
-                            Files upload directly to Firebase Storage. Image
-                            files show a preview after upload.
-                          </p>
                         </div>
 
                         <div

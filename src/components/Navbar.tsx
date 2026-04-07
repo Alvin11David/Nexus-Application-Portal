@@ -25,6 +25,10 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const forceSolidNavbar = location.pathname.startsWith(
+    "/admissions/application/start",
+  );
+  const solidNavbar = scrolled || mobileOpen || forceSolidNavbar;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
@@ -56,7 +60,7 @@ const Navbar = () => {
     <nav
       ref={navRef}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 opacity-0 ${
-        scrolled || mobileOpen
+        solidNavbar
           ? "bg-background/95 backdrop-blur-md shadow-[0_1px_0_hsl(var(--border))]"
           : "bg-transparent"
       }`}
@@ -66,9 +70,7 @@ const Navbar = () => {
         <button
           onClick={() => navigate("/")}
           className={`font-heading text-xl md:text-2xl font-light tracking-[0.3em] uppercase transition-colors duration-700 ${
-            scrolled || mobileOpen
-              ? "text-foreground"
-              : "text-primary-foreground"
+            solidNavbar ? "text-foreground" : "text-primary-foreground"
           }`}
         >
           Veritas Institute
@@ -81,7 +83,7 @@ const Navbar = () => {
               key={item.label}
               onClick={() => handleNavClick(item.href)}
               className={`font-body text-xs tracking-[0.2em] uppercase transition-all duration-500 relative group ${
-                scrolled
+                solidNavbar
                   ? "text-muted-foreground hover:text-foreground"
                   : "text-primary-foreground/70 hover:text-primary-foreground"
               } ${isActive(item.href) ? "!text-accent" : ""}`}
@@ -107,7 +109,7 @@ const Navbar = () => {
             <button
               onClick={() => navigate("/donate")}
               className={`flex items-center gap-2 px-5 py-2.5 font-body text-xs tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:scale-105 ${
-                scrolled
+                solidNavbar
                   ? "bg-foreground/10 text-foreground hover:bg-foreground/20"
                   : "bg-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/30"
               }`}
@@ -122,9 +124,7 @@ const Navbar = () => {
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
           className={`md:hidden relative z-10 transition-colors duration-500 ${
-            scrolled || mobileOpen
-              ? "text-foreground"
-              : "text-primary-foreground"
+            solidNavbar ? "text-foreground" : "text-primary-foreground"
           }`}
           aria-label="Toggle menu"
         >
