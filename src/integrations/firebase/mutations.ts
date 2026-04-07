@@ -29,6 +29,7 @@ export type ApplicationSubmissionInput = {
   postalCode: string;
   country: string;
   districtOfOrigin: string;
+  hasNationalIdOrPassport: "yes" | "no";
   birthCertificateOrNationalIdDetails: string;
   passportPhotoUploaded: boolean;
   passportPhotoUrl: string;
@@ -128,6 +129,7 @@ export const submitApplicationSubmission = async (
     postal_code: payload.postalCode,
     country: payload.country,
     district_of_origin: payload.districtOfOrigin,
+    has_national_id_or_passport: payload.hasNationalIdOrPassport === "yes",
     birth_certificate_or_national_id_details:
       payload.birthCertificateOrNationalIdDetails,
     passport_photo_uploaded: payload.passportPhotoUploaded,

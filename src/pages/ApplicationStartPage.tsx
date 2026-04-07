@@ -72,6 +72,7 @@ type ApplicationStartData = {
   postalCode: string;
   country: string;
   districtOfOrigin: string;
+  hasNationalIdOrPassport: "" | "yes" | "no";
   birthCertificateOrNationalIdDetails: string;
   passportPhotoUploaded: boolean;
   passportPhotoUrl: string;
@@ -621,6 +622,7 @@ const initialFormData: ApplicationStartData = {
   postalCode: "",
   country: "",
   districtOfOrigin: "",
+  hasNationalIdOrPassport: "",
   birthCertificateOrNationalIdDetails: "",
   passportPhotoUploaded: false,
   passportPhotoUrl: "",
@@ -1143,9 +1145,16 @@ const ApplicationStartPage = () => {
         nextErrors.districtOfOrigin =
           "District of origin is required for Ugandan applicants.";
       }
-      if (!formData.birthCertificateOrNationalIdDetails.trim()) {
+      if (!formData.hasNationalIdOrPassport) {
+        nextErrors.hasNationalIdOrPassport =
+          "Please specify whether you have a National ID or Passport.";
+      }
+      if (
+        formData.hasNationalIdOrPassport === "yes" &&
+        !formData.birthCertificateOrNationalIdDetails.trim()
+      ) {
         nextErrors.birthCertificateOrNationalIdDetails =
-          "Birth certificate or National ID details are required.";
+          "NIN is required when you have a National ID or Passport.";
       }
       if (!formData.guardianName.trim())
         nextErrors.guardianName = "Guardian name is required.";
@@ -1362,7 +1371,10 @@ const ApplicationStartPage = () => {
         nextErrors.academicTranscriptUrl =
           "Academic transcript upload is required for diploma or degree entry.";
       }
-      if (!formData.nationalIdOrPassportUrl.trim()) {
+      if (
+        formData.hasNationalIdOrPassport === "yes" &&
+        !formData.nationalIdOrPassportUrl.trim()
+      ) {
         nextErrors.nationalIdOrPassportUrl =
           "Upload your National ID or Passport.";
       }
@@ -1473,7 +1485,8 @@ const ApplicationStartPage = () => {
         formData.passportPhotoUrl.trim() &&
         formData.birthCertificateUrl.trim() &&
         formData.oLevelResultSlipUrl.trim() &&
-        formData.nationalIdOrPassportUrl.trim() &&
+        (formData.hasNationalIdOrPassport !== "yes" ||
+          formData.nationalIdOrPassportUrl.trim()) &&
         (!needsALevelSlip || formData.aLevelResultSlipUrl.trim()) &&
         (!needsTranscript || formData.academicTranscriptUrl.trim()) &&
         (formData.isUgandan !== "no" || formData.countryIdDocumentUrl.trim()),
@@ -1495,8 +1508,12 @@ const ApplicationStartPage = () => {
         postalCode: formData.postalCode.trim(),
         country: formData.country.trim(),
         districtOfOrigin: formData.districtOfOrigin.trim(),
+        hasNationalIdOrPassport:
+          formData.hasNationalIdOrPassport === "yes" ? "yes" : "no",
         birthCertificateOrNationalIdDetails:
-          formData.birthCertificateOrNationalIdDetails.trim(),
+          formData.hasNationalIdOrPassport === "yes"
+            ? formData.birthCertificateOrNationalIdDetails.trim()
+            : "",
         passportPhotoUploaded: Boolean(formData.passportPhotoUrl.trim()),
         passportPhotoUrl: formData.passportPhotoUrl.trim(),
         guardianName: formData.guardianName.trim(),
@@ -1543,7 +1560,10 @@ const ApplicationStartPage = () => {
         howDidYouHear: formData.howDidYouHear,
         documentsConfirmed: documentsReady,
         transcriptUploaded: Boolean(formData.academicTranscriptUrl.trim()),
-        idUploaded: Boolean(formData.nationalIdOrPassportUrl.trim()),
+        idUploaded:
+          formData.hasNationalIdOrPassport === "yes"
+            ? Boolean(formData.nationalIdOrPassportUrl.trim())
+            : false,
         countryIdUploaded: Boolean(formData.countryIdDocumentUrl.trim()),
         recommendationUploaded: Boolean(formData.refereeLetterUrl.trim()),
         statementUploaded: Boolean(
@@ -2158,26 +2178,58 @@ const ApplicationStartPage = () => {
 
                         <div>
                           <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            Birth Certificate / National ID Details
+                            Do You Have a National ID or Passport?
                           </label>
-                          <input
-                            value={formData.birthCertificateOrNationalIdDetails}
-                            onChange={(e) =>
-                              updateField(
-                                "birthCertificateOrNationalIdDetails",
-                                e.target.value,
-                              )
-                            }
+                          <select
+                            value={formData.hasNationalIdOrPassport}
+                            onChange={(e) => {
+                              const value = e.target.value as "" | "yes" | "no";
+                              updateField("hasNationalIdOrPassport", value);
+                              if (value === "no") {
+                                updateField(
+                                  "birthCertificateOrNationalIdDetails",
+                                  "",
+                                );
+                                updateField("nationalIdOrPassportUrl", "");
+                              }
+                            }}
                             className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
-                            type="text"
-                            placeholder="Document number or reference details"
-                          />
-                          {errors.birthCertificateOrNationalIdDetails && (
+                          >
+                            <option value="">Select an option</option>
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                          </select>
+                          {errors.hasNationalIdOrPassport && (
                             <p className="text-xs text-destructive mt-2">
-                              {errors.birthCertificateOrNationalIdDetails}
+                              {errors.hasNationalIdOrPassport}
                             </p>
                           )}
                         </div>
+
+                        {formData.hasNationalIdOrPassport === "yes" ? (
+                          <div>
+                            <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                              NIN
+                            </label>
+                            <input
+                              value={formData.birthCertificateOrNationalIdDetails}
+                              onChange={(e) =>
+                                updateField(
+                                  "birthCertificateOrNationalIdDetails",
+                                  e.target.value,
+                                )
+                              }
+                              className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                              type="text"
+                              placeholder="Enter National Identification Number"
+                            />
+                            {errors.birthCertificateOrNationalIdDetails && (
+                              <p className="text-xs text-destructive mt-2">
+                                {errors.birthCertificateOrNationalIdDetails}
+                              </p>
+                            )}
+                          </div>
+                        ) : null}
 
                         <p className="text-xs text-muted-foreground leading-relaxed">
                           Upload your passport-size photograph in the document
@@ -3392,7 +3444,13 @@ const ApplicationStartPage = () => {
                             documentSubStep === 1 ? "space-y-4" : "hidden"
                           }
                         >
-                          {documentUploadSteps[1].map(renderUploadCard)}
+                          {documentUploadSteps[1]
+                            .filter((config) =>
+                              config.field === "nationalIdOrPassportUrl"
+                                ? formData.hasNationalIdOrPassport === "yes"
+                                : true,
+                            )
+                            .map(renderUploadCard)}
                         </div>
 
                         <div
