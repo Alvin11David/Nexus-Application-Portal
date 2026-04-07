@@ -1155,6 +1155,14 @@ const ApplicationStartPage = () => {
       ) {
         nextErrors.birthCertificateOrNationalIdDetails =
           "NIN is required when you have a National ID or Passport.";
+      } else if (
+        formData.hasNationalIdOrPassport === "yes" &&
+        !/^[A-Za-z0-9]{14}$/.test(
+          formData.birthCertificateOrNationalIdDetails.trim(),
+        )
+      ) {
+        nextErrors.birthCertificateOrNationalIdDetails =
+          "NIN must be exactly 14 alphanumeric characters.";
       }
       if (!formData.guardianName.trim())
         nextErrors.guardianName = "Guardian name is required.";
@@ -2212,17 +2220,27 @@ const ApplicationStartPage = () => {
                               NIN
                             </label>
                             <input
-                              value={formData.birthCertificateOrNationalIdDetails}
+                              value={
+                                formData.birthCertificateOrNationalIdDetails
+                              }
                               onChange={(e) =>
                                 updateField(
                                   "birthCertificateOrNationalIdDetails",
-                                  e.target.value,
+                                  e.target.value
+                                    .replace(/[^a-zA-Z0-9]/g, "")
+                                    .toUpperCase()
+                                    .slice(0, 14),
                                 )
                               }
                               className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
                               type="text"
                               placeholder="Enter National Identification Number"
+                              maxLength={14}
                             />
+                            <p className="text-xs text-muted-foreground mt-2">
+                              NIN must be 14 letters/numbers (no spaces or
+                              symbols).
+                            </p>
                             {errors.birthCertificateOrNationalIdDetails && (
                               <p className="text-xs text-destructive mt-2">
                                 {errors.birthCertificateOrNationalIdDetails}
