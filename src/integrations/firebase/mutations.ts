@@ -52,12 +52,15 @@ export type ApplicationSubmissionInput = {
   uceSecondSitting: boolean;
   uceSecondIndexNumber: string;
   uceSecondYearOfSitting: string;
+  uceTotalAggregates: string;
+  uceDivision: "" | "1" | "2" | "3" | "4" | "U";
   oLevelSchoolName: string;
   uaceIndexNumber: string;
   uaceYearOfSitting: string;
   uaceSecondSitting: boolean;
   uaceSecondIndexNumber: string;
   uaceSecondYearOfSitting: string;
+  uaceTotalPoints: string;
   uacePrincipalSubjects: SubjectGradeEntry[];
   uaceGeneralPaperGrade: string;
   uaceIctOrSubMathSubject: string;
@@ -153,12 +156,15 @@ export const submitApplicationSubmission = async (
     uce_second_sitting: payload.uceSecondSitting,
     uce_second_index_number: payload.uceSecondIndexNumber,
     uce_second_year_of_sitting: payload.uceSecondYearOfSitting,
+    uce_total_aggregates: payload.uceTotalAggregates,
+    uce_division: payload.uceDivision,
     o_level_school_name: payload.oLevelSchoolName,
     uace_index_number: payload.uaceIndexNumber,
     uace_year_of_sitting: payload.uaceYearOfSitting,
     uace_second_sitting: payload.uaceSecondSitting,
     uace_second_index_number: payload.uaceSecondIndexNumber,
     uace_second_year_of_sitting: payload.uaceSecondYearOfSitting,
+    uace_total_points: payload.uaceTotalPoints,
     uace_principal_subjects: payload.uacePrincipalSubjects,
     uace_general_paper_grade: payload.uaceGeneralPaperGrade,
     uace_ict_or_sub_math_subject: payload.uaceIctOrSubMathSubject,

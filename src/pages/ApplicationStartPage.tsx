@@ -95,12 +95,15 @@ type ApplicationStartData = {
   uceSecondSitting: boolean;
   uceSecondIndexNumber: string;
   uceSecondYearOfSitting: string;
+  uceTotalAggregates: string;
+  uceDivision: "" | "1" | "2" | "3" | "4" | "U";
   oLevelSchoolName: string;
   uaceIndexNumber: string;
   uaceYearOfSitting: string;
   uaceSecondSitting: boolean;
   uaceSecondIndexNumber: string;
   uaceSecondYearOfSitting: string;
+  uaceTotalPoints: string;
   uacePrincipalSubjects: { subject: string; grade: string }[];
   uaceGeneralPaperGrade: string;
   uaceIctOrSubMathSubject: string;
@@ -187,7 +190,6 @@ const applicationTypeOptions = [
 ];
 
 const entrySchemeOptions = [
-  "Government Sponsorship",
   "Private Sponsorship",
   "International Applicants Scheme",
   "Mature Age Entry Scheme",
@@ -645,12 +647,15 @@ const initialFormData: ApplicationStartData = {
   uceSecondSitting: false,
   uceSecondIndexNumber: "",
   uceSecondYearOfSitting: "",
+  uceTotalAggregates: "",
+  uceDivision: "",
   oLevelSchoolName: "",
   uaceIndexNumber: "",
   uaceYearOfSitting: "",
   uaceSecondSitting: false,
   uaceSecondIndexNumber: "",
   uaceSecondYearOfSitting: "",
+  uaceTotalPoints: "",
   uacePrincipalSubjects: [
     { subject: "", grade: "" },
     { subject: "", grade: "" },
@@ -1136,9 +1141,6 @@ const ApplicationStartPage = () => {
       if (!formData.nationality.trim())
         nextErrors.nationality = "Nationality is required.";
       if (!formData.address.trim()) nextErrors.address = "Address is required.";
-      if (!formData.postalAddress.trim()) {
-        nextErrors.postalAddress = "Postal address is required.";
-      }
       if (!formData.city.trim()) nextErrors.city = "City is required.";
       if (!formData.country.trim()) nextErrors.country = "Country is required.";
       if (formData.isUgandan === "yes" && !formData.districtOfOrigin.trim()) {
@@ -1240,6 +1242,25 @@ const ApplicationStartPage = () => {
             nextErrors.uaceSecondYearOfSitting =
               "Second sitting UACE year is required.";
           }
+        }
+
+        if (!formData.uaceTotalPoints.trim()) {
+          nextErrors.uaceTotalPoints = "UACE total points are required.";
+        } else if (!/^\d+$/.test(formData.uaceTotalPoints.trim())) {
+          nextErrors.uaceTotalPoints =
+            "UACE total points must be a numeric value.";
+        }
+
+        if (!formData.uceTotalAggregates.trim()) {
+          nextErrors.uceTotalAggregates = "UCE total aggregates are required.";
+        } else if (!/^\d+$/.test(formData.uceTotalAggregates.trim())) {
+          nextErrors.uceTotalAggregates =
+            "UCE total aggregates must be a numeric value.";
+        }
+
+        if (!formData.uceDivision) {
+          nextErrors.uceDivision =
+            "Please select UCE division (1, 2, 3, 4, or U).";
         }
       }
 
@@ -1543,12 +1564,15 @@ const ApplicationStartPage = () => {
         uceSecondSitting: formData.uceSecondSitting,
         uceSecondIndexNumber: formData.uceSecondIndexNumber.trim(),
         uceSecondYearOfSitting: formData.uceSecondYearOfSitting.trim(),
+        uceTotalAggregates: formData.uceTotalAggregates.trim(),
+        uceDivision: formData.uceDivision,
         oLevelSchoolName: formData.oLevelSchoolName.trim(),
         uaceIndexNumber: formData.uaceIndexNumber.trim(),
         uaceYearOfSitting: formData.uaceYearOfSitting.trim(),
         uaceSecondSitting: formData.uaceSecondSitting,
         uaceSecondIndexNumber: formData.uaceSecondIndexNumber.trim(),
         uaceSecondYearOfSitting: formData.uaceSecondYearOfSitting.trim(),
+        uaceTotalPoints: formData.uaceTotalPoints.trim(),
         uacePrincipalSubjects: formData.uacePrincipalSubjects,
         uaceGeneralPaperGrade: formData.uaceGeneralPaperGrade,
         uaceIctOrSubMathSubject: formData.uaceIctOrSubMathSubject,
@@ -1829,7 +1853,7 @@ const ApplicationStartPage = () => {
                       <>
                         <div>
                           <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            Email
+                            Email *
                           </label>
                           <input
                             value={formData.email}
@@ -1855,7 +1879,7 @@ const ApplicationStartPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Other Names
+                              Other Names *
                             </label>
                             <input
                               value={formData.otherNames}
@@ -1874,7 +1898,7 @@ const ApplicationStartPage = () => {
                           </div>
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Gender
+                              Gender *
                             </label>
                             <select
                               value={formData.gender}
@@ -1903,7 +1927,7 @@ const ApplicationStartPage = () => {
                           </div>
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Date of Birth
+                              Date of Birth *
                             </label>
                             <input
                               value={formData.dateOfBirth}
@@ -1921,7 +1945,7 @@ const ApplicationStartPage = () => {
                           </div>
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Marital Status
+                              Marital Status *
                             </label>
                             <select
                               value={formData.maritalStatus}
@@ -1948,7 +1972,7 @@ const ApplicationStartPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Password
+                              Password *
                             </label>
                             <input
                               value={formData.password}
@@ -1967,7 +1991,7 @@ const ApplicationStartPage = () => {
                           </div>
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Confirm Password
+                              Confirm Password *
                             </label>
                             <input
                               value={formData.confirmPassword}
@@ -2051,7 +2075,7 @@ const ApplicationStartPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              First Name
+                              First Name *
                             </label>
                             <input
                               value={formData.firstName}
@@ -2069,7 +2093,7 @@ const ApplicationStartPage = () => {
                           </div>
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Last Name
+                              Last Name *
                             </label>
                             <input
                               value={formData.lastName}
@@ -2090,7 +2114,7 @@ const ApplicationStartPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Phone Number
+                              Phone Number *
                             </label>
                             <input
                               value={formData.phone}
@@ -2108,7 +2132,7 @@ const ApplicationStartPage = () => {
                           </div>
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Nationality / Citizenship
+                              Nationality / Citizenship *
                             </label>
                             <input
                               value={formData.nationality}
@@ -2139,7 +2163,7 @@ const ApplicationStartPage = () => {
 
                         <div>
                           <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            Is the Applicant Ugandan?
+                            Is the Applicant Ugandan? *
                           </label>
                           <select
                             value={formData.isUgandan}
@@ -2165,7 +2189,7 @@ const ApplicationStartPage = () => {
                         {formData.isUgandan === "yes" ? (
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              District of Origin
+                              District of Origin *
                             </label>
                             <input
                               value={formData.districtOfOrigin}
@@ -2186,7 +2210,7 @@ const ApplicationStartPage = () => {
 
                         <div>
                           <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            Do You Have a National ID or Passport?
+                            Do You Have a National ID or Passport? *
                           </label>
                           <select
                             value={formData.hasNationalIdOrPassport}
@@ -2217,7 +2241,7 @@ const ApplicationStartPage = () => {
                         {formData.hasNationalIdOrPassport === "yes" ? (
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              NIN
+                              NIN *
                             </label>
                             <input
                               value={
@@ -2257,7 +2281,7 @@ const ApplicationStartPage = () => {
 
                         <div>
                           <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            Address
+                            Address *
                           </label>
                           <input
                             value={formData.address}
@@ -2276,7 +2300,7 @@ const ApplicationStartPage = () => {
 
                         <div>
                           <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            Postal Address
+                            Postal Address (Optional)
                           </label>
                           <input
                             value={formData.postalAddress}
@@ -2297,7 +2321,7 @@ const ApplicationStartPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              City
+                              City *
                             </label>
                             <input
                               value={formData.city}
@@ -2315,7 +2339,7 @@ const ApplicationStartPage = () => {
                           </div>
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Postal Code
+                              Postal Code (Optional)
                             </label>
                             <input
                               value={formData.postalCode}
@@ -2328,7 +2352,7 @@ const ApplicationStartPage = () => {
                           </div>
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Country
+                              Country *
                             </label>
                             <input
                               value={formData.country}
@@ -2349,7 +2373,7 @@ const ApplicationStartPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Parent/Guardian Name
+                              Parent/Guardian Name *
                             </label>
                             <input
                               value={formData.guardianName}
@@ -2367,7 +2391,7 @@ const ApplicationStartPage = () => {
                           </div>
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Parent/Guardian Type
+                              Parent/Guardian Type *
                             </label>
                             <select
                               value={formData.guardianType}
@@ -2402,7 +2426,7 @@ const ApplicationStartPage = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                              Guardian Phone
+                              Guardian Phone *
                             </label>
                             <input
                               value={formData.guardianPhone}
@@ -2422,7 +2446,7 @@ const ApplicationStartPage = () => {
 
                         <div>
                           <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                            Relationship to Next of Kin
+                            Relationship to Next of Kin *
                           </label>
                           <select
                             value={formData.nextOfKinRelationship}
@@ -2785,6 +2809,88 @@ const ApplicationStartPage = () => {
                                   </div>
                                 </div>
                               ) : null}
+
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                    UACE Total Points *
+                                  </label>
+                                  <input
+                                    value={formData.uaceTotalPoints}
+                                    onChange={(e) =>
+                                      updateField(
+                                        "uaceTotalPoints",
+                                        e.target.value.replace(/\D/g, ""),
+                                      )
+                                    }
+                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                    type="text"
+                                    inputMode="numeric"
+                                    placeholder="e.g. 18"
+                                  />
+                                  {errors.uaceTotalPoints && (
+                                    <p className="text-xs text-destructive mt-2">
+                                      {errors.uaceTotalPoints}
+                                    </p>
+                                  )}
+                                </div>
+                                <div>
+                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                    UCE Total Aggregates *
+                                  </label>
+                                  <input
+                                    value={formData.uceTotalAggregates}
+                                    onChange={(e) =>
+                                      updateField(
+                                        "uceTotalAggregates",
+                                        e.target.value.replace(/\D/g, ""),
+                                      )
+                                    }
+                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                    type="text"
+                                    inputMode="numeric"
+                                    placeholder="e.g. 12"
+                                  />
+                                  {errors.uceTotalAggregates && (
+                                    <p className="text-xs text-destructive mt-2">
+                                      {errors.uceTotalAggregates}
+                                    </p>
+                                  )}
+                                </div>
+                                <div>
+                                  <label className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                                    UCE Division *
+                                  </label>
+                                  <select
+                                    value={formData.uceDivision}
+                                    onChange={(e) =>
+                                      updateField(
+                                        "uceDivision",
+                                        e.target.value as
+                                          | ""
+                                          | "1"
+                                          | "2"
+                                          | "3"
+                                          | "4"
+                                          | "U",
+                                      )
+                                    }
+                                    className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
+                                  >
+                                    <option value="">Select division</option>
+                                    <option value="1">Division One</option>
+                                    <option value="2">Division Two</option>
+                                    <option value="3">Division Three</option>
+                                    <option value="4">Division Four</option>
+                                    <option value="U">Division U</option>
+                                  </select>
+                                  {errors.uceDivision && (
+                                    <p className="text-xs text-destructive mt-2">
+                                      {errors.uceDivision}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           ) : null}
 
