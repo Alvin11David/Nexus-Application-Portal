@@ -2104,12 +2104,12 @@ const ApplicationStartPage = () => {
                           <p className="font-body text-xs uppercase tracking-[0.2em] text-muted-foreground">
                             Email Verification (OTP)
                           </p>
-                          <div className="flex flex-wrap items-center gap-3">
+                          <div className="flex flex-wrap items-stretch gap-3">
                             <button
                               type="button"
                               onClick={handleSendOtp}
                               disabled={sendingOtp || otpVerified}
-                              className="px-4 py-2 rounded-[10px] border border-accent/40 text-accent font-body text-xs tracking-[0.16em] uppercase disabled:opacity-50"
+                              className="w-full sm:w-auto px-4 py-2 rounded-[10px] border border-accent/40 text-accent font-body text-xs tracking-[0.16em] uppercase disabled:opacity-50"
                             >
                               {sendingOtp
                                 ? "Sending..."
@@ -2134,7 +2134,7 @@ const ApplicationStartPage = () => {
                               type="button"
                               onClick={handleVerifyOtp}
                               disabled={!otpSent || verifyingOtp || otpVerified}
-                              className="px-4 py-2 rounded-[10px] bg-accent text-accent-foreground font-body text-xs tracking-[0.16em] uppercase disabled:opacity-50"
+                              className="w-full sm:w-auto px-4 py-2 rounded-[10px] bg-accent text-accent-foreground font-body text-xs tracking-[0.16em] uppercase disabled:opacity-50"
                             >
                               {verifyingOtp
                                 ? "Verifying..."
