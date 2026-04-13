@@ -1813,7 +1813,7 @@ const ApplicationStartPage = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="px-8 md:px-16 pt-36 pb-24">
+      <main className="px-4 sm:px-6 md:px-16 pt-32 md:pt-36 pb-20 md:pb-24">
         <div className="max-w-6xl mx-auto">
           <Link
             to="/admissions/how-to-apply"
@@ -1827,7 +1827,7 @@ const ApplicationStartPage = () => {
             <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">
               Application Portal
             </p>
-            <h1 className="font-heading text-4xl md:text-6xl font-light text-foreground leading-[0.95] mb-6">
+            <h1 className="font-heading text-3xl sm:text-4xl md:text-6xl font-light text-foreground leading-[0.95] mb-6">
               Start Your Application
             </h1>
             <p className="font-body text-muted-foreground leading-relaxed max-w-2xl">
@@ -1837,7 +1837,7 @@ const ApplicationStartPage = () => {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-8">
-            <aside className="border border-border rounded-[24px] p-5 bg-secondary/10 h-fit">
+            <aside className="border border-border rounded-[20px] md:rounded-[24px] p-4 sm:p-5 bg-secondary/10 h-fit">
               <p className="font-body text-[11px] tracking-[0.2em] uppercase text-accent mb-4">
                 Process Tracker
               </p>
@@ -1890,7 +1890,7 @@ const ApplicationStartPage = () => {
               </div>
             </aside>
 
-            <section className="border border-border rounded-[24px] p-8 md:p-10 bg-background">
+            <section className="border border-border rounded-[20px] md:rounded-[24px] p-4 sm:p-6 md:p-10 bg-background">
               {submitted ? (
                 <div>
                   <p className="font-body text-xs tracking-[0.3em] uppercase text-accent mb-4">
@@ -2126,7 +2126,7 @@ const ApplicationStartPage = () => {
                                 )
                               }
                               placeholder="Enter 5-digit OTP"
-                              className="border border-border rounded-[10px] px-3 py-2 bg-transparent font-body text-sm w-[180px]"
+                              className="w-full sm:w-[180px] border border-border rounded-[10px] px-3 py-2 bg-transparent font-body text-sm"
                               disabled={!otpSent || otpVerified}
                             />
 
@@ -3697,7 +3697,7 @@ const ApplicationStartPage = () => {
                             <input
                               value={formData.paymentReference}
                               readOnly
-                              className="flex-1 min-w-[220px] border border-border rounded-[12px] px-4 py-3 bg-secondary/10 font-body text-sm"
+                              className="w-full sm:flex-1 sm:min-w-[220px] border border-border rounded-[12px] px-4 py-3 bg-secondary/10 font-body text-sm"
                               type="text"
                               placeholder="Generate PRN"
                             />
@@ -3869,11 +3869,11 @@ const ApplicationStartPage = () => {
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                     <button
                       onClick={handlePrevious}
                       disabled={activeStep === 0}
-                      className="px-6 py-3 border border-border rounded-[14px] font-body text-xs tracking-[0.2em] uppercase text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="w-full sm:w-auto px-6 py-3 border border-border rounded-[14px] font-body text-xs tracking-[0.2em] uppercase text-foreground disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       Previous
                     </button>
@@ -3881,7 +3881,7 @@ const ApplicationStartPage = () => {
                     {activeStep < applicationSteps.length - 1 ? (
                       <button
                         onClick={handleNext}
-                        className="group inline-flex items-center gap-2 px-6 py-3 bg-accent text-accent-foreground rounded-[14px] font-body text-xs tracking-[0.2em] uppercase"
+                        className="w-full sm:w-auto group inline-flex items-center justify-center gap-2 px-6 py-3 bg-accent text-accent-foreground rounded-[14px] font-body text-xs tracking-[0.2em] uppercase"
                       >
                         Next Step
                         <ArrowRight
@@ -3893,7 +3893,7 @@ const ApplicationStartPage = () => {
                       <button
                         onClick={handleSubmit}
                         disabled={submittingApplication}
-                        className="px-6 py-3 bg-accent text-accent-foreground rounded-[14px] font-body text-xs tracking-[0.2em] uppercase"
+                        className="w-full sm:w-auto px-6 py-3 bg-accent text-accent-foreground rounded-[14px] font-body text-xs tracking-[0.2em] uppercase"
                       >
                         {submittingApplication
                           ? "Submitting..."
