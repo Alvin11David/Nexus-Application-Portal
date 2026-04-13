@@ -132,20 +132,22 @@ const ContactPage = () => {
     const handlers: Array<() => void> = [];
 
     inputs.forEach((input) => {
-      const focusIn = () =>
+      const focusIn = () => {
+        input.style.borderColor = "hsl(var(--accent))";
         gsap.to(input, {
           scale: 1.01,
-          borderColor: "hsl(var(--accent))",
           duration: 0.3,
           ease: "power2.out",
         });
-      const focusOut = () =>
+      };
+      const focusOut = () => {
+        input.style.borderColor = "hsl(var(--border))";
         gsap.to(input, {
           scale: 1,
-          borderColor: "hsl(var(--border))",
           duration: 0.3,
           ease: "power2.out",
         });
+      };
       input.addEventListener("focusin", focusIn);
       input.addEventListener("focusout", focusOut);
       handlers.push(() => {
