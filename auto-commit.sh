@@ -13,6 +13,5 @@ do
   else
     echo "No changes to commit"
   fi
-
   sleep 2
 done
