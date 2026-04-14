@@ -16,7 +16,9 @@ import {
   Building,
   Globe,
 } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
 import { toast } from "@/hooks/use-toast";
+import { db } from "@/integrations/firebase/config";
 import heroCampus from "@/assets/hero-campus.jpg";
 import { useSpotlightCards } from "@/hooks/useScrollReveal";
 import { submitContactSubmission } from "@/integrations/firebase/mutations";
@@ -59,6 +61,7 @@ const ContactPage = () => {
     message: "",
   });
   const [sending, setSending] = useState(false);
+  const [organizationPhone, setOrganizationPhone] = useState("+256 700 000 000");
   const partnersRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +69,27 @@ const ContactPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    const fetchOrganizationPhone = async () => {
+      if (!db) return;
+
+      try {
+        const settingsRef = doc(db, "appSettings", "admin");
+        const settingsSnap = await getDoc(settingsRef);
+        const settingsData = settingsSnap.data() as
+          | { organizationPhone?: string }
+          | undefined;
+        const nextPhone = settingsData?.organizationPhone?.trim();
+
+        if (nextPhone) {
+          setOrganizationPhone(nextPhone);
+        }
+      } catch {
+        // Keep fallback phone when settings are unavailable.
+      }
+    };
+
+    void fetchOrganizationPhone();
+
     const ctx = gsap.context(() => {
       // Hero text — cinematic clip reveal
       gsap.fromTo(
