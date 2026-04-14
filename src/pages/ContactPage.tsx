@@ -62,7 +62,8 @@ const ContactPage = () => {
   });
   const [sending, setSending] = useState(false);
   const [organizationEmail, setOrganizationEmail] = useState("");
-  const [organizationPhone, setOrganizationPhone] = useState("+256 700 000 000");
+  const [organizationPhone, setOrganizationPhone] =
+    useState("+256 700 000 000");
   const [organizationWhatsappCta, setOrganizationWhatsappCta] =
     useState("WhatsApp Us");
   const [organizationAddress, setOrganizationAddress] = useState(
