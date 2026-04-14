@@ -46,6 +46,9 @@ const Footer = () => {
   const [email, setEmail] = useState("");
   const [portalName, setPortalName] = useState("Veritas Institute");
   const [organizationEmail, setOrganizationEmail] = useState("");
+  const [organizationMission, setOrganizationMission] = useState(
+    "Empowering single mothers and vulnerable youth through practical vocational skills — building dignified livelihoods one graduate at a time.",
+  );
   const [organizationWhatsappCta, setOrganizationWhatsappCta] =
     useState("WhatsApp Us");
   const [organizationPhone, setOrganizationPhone] =
@@ -108,6 +111,7 @@ const Footer = () => {
               organizationPhone?: string;
               organizationWhatsappCta?: string;
               organizationAddress?: string;
+              organizationMission?: string;
             }
           | undefined;
         const nextName = settingsData?.studentPortalName?.trim();
@@ -115,6 +119,7 @@ const Footer = () => {
         const nextPhone = settingsData?.organizationPhone?.trim();
         const nextWhatsappCta = settingsData?.organizationWhatsappCta?.trim();
         const nextAddress = settingsData?.organizationAddress?.trim();
+        const nextMission = settingsData?.organizationMission?.trim();
 
         if (nextName) {
           setPortalName(nextName);
@@ -130,6 +135,9 @@ const Footer = () => {
         }
         if (nextAddress) {
           setOrganizationAddress(nextAddress);
+        }
+        if (nextMission) {
+          setOrganizationMission(nextMission);
         }
       } catch {
         // Keep fallback name when settings are unavailable.
@@ -162,9 +170,7 @@ const Footer = () => {
               {portalName}
             </h3>
             <p className="font-body text-sm text-primary-foreground/60 leading-relaxed mb-8">
-              Empowering single mothers and vulnerable youth through practical
-              vocational skills — building dignified livelihoods one graduate at
-              a time.
+              {organizationMission}
             </p>
             <div className="space-y-4">
               <a
