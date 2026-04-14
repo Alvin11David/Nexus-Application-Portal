@@ -146,7 +146,7 @@ const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
             ref={nameRef}
             className="font-heading text-3xl font-light uppercase text-primary-foreground md:text-5xl"
           >
-            Institute Uganda
+            {portalName}
           </div>
 
           <p

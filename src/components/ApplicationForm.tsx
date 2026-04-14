@@ -462,7 +462,7 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
                   className="font-body text-sm text-foreground/80 leading-relaxed cursor-pointer select-none hover:text-foreground transition-colors duration-500"
                 >
                   I confirm that all information provided is accurate and I agree to the terms
-                  and conditions of the Veritas Institute application process.
+                  and conditions of the {portalName} application process.
                 </label>
               </div>
               {errors.agreeTerms && (
