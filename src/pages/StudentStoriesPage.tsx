@@ -143,12 +143,33 @@ type StudentStoryDoc = {
 const StudentStoriesPage = () => {
   const navigate = useNavigate();
   const [expandedStory, setExpandedStory] = useState<number | null>(null);
+  const [portalName, setPortalName] = useState("Veritas Institute");
   const storiesRef = useRef<HTMLDivElement>(null);
   const { data: storyDocs } = useFirestoreCollection<StudentStoryDoc>(
     "student_stories",
     [],
     { orderBy: { field: "published_date", direction: "desc" } },
   );
+
+  useEffect(() => {
+    const fetchPortalName = async () => {
+      if (!db) return;
+      try {
+        const settingsRef = doc(db, "appSettings", "admin");
+        const settingsSnap = await getDoc(settingsRef);
+        const settingsData = settingsSnap.data() as
+          | { studentPortalName?: string }
+          | undefined;
+        const nextName = settingsData?.studentPortalName?.trim();
+        if (nextName) {
+          setPortalName(nextName);
+        }
+      } catch {
+        // Keep fallback name
+      }
+    }
+    void fetchPortalName();
+  }, []);
 
   const dynamicStories: Story[] =
     storyDocs.length > 0
