@@ -46,9 +46,8 @@ const Footer = () => {
   const [email, setEmail] = useState("");
   const [portalName, setPortalName] = useState("Veritas Institute");
   const [organizationEmail, setOrganizationEmail] = useState("");
-  const [organizationWhatsappCta, setOrganizationWhatsappCta] = useState(
-    "WhatsApp Us",
-  );
+  const [organizationWhatsappCta, setOrganizationWhatsappCta] =
+    useState("WhatsApp Us");
   const [organizationPhone, setOrganizationPhone] =
     useState("+256 700 000 000");
 
