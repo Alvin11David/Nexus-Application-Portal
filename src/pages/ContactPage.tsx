@@ -62,11 +62,6 @@ const ContactPage = () => {
   });
   const [sending, setSending] = useState(false);
   const [organizationEmail, setOrganizationEmail] = useState("");
-  const [organizationMission, setOrganizationMission] = useState(
-    "Empowering single mothers and vulnerable youth through practical vocational skills — building dignified livelihoods one graduate at a time.",
-  );
-  const [organizationWhatsappCta, setOrganizationWhatsappCta] =
-    useState("WhatsApp Us");
   const [organizationPhone, setOrganizationPhone] = useState("+256 700 000 000");
   const [organizationAddress, setOrganizationAddress] = useState(
     "Plot 7, Nakawa Road, Kampala, Uganda",
@@ -91,15 +86,11 @@ const ContactPage = () => {
               organizationEmail?: string;
               organizationPhone?: string;
               organizationAddress?: string;
-              organizationMission?: string;
-              organizationWhatsappCta?: string;
             }
           | undefined;
         const nextEmail = settingsData?.organizationEmail?.trim();
         const nextPhone = settingsData?.organizationPhone?.trim();
         const nextAddress = settingsData?.organizationAddress?.trim();
-        const nextMission = settingsData?.organizationMission?.trim();
-        const nextWhatsappCta = settingsData?.organizationWhatsappCta?.trim();
 
         if (nextEmail) {
           setOrganizationEmail(nextEmail);
@@ -109,12 +100,6 @@ const ContactPage = () => {
         }
         if (nextAddress) {
           setOrganizationAddress(nextAddress);
-        }
-        if (nextMission) {
-          setOrganizationMission(nextMission);
-        }
-        if (nextWhatsappCta) {
-          setOrganizationWhatsappCta(nextWhatsappCta);
         }
       } catch {
         // Keep fallback phone when settings are unavailable.
@@ -136,11 +121,15 @@ const ContactPage = () => {
           stagger: 0.18,
           ease: "power3.out",
           delay: 0.3,
-        },
+                  href: `tel:${organizationPhone.replace(/\s+/g, "")}`,
       );
 
+                  value: organizationPhone,
       if (partnersRef.current) {
         gsap.fromTo(
+                  href: phoneDigits
+                    ? `https://wa.me/${phoneDigits}`
+                    : "https://wa.me/256700000000",
           { y: 60, opacity: 0, scale: 0.9 },
           {
             y: 0,
@@ -311,7 +300,7 @@ const ContactPage = () => {
                     : "https://wa.me/256700000000",
                   icon: MessageCircle,
                   label: "WhatsApp",
-                  value: organizationWhatsappCta,
+                  value: "Chat with us on WhatsApp",
                   external: true,
                 },
               ].map(({ href, icon: Icon, label, value, external }) => (
@@ -347,7 +336,7 @@ const ContactPage = () => {
                     {organizationAddress}
                   </p>
                   <a
-                    href={`https://maps.google.com/?q=${encodeURIComponent(organizationAddress)}`}
+                    href="https://maps.google.com/?q=Nakawa+Kampala+Uganda"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-body text-xs text-accent mt-2 inline-flex items-center gap-1 hover:underline"
@@ -446,7 +435,9 @@ const ContactPage = () => {
             Partner With Us
           </h2>
           <p className="font-body text-sm text-muted-foreground leading-relaxed mt-6 max-w-lg">
-            {organizationMission}
+            We welcome all forms of partnership and collaboration. Whether
+            you're a company, NGO, or individual — there's a way for you to be
+            part of this mission.
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -476,11 +467,7 @@ const ContactPage = () => {
                 "Hello, I'm interested in partnering with your institute. Please tell me more about partnership opportunities.",
               );
               window.open(
-                `${
-                  phoneDigits
-                    ? `https://wa.me/${phoneDigits}`
-                    : "https://wa.me/256700000000"
-                }?text=${msg}`,
+                `https://wa.me/256700000000?text=${msg}`,
                 "_blank",
                 "noopener,noreferrer",
               );
