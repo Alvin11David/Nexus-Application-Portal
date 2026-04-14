@@ -63,6 +63,8 @@ const ContactPage = () => {
   const [sending, setSending] = useState(false);
   const [organizationEmail, setOrganizationEmail] = useState("");
   const [organizationPhone, setOrganizationPhone] = useState("+256 700 000 000");
+  const [organizationWhatsappCta, setOrganizationWhatsappCta] =
+    useState("WhatsApp Us");
   const [organizationAddress, setOrganizationAddress] = useState(
     "Plot 7, Nakawa Road, Kampala, Uganda",
   );
@@ -85,11 +87,13 @@ const ContactPage = () => {
           | {
               organizationEmail?: string;
               organizationPhone?: string;
+              organizationWhatsappCta?: string;
               organizationAddress?: string;
             }
           | undefined;
         const nextEmail = settingsData?.organizationEmail?.trim();
         const nextPhone = settingsData?.organizationPhone?.trim();
+        const nextWhatsappCta = settingsData?.organizationWhatsappCta?.trim();
         const nextAddress = settingsData?.organizationAddress?.trim();
 
         if (nextEmail) {
@@ -97,6 +101,9 @@ const ContactPage = () => {
         }
         if (nextPhone) {
           setOrganizationPhone(nextPhone);
+        }
+        if (nextWhatsappCta) {
+          setOrganizationWhatsappCta(nextWhatsappCta);
         }
         if (nextAddress) {
           setOrganizationAddress(nextAddress);
@@ -121,15 +128,11 @@ const ContactPage = () => {
           stagger: 0.18,
           ease: "power3.out",
           delay: 0.3,
-                  href: `tel:${organizationPhone.replace(/\s+/g, "")}`,
+        },
       );
 
-                  value: organizationPhone,
       if (partnersRef.current) {
         gsap.fromTo(
-                  href: phoneDigits
-                    ? `https://wa.me/${phoneDigits}`
-                    : "https://wa.me/256700000000",
           { y: 60, opacity: 0, scale: 0.9 },
           {
             y: 0,
@@ -300,7 +303,7 @@ const ContactPage = () => {
                     : "https://wa.me/256700000000",
                   icon: MessageCircle,
                   label: "WhatsApp",
-                  value: "Chat with us on WhatsApp",
+                  value: organizationWhatsappCta,
                   external: true,
                 },
               ].map(({ href, icon: Icon, label, value, external }) => (
