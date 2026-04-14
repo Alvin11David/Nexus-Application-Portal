@@ -4,6 +4,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Menu, X, Heart } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/integrations/firebase/config";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,6 +27,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [portalName, setPortalName] = useState("Veritas Institute");
   const forceSolidNavbar = location.pathname.startsWith(
     "/admissions/application/start",
   );
@@ -34,6 +37,29 @@ const Navbar = () => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const fetchPortalName = async () => {
+      if (!db) return;
+
+      try {
+        const settingsRef = doc(db, "appSettings", "admin");
+        const settingsSnap = await getDoc(settingsRef);
+        const settingsData = settingsSnap.data() as
+          | { studentPortalName?: string }
+          | undefined;
+        const nextName = settingsData?.studentPortalName?.trim();
+
+        if (nextName) {
+          setPortalName(nextName);
+        }
+      } catch {
+        // Keep fallback name when settings are unavailable.
+      }
+    };
+
+    void fetchPortalName();
   }, []);
 
   useEffect(() => {
@@ -73,7 +99,7 @@ const Navbar = () => {
             solidNavbar ? "text-foreground" : "text-primary-foreground"
           }`}
         >
-          Veritas Institute
+          {portalName}
         </button>
 
         {/* Desktop Nav */}
