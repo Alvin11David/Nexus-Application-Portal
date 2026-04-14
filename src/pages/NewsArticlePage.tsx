@@ -1,7 +1,10 @@
+import { useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/integrations/firebase/config";
 import { useFirestoreCollection } from "@/hooks/useFirestore";
 import { getNewsArticleBySlug, newsArticles } from "@/lib/newsContent";
 
@@ -32,17 +35,22 @@ type FirestoreNewsArticle = Record<string, unknown> & {
   published?: boolean;
 };
 
-const fallbackArticles: Article[] = newsArticles.map((item) => ({
-  id: item.slug,
-  slug: item.slug,
-  title: item.title,
-  date: item.date,
-  category: item.category,
-  excerpt: item.excerpt,
-  readTime: item.readTime,
-  body: item.body,
-  highlights: item.highlights,
-}));
+const makeFallbackArticles = (portalName: string): Article[] =>
+  newsArticles.map((item) => ({
+    id: item.slug,
+    slug: item.slug,
+    title: item.title.replace(/Veritas Institute/g, portalName),
+    date: item.date,
+    category: item.category,
+    excerpt: item.excerpt.replace(/Veritas Institute/g, portalName),
+    readTime: item.readTime,
+    body: item.body.map((paragraph) =>
+      paragraph.replace(/Veritas Institute/g, portalName),
+    ),
+    highlights: item.highlights.map((highlight) =>
+      highlight.replace(/Veritas Institute/g, portalName),
+    ),
+  }));
 
 const toParagraphs = (article: Article): string[] => {
   if (Array.isArray(article.body) && article.body.length > 0) {
@@ -68,10 +76,34 @@ const toSlug = (value: string) =>
 
 const NewsArticlePage = () => {
   const { slug } = useParams();
+  const [portalName, setPortalName] = useState("Veritas Institute");
   const { data: firestoreArticles } =
     useFirestoreCollection<FirestoreNewsArticle>("NewsArticles", [], {
       orderBy: { field: "createdAt", direction: "desc" },
     });
+
+  useEffect(() => {
+    const fetchPortalName = async () => {
+      if (!db) return;
+
+      try {
+        const settingsRef = doc(db, "appSettings", "admin");
+        const settingsSnap = await getDoc(settingsRef);
+        const settingsData = settingsSnap.data() as
+          | { studentPortalName?: string }
+          | undefined;
+        const nextName = settingsData?.studentPortalName?.trim();
+
+        if (nextName) {
+          setPortalName(nextName);
+        }
+      } catch {
+        // Keep fallback name when settings are unavailable.
+      }
+    };
+
+    void fetchPortalName();
+  }, []);
 
   const allArticles: Article[] =
     firestoreArticles.length > 0
@@ -89,7 +121,7 @@ const NewsArticlePage = () => {
                 typeof item.slug === "string" && item.slug.trim().length > 0
                   ? item.slug
                   : generatedSlug,
-              title,
+              title: title.replace(/Veritas Institute/g, portalName),
               date:
                 (typeof item.createdAt === "string" && item.createdAt) ||
                 (typeof item.published_date === "string" &&
@@ -108,16 +140,16 @@ const NewsArticlePage = () => {
               excerpt:
                 typeof item.excerpt === "string" &&
                 item.excerpt.trim().length > 0
-                  ? item.excerpt
+                  ? item.excerpt.replace(/Veritas Institute/g, portalName)
                   : "Read the full story for details.",
               content:
                 typeof item.content === "string" &&
                 item.content.trim().length > 0
-                  ? item.content
+                  ? item.content.replace(/Veritas Institute/g, portalName)
                   : undefined,
             };
           })
-      : fallbackArticles;
+      : makeFallbackArticles(portalName);
 
   const article =
     (slug ? allArticles.find((item) => item.slug === slug) : undefined) ??
@@ -137,9 +169,13 @@ const NewsArticlePage = () => {
   const relatedArticles = allArticles
     .filter((item) => item.slug !== normalizedArticle.slug)
     .slice(0, 3);
-  const paragraphs = toParagraphs(normalizedArticle);
+  const paragraphs = toParagraphs(normalizedArticle).map((paragraph) =>
+    paragraph.replace(/Veritas Institute/g, portalName),
+  );
   const highlights = Array.isArray(normalizedArticle.highlights)
-    ? normalizedArticle.highlights
+    ? normalizedArticle.highlights.map((highlight) =>
+        highlight.replace(/Veritas Institute/g, portalName),
+      )
     : [];
   const articleDate =
     normalizedArticle.published_date ?? normalizedArticle.date;
@@ -209,7 +245,7 @@ const NewsArticlePage = () => {
                 Related Reading
               </p>
               <h2 className="font-heading text-3xl md:text-4xl font-light text-foreground">
-                More from Veritas
+                More from {portalName}
               </h2>
             </div>
             <Link
