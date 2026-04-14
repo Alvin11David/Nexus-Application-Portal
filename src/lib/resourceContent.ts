@@ -16,6 +16,8 @@ export type ResourceLink = {
   desc: string;
 };
 
+const currentYear = new Date().getFullYear();
+
 export const quickLinkGroups: Array<{
   title: string;
   links: ResourceLink[];
@@ -424,9 +426,9 @@ export const resourceGuides: ResourceGuide[] = [
     overview:
       "Upcoming events help prospective students, current learners, alumni, and partners decide when to engage the campus in person or online.",
     highlights: [
-      "Open Day 2026 on April 15, 2026.",
-      "Research Symposium on April 22, 2026.",
-      "International Culture Week runs May 18 to May 24, 2026.",
+      `Open Day ${currentYear} on April 15, ${currentYear}.`,
+      `Research Symposium on April 22, ${currentYear}.`,
+      `International Culture Week runs May 18 to May 24, ${currentYear}.`,
     ],
     sections: [
       {

@@ -18,6 +18,8 @@ import { newsArticles } from "@/lib/newsContent";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const currentYear = new Date().getFullYear();
+
 const quickOptions = [
   "Prospective student: admissions and programs",
   "Current student: timetable and support",
@@ -45,7 +47,7 @@ const events = [
     day: "22",
     month: "Mar",
     mode: "Hybrid (Physical & Virtual)",
-    title: "National Conference on Communication 2026",
+    title: `National Conference on Communication ${currentYear}`,
     venue: "Main Auditorium and Online",
   },
 ];
@@ -54,7 +56,7 @@ const innovationArticles = [
   "University partners with manufacturing leaders to accelerate practical innovation",
   "Researchers awarded grant for crop safety using plant-based antifungal systems",
   "Cross-border research lecture spotlights collaboration opportunities in Africa",
-  "Innovation Office publishes 2026 research and enterprise report",
+  `Innovation Office publishes ${currentYear} research and enterprise report`,
   "Data science lab launches open guide for ethical AI in higher education",
   "Medical engineering team unveils maternal safety monitoring prototype",
 ];

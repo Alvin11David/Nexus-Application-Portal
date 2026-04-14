@@ -5,6 +5,8 @@ import { ArrowRight, ArrowLeft, Check, ChevronDown } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/integrations/firebase/config";
 
+const currentYear = new Date().getFullYear();
+
 const applicationSchema = z.object({
   firstName: z.string().trim().min(1, "Required").max(100),
   lastName: z.string().trim().min(1, "Required").max(100),
@@ -597,7 +599,11 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
                 label="Preferred Start Date"
                 value={val("startDate")}
                 onChange={(v) => updateField("startDate", v)}
-                options={["Fall 2026", "Spring 2027", "Fall 2027"]}
+                options={[
+                  `Fall ${currentYear}`,
+                  `Spring ${currentYear + 1}`,
+                  `Fall ${currentYear + 1}`,
+                ]}
                 error={errors.startDate}
               />
               <FloatingInput

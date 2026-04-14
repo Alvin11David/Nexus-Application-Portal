@@ -9,11 +9,13 @@ export type NewsArticle = {
   highlights: string[];
 };
 
+const currentYear = new Date().getFullYear();
+
 export const newsArticles: NewsArticle[] = [
   {
     slug: "veritas-top-200-global-ranking",
     title: "Veritas Institute ranks among the top 200 universities globally",
-    date: "March 8, 2026",
+    date: `March 8, ${currentYear}`,
     category: "Institutional",
     excerpt:
       "For the first time in its history, Veritas Institute has entered the top 200 of the World University Rankings, reflecting sustained investment in research, faculty excellence, and global partnerships.",
@@ -32,7 +34,7 @@ export const newsArticles: NewsArticle[] = [
   {
     slug: "ai-research-lab-opens-on-campus",
     title: "New $12M AI research lab opens on campus",
-    date: "February 28, 2026",
+    date: `February 28, ${currentYear}`,
     category: "Research",
     excerpt:
       "The new facility will house 60 researchers and focus on ethical AI applications for healthcare, agriculture, and public systems.",
@@ -51,7 +53,7 @@ export const newsArticles: NewsArticle[] = [
   {
     slug: "student-startup-secures-seed-funding",
     title: "Student startup raises $2.4M in seed funding",
-    date: "February 15, 2026",
+    date: `February 15, ${currentYear}`,
     category: "Innovation",
     excerpt:
       "AgriSense, founded by two Veritas engineering students, secured backing for its precision agriculture platform after pilot results with farming cooperatives.",
@@ -70,7 +72,7 @@ export const newsArticles: NewsArticle[] = [
   {
     slug: "spring-graduation-celebrates-3200",
     title: "Spring graduation ceremony celebrates 3,200 graduates",
-    date: "January 30, 2026",
+    date: `January 30, ${currentYear}`,
     category: "Campus",
     excerpt:
       "The largest graduating class in university history included students from 48 countries and every academic college.",
@@ -89,7 +91,7 @@ export const newsArticles: NewsArticle[] = [
   {
     slug: "mit-joint-research-program-launches",
     title: "Partnership with MIT launches joint research program",
-    date: "January 18, 2026",
+    date: `January 18, ${currentYear}`,
     category: "Partnerships",
     excerpt:
       "A five-year collaboration will support quantum computing research, visiting scholars, and graduate exchange opportunities.",
@@ -108,7 +110,7 @@ export const newsArticles: NewsArticle[] = [
   {
     slug: "sustainability-initiative-cuts-emissions-40",
     title: "Campus sustainability initiative reduces emissions by 40 percent",
-    date: "January 5, 2026",
+    date: `January 5, ${currentYear}`,
     category: "Sustainability",
     excerpt:
       "Solar installations, transport changes, and energy-efficiency upgrades pushed the campus sharply closer to its carbon-neutral goal.",

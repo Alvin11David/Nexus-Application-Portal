@@ -15,6 +15,8 @@ import {
 } from "@/integrations/firebase/mutations";
 import { firebaseApp } from "@/integrations/firebase/config";
 
+const currentYear = new Date().getFullYear();
+
 const applicationSteps = [
   {
     number: "01",
@@ -2954,12 +2956,14 @@ const ApplicationStartPage = () => {
                                 className="mt-2 w-full border border-border rounded-[12px] px-4 py-3 bg-transparent font-body text-sm"
                               >
                                 <option value="">Select date</option>
-                                <option value="June 2026">June 2026</option>
-                                <option value="September 2026">
-                                  September 2026
+                                <option value={`June ${currentYear}`}>
+                                  {`June ${currentYear}`}
                                 </option>
-                                <option value="January 2027">
-                                  January 2027
+                                <option value={`September ${currentYear}`}>
+                                  {`September ${currentYear}`}
+                                </option>
+                                <option value={`January ${currentYear + 1}`}>
+                                  {`January ${currentYear + 1}`}
                                 </option>
                               </select>
                               {errors.startDate && (
@@ -3677,7 +3681,7 @@ const ApplicationStartPage = () => {
                       <div className="space-y-4">
                         <div className="rounded-[18px] border border-border bg-secondary/10 p-4 space-y-3">
                           <p className="font-body text-xs uppercase tracking-[0.2em] text-accent">
-                            Application Fee (2025/2026 Typical)
+                            {`Application Fee (${currentYear - 1}/${currentYear} Typical)`}
                           </p>
                           <p className="font-body text-sm text-foreground leading-relaxed">
                             {paymentFeeSummary}

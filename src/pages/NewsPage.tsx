@@ -17,13 +17,27 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
+const currentYear = new Date().getFullYear();
+
 const fallbackEvents = [
-  { title: "Open Day 2026", date: "April 15, 2026", type: "Admissions" },
-  { title: "Research Symposium", date: "April 22, 2026", type: "Academic" },
-  { title: "Alumni Gala Dinner", date: "May 10, 2026", type: "Community" },
+  {
+    title: `Open Day ${currentYear}`,
+    date: `April 15, ${currentYear}`,
+    type: "Admissions",
+  },
+  {
+    title: "Research Symposium",
+    date: `April 22, ${currentYear}`,
+    type: "Academic",
+  },
+  {
+    title: "Alumni Gala Dinner",
+    date: `May 10, ${currentYear}`,
+    type: "Community",
+  },
   {
     title: "International Culture Week",
-    date: "May 18–24, 2026",
+    date: `May 18–24, ${currentYear}`,
     type: "Student Life",
   },
 ];
