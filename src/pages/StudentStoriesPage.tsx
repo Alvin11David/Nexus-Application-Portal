@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Quote, ArrowRight, Heart, ChevronDown } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/integrations/firebase/config";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import storiesHero from "@/assets/stories-hero.jpg";
