@@ -135,7 +135,7 @@ const NewsPage = () => {
           .map((item) => {
             const title =
               typeof item.title === "string" && item.title.trim().length > 0
-                ? item.title
+                ? item.title.replace(/Veritas Institute/g, portalName)
                 : "Untitled News";
             const generatedSlug = `${toSlug(title)}-${item.id.slice(0, 6)}`;
             return {
@@ -148,7 +148,7 @@ const NewsPage = () => {
               excerpt:
                 typeof item.excerpt === "string" &&
                 item.excerpt.trim().length > 0
-                  ? item.excerpt
+                  ? item.excerpt.replace(/Veritas Institute/g, portalName)
                   : "Read the full story for details.",
               category:
                 typeof item.category === "string" &&
