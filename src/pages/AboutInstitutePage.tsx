@@ -22,7 +22,8 @@ const highlights = [
 
 const mission = {
   title: "Our Mission",
-  desc: (instituteName: string) => `${instituteName} is dedicated to fostering intellectual inquiry, advancing knowledge through research, and developing leaders who contribute meaningfully to society. We believe in the transformative power of education and the responsibility of institutions to serve the greater good.`,
+  desc: (instituteName: string) =>
+    `${instituteName} is dedicated to fostering intellectual inquiry, advancing knowledge through research, and developing leaders who contribute meaningfully to society. We believe in the transformative power of education and the responsibility of institutions to serve the greater good.`,
 };
 
 const AboutInstitutePage = () => {
