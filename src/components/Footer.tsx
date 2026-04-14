@@ -280,8 +280,7 @@ const Footer = () => {
               Support Our Mission
             </p>
             <p className="font-body text-sm text-primary-foreground/60 leading-relaxed mb-6">
-              Your support changes lives. Every donation directly funds a
-              student's training.
+              {organizationMission}
             </p>
             <Link
               to="/donate"
