@@ -63,6 +63,9 @@ const ContactPage = () => {
   const [sending, setSending] = useState(false);
   const [organizationEmail, setOrganizationEmail] = useState("");
   const [organizationPhone, setOrganizationPhone] = useState("+256 700 000 000");
+  const [organizationAddress, setOrganizationAddress] = useState(
+    "Plot 7, Nakawa Road, Kampala, Uganda",
+  );
   const partnersRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
 
@@ -79,16 +82,24 @@ const ContactPage = () => {
         const settingsRef = doc(db, "appSettings", "admin");
         const settingsSnap = await getDoc(settingsRef);
         const settingsData = settingsSnap.data() as
-          | { organizationEmail?: string; organizationPhone?: string }
+          | {
+              organizationEmail?: string;
+              organizationPhone?: string;
+              organizationAddress?: string;
+            }
           | undefined;
         const nextEmail = settingsData?.organizationEmail?.trim();
         const nextPhone = settingsData?.organizationPhone?.trim();
+        const nextAddress = settingsData?.organizationAddress?.trim();
 
         if (nextEmail) {
           setOrganizationEmail(nextEmail);
         }
         if (nextPhone) {
           setOrganizationPhone(nextPhone);
+        }
+        if (nextAddress) {
+          setOrganizationAddress(nextAddress);
         }
       } catch {
         // Keep fallback phone when settings are unavailable.
@@ -322,9 +333,7 @@ const ContactPage = () => {
                     Location
                   </p>
                   <p className="font-body text-sm text-foreground leading-relaxed">
-                    Plot 7, Nakawa Road
-                    <br />
-                    Kampala, Uganda
+                    {organizationAddress}
                   </p>
                   <a
                     href="https://maps.google.com/?q=Nakawa+Kampala+Uganda"

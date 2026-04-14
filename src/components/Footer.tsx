@@ -50,6 +50,9 @@ const Footer = () => {
     useState("WhatsApp Us");
   const [organizationPhone, setOrganizationPhone] =
     useState("+256 700 000 000");
+  const [organizationAddress, setOrganizationAddress] = useState(
+    "Plot 7, Nakawa Road, Kampala, Uganda",
+  );
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -104,12 +107,14 @@ const Footer = () => {
               organizationEmail?: string;
               organizationPhone?: string;
               organizationWhatsappCta?: string;
+              organizationAddress?: string;
             }
           | undefined;
         const nextName = settingsData?.studentPortalName?.trim();
         const nextEmail = settingsData?.organizationEmail?.trim();
         const nextPhone = settingsData?.organizationPhone?.trim();
         const nextWhatsappCta = settingsData?.organizationWhatsappCta?.trim();
+        const nextAddress = settingsData?.organizationAddress?.trim();
 
         if (nextName) {
           setPortalName(nextName);
@@ -122,6 +127,9 @@ const Footer = () => {
         }
         if (nextWhatsappCta) {
           setOrganizationWhatsappCta(nextWhatsappCta);
+        }
+        if (nextAddress) {
+          setOrganizationAddress(nextAddress);
         }
       } catch {
         // Keep fallback name when settings are unavailable.
@@ -210,9 +218,7 @@ const Footer = () => {
                   className="text-primary-foreground/40 mt-0.5 shrink-0"
                 />
                 <p className="font-body text-sm text-primary-foreground/70 leading-relaxed">
-                  Plot 7, Nakawa Road
-                  <br />
-                  Kampala, Uganda
+                  {organizationAddress}
                 </p>
               </div>
             </div>
