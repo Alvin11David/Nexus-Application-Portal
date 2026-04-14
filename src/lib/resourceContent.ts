@@ -122,7 +122,8 @@ export const resourceGuides: ResourceGuide[] = [
     slug: "course-catalog",
     title: "Course Catalog",
     category: "Academics",
-    excerpt: "Program structures, award paths, and entry routes across colleges.",
+    excerpt:
+      "Program structures, award paths, and entry routes across colleges.",
     overview:
       "Use the course catalog to compare programs, progression requirements, and the college context around each award path before you apply.",
     highlights: [
@@ -141,13 +142,17 @@ export const resourceGuides: ResourceGuide[] = [
       },
     ],
     primaryAction: { label: "Browse Courses", href: "/admissions/courses" },
-    secondaryAction: { label: "Study at Veritas", href: "/study/courses-programs" },
+    secondaryAction: {
+      label: "Study at Veritas",
+      href: "/study/courses-programs",
+    },
   },
   {
     slug: "academic-calendar",
     title: "Academic Calendar",
     category: "Academics",
-    excerpt: "Semester dates, assessment windows, and registration checkpoints.",
+    excerpt:
+      "Semester dates, assessment windows, and registration checkpoints.",
     overview:
       "The academic calendar brings together the dates students and applicants use most often when planning enrollment, assessments, and campus activity.",
     highlights: [
@@ -166,13 +171,17 @@ export const resourceGuides: ResourceGuide[] = [
       },
     ],
     primaryAction: { label: "See Admissions Lists", href: "/admissions/lists" },
-    secondaryAction: { label: "Open Student Hub", href: "/quick-links/student-portal" },
+    secondaryAction: {
+      label: "Open Student Hub",
+      href: "/quick-links/student-portal",
+    },
   },
   {
     slug: "library-portal",
     title: "Library Portal",
     category: "Academics",
-    excerpt: "Search journals, reserve digital resources, and find research support.",
+    excerpt:
+      "Search journals, reserve digital resources, and find research support.",
     overview:
       "The library portal is the fastest path to journals, e-books, research databases, and guidance from subject librarians.",
     highlights: [
@@ -191,13 +200,17 @@ export const resourceGuides: ResourceGuide[] = [
       },
     ],
     primaryAction: { label: "Explore Research", href: "/research" },
-    secondaryAction: { label: "IT Help Desk", href: "/quick-links/it-help-desk" },
+    secondaryAction: {
+      label: "IT Help Desk",
+      href: "/quick-links/it-help-desk",
+    },
   },
   {
     slug: "exam-results",
     title: "Exam Results",
     category: "Academics",
-    excerpt: "Understand release timelines, transcript access, and escalation routes.",
+    excerpt:
+      "Understand release timelines, transcript access, and escalation routes.",
     overview:
       "Exam results guidance explains where results are published, when updates typically happen, and how transcript or correction requests are handled.",
     highlights: [
@@ -215,14 +228,21 @@ export const resourceGuides: ResourceGuide[] = [
         body: "Queries should normally begin with the student portal or registrar-facing guidance before escalating to departments or formal review channels.",
       },
     ],
-    primaryAction: { label: "Open Student Portal", href: "/quick-links/student-portal" },
-    secondaryAction: { label: "Academic Registrar", href: "/study/academic-registrar" },
+    primaryAction: {
+      label: "Open Student Portal",
+      href: "/quick-links/student-portal",
+    },
+    secondaryAction: {
+      label: "Academic Registrar",
+      href: "/study/academic-registrar",
+    },
   },
   {
     slug: "student-portal",
     title: "Student Portal",
     category: "Student Services",
-    excerpt: "Registration, schedules, fee status, and student-facing academic tools.",
+    excerpt:
+      "Registration, schedules, fee status, and student-facing academic tools.",
     overview:
       "The student portal is the operational home base for enrolled students managing registration, term status, and day-to-day academic administration.",
     highlights: [
@@ -241,13 +261,17 @@ export const resourceGuides: ResourceGuide[] = [
       },
     ],
     primaryAction: { label: "Student Life", href: "/students" },
-    secondaryAction: { label: "Academic Calendar", href: "/quick-links/academic-calendar" },
+    secondaryAction: {
+      label: "Academic Calendar",
+      href: "/quick-links/academic-calendar",
+    },
   },
   {
     slug: "student-organizations",
     title: "Student Organizations",
     category: "Student Services",
-    excerpt: "Clubs, societies, leadership opportunities, and campus community life.",
+    excerpt:
+      "Clubs, societies, leadership opportunities, and campus community life.",
     overview:
       "Student organizations help learners build community, take leadership roles, and connect academic interests to public engagement.",
     highlights: [
@@ -266,13 +290,17 @@ export const resourceGuides: ResourceGuide[] = [
       },
     ],
     primaryAction: { label: "Visit Students Page", href: "/students" },
-    secondaryAction: { label: "Upcoming Events", href: "/quick-links/upcoming-events" },
+    secondaryAction: {
+      label: "Upcoming Events",
+      href: "/quick-links/upcoming-events",
+    },
   },
   {
     slug: "health-safety",
     title: "Health & Safety",
     category: "Student Services",
-    excerpt: "Campus health support, incident pathways, and student wellbeing guidance.",
+    excerpt:
+      "Campus health support, incident pathways, and student wellbeing guidance.",
     overview:
       "Health and safety guidance helps students understand everyday support services, urgent response pathways, and the institutional expectations that keep campus environments safe.",
     highlights: [
@@ -290,14 +318,21 @@ export const resourceGuides: ResourceGuide[] = [
         body: "When issues are time-sensitive, health and safety guidance should be used together with emergency contacts so escalation happens through the correct response channel immediately.",
       },
     ],
-    primaryAction: { label: "Emergency Contacts", href: "/quick-links/emergency-contacts" },
-    secondaryAction: { label: "Contact the Team", href: "/quick-links/contact-us" },
+    primaryAction: {
+      label: "Emergency Contacts",
+      href: "/quick-links/emergency-contacts",
+    },
+    secondaryAction: {
+      label: "Contact the Team",
+      href: "/quick-links/contact-us",
+    },
   },
   {
     slug: "it-help-desk",
     title: "IT Help Desk",
     category: "Student Services",
-    excerpt: "Account access, platform support, device setup, and service recovery help.",
+    excerpt:
+      "Account access, platform support, device setup, and service recovery help.",
     overview:
       "The IT help desk guide explains where to start when access issues affect classes, research platforms, email, or digital coursework.",
     highlights: [
@@ -315,14 +350,18 @@ export const resourceGuides: ResourceGuide[] = [
         body: "Requests move faster when they include the affected service, device context, and the exact step where the workflow failed.",
       },
     ],
-    primaryAction: { label: "Library Portal", href: "/quick-links/library-portal" },
+    primaryAction: {
+      label: "Library Portal",
+      href: "/quick-links/library-portal",
+    },
     secondaryAction: { label: "Contact Us", href: "/quick-links/contact-us" },
   },
   {
     slug: "contact-us",
     title: "Contact Us",
     category: "Contact & Directions",
-    excerpt: "Admissions, general inquiries, department routing, and visit planning.",
+    excerpt:
+      "Admissions, general inquiries, department routing, and visit planning.",
     overview:
       "Use this guide when you need to reach the right office quickly, whether the topic is admissions, study planning, events, or support services.",
     highlights: [
@@ -347,7 +386,8 @@ export const resourceGuides: ResourceGuide[] = [
     slug: "directory",
     title: "Directory",
     category: "Contact & Directions",
-    excerpt: "Locate offices, faculties, and the right departmental contact points.",
+    excerpt:
+      "Locate offices, faculties, and the right departmental contact points.",
     overview:
       "The directory guide helps users identify the correct office before making contact, which is especially useful when a question touches a specific college or administrative team.",
     highlights: [
@@ -365,14 +405,18 @@ export const resourceGuides: ResourceGuide[] = [
         body: "For broad admissions or visit questions, general contact guidance is usually the faster route because the request can then be triaged centrally.",
       },
     ],
-    primaryAction: { label: "General Contact", href: "/quick-links/contact-us" },
+    primaryAction: {
+      label: "General Contact",
+      href: "/quick-links/contact-us",
+    },
     secondaryAction: { label: "Campus Map", href: "/quick-links/campus-map" },
   },
   {
     slug: "campus-map",
     title: "Campus Map",
     category: "Contact & Directions",
-    excerpt: "Buildings, arrival points, parking zones, and visit planning notes.",
+    excerpt:
+      "Buildings, arrival points, parking zones, and visit planning notes.",
     overview:
       "The campus map guide helps first-time visitors and returning students orient themselves around teaching spaces, support offices, and arrival routes.",
     highlights: [
@@ -391,13 +435,17 @@ export const resourceGuides: ResourceGuide[] = [
       },
     ],
     primaryAction: { label: "Visit Institute", href: "/about/visit" },
-    secondaryAction: { label: "Upcoming Events", href: "/quick-links/upcoming-events" },
+    secondaryAction: {
+      label: "Upcoming Events",
+      href: "/quick-links/upcoming-events",
+    },
   },
   {
     slug: "forms-documents",
     title: "Forms & Documents",
     category: "Contact & Directions",
-    excerpt: "Application materials, institutional forms, and document planning guidance.",
+    excerpt:
+      "Application materials, institutional forms, and document planning guidance.",
     overview:
       "This guide helps applicants and students identify which documents usually matter most for admissions, records, and service requests.",
     highlights: [
@@ -416,13 +464,17 @@ export const resourceGuides: ResourceGuide[] = [
       },
     ],
     primaryAction: { label: "How to Apply", href: "/admissions/how-to-apply" },
-    secondaryAction: { label: "Academic Registrar", href: "/study/academic-registrar" },
+    secondaryAction: {
+      label: "Academic Registrar",
+      href: "/study/academic-registrar",
+    },
   },
   {
     slug: "upcoming-events",
     title: "Upcoming Events",
     category: "Campus Life",
-    excerpt: "Open days, public lectures, academic conferences, and community events.",
+    excerpt:
+      "Open days, public lectures, academic conferences, and community events.",
     overview:
       "Upcoming events help prospective students, current learners, alumni, and partners decide when to engage the campus in person or online.",
     highlights: [
@@ -447,7 +499,8 @@ export const resourceGuides: ResourceGuide[] = [
     slug: "jobs-careers",
     title: "Jobs & Careers",
     category: "Careers",
-    excerpt: "Career pathways, internships, placements, and professional readiness.",
+    excerpt:
+      "Career pathways, internships, placements, and professional readiness.",
     overview:
       "Jobs and careers guidance helps students connect classroom work to employability, placement opportunities, and post-study planning.",
     highlights: [
@@ -475,7 +528,8 @@ export const resourceGuides: ResourceGuide[] = [
     slug: "emergency-contacts",
     title: "Emergency Contacts",
     category: "Safety",
-    excerpt: "Urgent response pathways, escalation points, and essential readiness guidance.",
+    excerpt:
+      "Urgent response pathways, escalation points, and essential readiness guidance.",
     overview:
       "Emergency contacts guidance exists for time-sensitive situations where a clear escalation path matters more than navigating a broad service page.",
     highlights: [
@@ -493,7 +547,10 @@ export const resourceGuides: ResourceGuide[] = [
         body: "Once the urgent risk is contained, health and safety or general contact routes can be used for follow-up support, reporting, and recovery planning.",
       },
     ],
-    primaryAction: { label: "Health & Safety", href: "/quick-links/health-safety" },
+    primaryAction: {
+      label: "Health & Safety",
+      href: "/quick-links/health-safety",
+    },
     secondaryAction: { label: "Contact Us", href: "/quick-links/contact-us" },
   },
 ];
