@@ -45,6 +45,7 @@ const Footer = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState("");
   const [portalName, setPortalName] = useState("Veritas Institute");
+  const [organizationPhone, setOrganizationPhone] = useState("+256 700 000 000");
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -94,12 +95,16 @@ const Footer = () => {
         const settingsRef = doc(db, "appSettings", "admin");
         const settingsSnap = await getDoc(settingsRef);
         const settingsData = settingsSnap.data() as
-          | { studentPortalName?: string }
+          | { studentPortalName?: string; organizationPhone?: string }
           | undefined;
         const nextName = settingsData?.studentPortalName?.trim();
+        const nextPhone = settingsData?.organizationPhone?.trim();
 
         if (nextName) {
           setPortalName(nextName);
+        }
+        if (nextPhone) {
+          setOrganizationPhone(nextPhone);
         }
       } catch {
         // Keep fallback name when settings are unavailable.
@@ -118,6 +123,8 @@ const Footer = () => {
     });
     setEmail("");
   };
+
+  const whatsappDigits = organizationPhone.replace(/\D/g, "");
 
   return (
     <footer ref={footerRef} className="bg-primary text-primary-foreground">
@@ -149,7 +156,7 @@ const Footer = () => {
                 </span>
               </a>
               <a
-                href="tel:+256700000000"
+                href={`tel:${organizationPhone.replace(/\s+/g, "")}`}
                 className="group flex items-center gap-3 font-body text-sm text-primary-foreground/70 transition-colors duration-500 hover:text-primary-foreground"
               >
                 <Phone
@@ -157,12 +164,16 @@ const Footer = () => {
                   className="text-primary-foreground/40 group-hover:text-accent transition-colors duration-500"
                 />
                 <span className="relative">
-                  +256 700 000 000
+                  {organizationPhone}
                   <span className="absolute -bottom-0.5 left-0 w-full h-px bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                 </span>
               </a>
               <a
-                href="https://wa.me/256700000000"
+                href={
+                  whatsappDigits
+                    ? `https://wa.me/${whatsappDigits}`
+                    : "https://wa.me/256700000000"
+                }
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-3 font-body text-sm text-primary-foreground/70 transition-colors duration-500 hover:text-primary-foreground"
