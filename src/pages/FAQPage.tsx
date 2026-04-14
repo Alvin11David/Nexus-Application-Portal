@@ -4,6 +4,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ChevronDown, HelpCircle } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/integrations/firebase/config";
 import aboutHero from "@/assets/about-hero.jpg";
 import { useFirestoreCollection } from "@/hooks/useFirestore";
 
@@ -37,8 +39,8 @@ const faqCategories = [
     icon: HelpCircle,
     questions: [
       {
-        q: "How many colleges and schools are at Veritas Institute?",
-        a: "Veritas Institute has 10 colleges and schools offering 143+ academic programs across undergraduate, graduate, and professional levels.",
+        q: "How many colleges and schools are at the institute?",
+        a: "The institute has 10 colleges and schools offering 143+ academic programs across undergraduate, graduate, and professional levels.",
       },
       {
         q: "Can I change my major after admission?",
@@ -103,8 +105,8 @@ const faqCategories = [
     icon: HelpCircle,
     questions: [
       {
-        q: "Where is Veritas Institute located?",
-        a: "Veritas Institute is located in a vibrant urban area with excellent public transportation. Our 200-acre campus combines historical architecture with modern facilities.",
+        q: "Where is the institute located?",
+        a: "The institute is located in a vibrant urban area with excellent public transportation. Our 200-acre campus combines historical architecture with modern facilities.",
       },
       {
         q: "How can I visit the campus?",

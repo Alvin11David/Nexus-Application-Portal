@@ -1,6 +1,8 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, FormEvent } from "react";
 import { MessageCircle, X, Send, Bot, User, Sparkles, RotateCcw } from "lucide-react";
 import gsap from "gsap";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/integrations/firebase/config";
 
 interface Message {
   id: string;
@@ -10,8 +12,8 @@ interface Message {
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
-const QUICK_TOPICS = [
-  { label: "Admissions", query: "How do I apply to Veritas?" },
+const getQuickTopics = (instituteName: string) => [
+  { label: "Admissions", query: `How do I apply to ${instituteName}?` },
   { label: "Programs", query: "What programs do you offer?" },
   { label: "Campus Life", query: "Tell me about student life on campus" },
   { label: "Tuition", query: "What are the tuition costs?" },
