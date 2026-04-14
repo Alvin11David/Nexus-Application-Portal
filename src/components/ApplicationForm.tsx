@@ -185,6 +185,26 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
     }
   }, [errors]);
 
+  useEffect(() => {
+    const fetchPortalName = async () => {
+      if (!db) return;
+      try {
+        const settingsRef = doc(db, "appSettings", "admin");
+        const settingsSnap = await getDoc(settingsRef);
+        const settingsData = settingsSnap.data() as
+          | { studentPortalName?: string }
+          | undefined;
+        const nextName = settingsData?.studentPortalName?.trim();
+        if (nextName) {
+          setPortalName(nextName);
+        }
+      } catch {
+        // Keep fallback name
+      }
+    }
+    void fetchPortalName();
+  }, []);
+
   const steps = [
     { title: "Personal Information", subtitle: "Tell us about yourself", fields: ["firstName", "lastName", "email", "phone", "dateOfBirth", "nationality"] },
     { title: "Your Address", subtitle: "Where should we reach you?", fields: ["address", "city", "postalCode", "country"] },
