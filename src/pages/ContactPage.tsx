@@ -67,6 +67,8 @@ const ContactPage = () => {
 
   useSpotlightCards(partnersRef, ".partner-card");
 
+  const phoneDigits = organizationPhone.replace(/\D/g, "");
+
   useEffect(() => {
     window.scrollTo(0, 0);
     const fetchOrganizationPhone = async () => {
@@ -103,13 +105,15 @@ const ContactPage = () => {
           stagger: 0.18,
           ease: "power3.out",
           delay: 0.3,
-        },
+                  href: `tel:${organizationPhone.replace(/\s+/g, "")}`,
       );
 
-      // Partner cards — scale bounce
+                  value: organizationPhone,
       if (partnersRef.current) {
         gsap.fromTo(
-          partnersRef.current.querySelectorAll(".partner-card"),
+                  href: phoneDigits
+                    ? `https://wa.me/${phoneDigits}`
+                    : "https://wa.me/256700000000",
           { y: 60, opacity: 0, scale: 0.9 },
           {
             y: 0,
