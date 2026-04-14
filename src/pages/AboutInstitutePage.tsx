@@ -1,9 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { CheckCircle2 } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/integrations/firebase/config";
 import aboutHero from "@/assets/about-hero.jpg";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -20,7 +22,7 @@ const highlights = [
 
 const mission = {
   title: "Our Mission",
-  desc: "Veritas Institute is dedicated to fostering intellectual inquiry, advancing knowledge through research, and developing leaders who contribute meaningfully to society. We believe in the transformative power of education and the responsibility of institutions to serve the greater good.",
+  desc: (instituteName: string) => `${instituteName} is dedicated to fostering intellectual inquiry, advancing knowledge through research, and developing leaders who contribute meaningfully to society. We believe in the transformative power of education and the responsibility of institutions to serve the greater good.`,
 };
 
 const AboutInstitutePage = () => {
@@ -28,9 +30,31 @@ const AboutInstitutePage = () => {
   const heroTextRef = useRef<HTMLDivElement>(null);
   const highlightsRef = useRef<HTMLDivElement>(null);
   const missionRef = useRef<HTMLDivElement>(null);
+  const [portalName, setPortalName] = useState("Veritas Institute");
 
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    const fetchPortalName = async () => {
+      if (!db) return;
+
+      try {
+        const settingsRef = doc(db, "appSettings", "admin");
+        const settingsSnap = await getDoc(settingsRef);
+        const settingsData = settingsSnap.data() as
+          | { studentPortalName?: string }
+          | undefined;
+        const nextName = settingsData?.studentPortalName?.trim();
+
+        if (nextName) {
+          setPortalName(nextName);
+        }
+      } catch {
+        // Keep fallback name when settings are unavailable.
+      }
+    };
+
+    void fetchPortalName();
     const ctx = gsap.context(() => {
       // Hero text animation
       if (heroTextRef.current) {
@@ -109,7 +133,7 @@ const AboutInstitutePage = () => {
           <img
             ref={imageRef}
             src={aboutHero}
-            alt="Veritas Institute"
+            alt={portalName}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-primary/60" />
@@ -123,7 +147,7 @@ const AboutInstitutePage = () => {
             About the Institute
           </p>
           <h1 className="font-heading text-5xl md:text-7xl font-light text-primary-foreground leading-[0.95] mb-8">
-            Veritas Institute
+            {portalName}
           </h1>
           <p className="font-body text-lg text-primary-foreground/80 max-w-2xl leading-relaxed">
             A beacon of academic excellence, producing leaders who transform
@@ -163,7 +187,7 @@ const AboutInstitutePage = () => {
             {mission.title}
           </h2>
           <p className="font-body text-lg text-muted-foreground leading-relaxed mb-8">
-            {mission.desc}
+            {mission.desc(portalName)}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[
