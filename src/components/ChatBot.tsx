@@ -190,7 +190,7 @@ const ChatBot = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [portalName, setPortalName] = useState("Veritas");
+  const [portalName, setPortalName] = useState("Veritas Institute");
   const chatRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -210,8 +210,7 @@ const ChatBot = () => {
         const nextName = settingsData?.studentPortalName?.trim();
 
         if (nextName) {
-          const shortName = nextName.split(" ")[0];
-          setPortalName(shortName);
+          setPortalName(nextName);
         }
       } catch {
         // Keep fallback name when settings are unavailable.
@@ -365,7 +364,7 @@ const ChatBot = () => {
               </div>
               <div>
                 <p className="font-heading text-base font-semibold tracking-wide text-accent-foreground">
-                  Vera
+                  {portalName}
                 </p>
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
@@ -513,7 +512,7 @@ const ChatBot = () => {
               </button>
             </div>
             <p className="text-[9px] text-gray-400 text-center mt-2 tracking-wide">
-              Powered by Veritas AI · Responses may be approximate
+              Powered by {portalName} AI · Responses may be approximate
             </p>
           </div>
         </div>
