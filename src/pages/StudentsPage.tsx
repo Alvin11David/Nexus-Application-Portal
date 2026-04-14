@@ -17,6 +17,8 @@ import studentsHero from "@/assets/students-hero.jpg";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const currentYear = new Date().getFullYear();
+
 const stats = [
   { value: "12,400+", label: "Students Enrolled" },
   { value: "92%", label: "Graduate Employment" },
@@ -78,7 +80,7 @@ const testimonials = [
   },
   {
     name: "Sofia Nakamura",
-    program: "PhD Biomedical Engineering, 2026",
+    program: `PhD Biomedical Engineering, ${currentYear}`,
     quote:
       "The research facilities are world-class. I've published three papers in my first two years.",
   },

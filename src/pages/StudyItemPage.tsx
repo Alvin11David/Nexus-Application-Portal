@@ -28,6 +28,8 @@ import {
   Wallet,
 } from "lucide-react";
 
+const currentYear = new Date().getFullYear();
+
 const admissionStats = [
   { label: "Programs", value: "143+" },
   { label: "Annual Intakes", value: "3" },
@@ -95,11 +97,14 @@ const entryRequirements = [
 ];
 
 const importantDates = [
-  { phase: "Application Portal Opens", date: "02 April 2026" },
-  { phase: "Priority Scholarship Deadline", date: "30 May 2026" },
-  { phase: "General Application Deadline", date: "21 June 2026" },
-  { phase: "Admission Decision Release", date: "18 July 2026" },
-  { phase: "Registration & Orientation", date: "11-22 August 2026" },
+  { phase: "Application Portal Opens", date: `02 April ${currentYear}` },
+  { phase: "Priority Scholarship Deadline", date: `30 May ${currentYear}` },
+  { phase: "General Application Deadline", date: `21 June ${currentYear}` },
+  { phase: "Admission Decision Release", date: `18 July ${currentYear}` },
+  {
+    phase: "Registration & Orientation",
+    date: `11-22 August ${currentYear}`,
+  },
 ];
 
 const requiredDocuments = [
@@ -178,7 +183,11 @@ const initialApplicationData: ApplicationData = {
   agreePolicy: false,
 };
 
-const intakeOptions = ["April 2026", "August 2026", "January 2027"];
+const intakeOptions = [
+  `April ${currentYear}`,
+  `August ${currentYear}`,
+  `January ${currentYear + 1}`,
+];
 const levelOptions = ["Undergraduate", "Postgraduate", "Mature Age Entry"];
 const programOptions = [
   "BSc Computer Science",
@@ -230,11 +239,23 @@ const registrarServices = [
 ];
 
 const registrarDeadlines = [
-  { title: "Semester Registration Closes", date: "05 September 2026" },
-  { title: "Course Add/Drop Window Ends", date: "15 September 2026" },
-  { title: "Exam Card Verification", date: "28 October 2026" },
-  { title: "Provisional Results Released", date: "20 December 2026" },
-  { title: "Graduation Clearance Deadline", date: "10 February 2027" },
+  {
+    title: "Semester Registration Closes",
+    date: `05 September ${currentYear}`,
+  },
+  {
+    title: "Course Add/Drop Window Ends",
+    date: `15 September ${currentYear}`,
+  },
+  { title: "Exam Card Verification", date: `28 October ${currentYear}` },
+  {
+    title: "Provisional Results Released",
+    date: `20 December ${currentYear}`,
+  },
+  {
+    title: "Graduation Clearance Deadline",
+    date: `10 February ${currentYear + 1}`,
+  },
 ];
 
 const registrarPolicies = [
@@ -319,7 +340,7 @@ const institutesMilestones = [
   },
   { year: "2025", event: "75+ funded projects across all institute verticals" },
   {
-    year: "2026",
+    year: String(currentYear),
     event: "Global partnership framework expanded to 20 countries",
   },
 ];
@@ -447,7 +468,7 @@ const StudyItemPage = () => {
           {isJoinAdmissions ? (
             <div className="border border-border/60 rounded-[28px] bg-gradient-to-br from-background via-background to-secondary/30 p-7 md:p-10 lg:p-12 shadow-[0_14px_40px_rgba(0,0,0,0.06)]">
               <p className="inline-flex items-center gap-2 font-body text-[10px] tracking-[0.2em] uppercase text-accent mb-5 border border-accent/35 px-3 py-1.5 rounded-[999px]">
-                <Sparkles size={12} /> Admissions 2026
+                <Sparkles size={12} /> {`Admissions ${currentYear}`}
               </p>
               <h1 className="font-heading text-5xl md:text-7xl font-light text-foreground leading-[0.95] mb-5 max-w-5xl">
                 Join Institute University
