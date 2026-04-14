@@ -14,6 +14,27 @@ const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
   const progressTextRef = useRef<HTMLSpanElement>(null);
   const statusRef = useRef<HTMLParagraphElement>(null);
   const haloRef = useRef<HTMLDivElement>(null);
+  const [portalName, setPortalName] = useState("Institute Uganda");
+
+  useEffect(() => {
+    const fetchPortalName = async () => {
+      if (!db) return;
+      try {
+        const settingsRef = doc(db, "appSettings", "admin");
+        const settingsSnap = await getDoc(settingsRef);
+        const settingsData = settingsSnap.data() as
+          | { studentPortalName?: string }
+          | undefined;
+        const nextName = settingsData?.studentPortalName?.trim();
+        if (nextName) {
+          setPortalName(nextName);
+        }
+      } catch {
+        // Keep fallback name
+      }
+    }
+    void fetchPortalName();
+  }, []);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
