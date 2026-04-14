@@ -61,9 +61,7 @@ const ContactPage = () => {
     message: "",
   });
   const [sending, setSending] = useState(false);
-  const [organizationEmail, setOrganizationEmail] = useState(
-    "info@instituteuganda.org",
-  );
+  const [organizationEmail, setOrganizationEmail] = useState("");
   const [organizationPhone, setOrganizationPhone] = useState("+256 700 000 000");
   const partnersRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);

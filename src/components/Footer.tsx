@@ -45,9 +45,7 @@ const Footer = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState("");
   const [portalName, setPortalName] = useState("Veritas Institute");
-  const [organizationEmail, setOrganizationEmail] = useState(
-    "info@instituteuganda.org",
-  );
+  const [organizationEmail, setOrganizationEmail] = useState("");
   const [organizationPhone, setOrganizationPhone] =
     useState("+256 700 000 000");
 
