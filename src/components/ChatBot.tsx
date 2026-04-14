@@ -1,5 +1,13 @@
 import { useState, useRef, useEffect, useCallback, FormEvent } from "react";
-import { MessageCircle, X, Send, Bot, User, Sparkles, RotateCcw } from "lucide-react";
+import {
+  MessageCircle,
+  X,
+  Send,
+  Bot,
+  User,
+  Sparkles,
+  RotateCcw,
+} from "lucide-react";
 import gsap from "gsap";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/integrations/firebase/config";
@@ -125,7 +133,7 @@ const renderMarkdown = (text: string) => {
               <span>{renderInline(item)}</span>
             </li>
           ))}
-        </ul>
+        </ul>,
       );
       listItems = [];
     }
@@ -134,10 +142,21 @@ const renderMarkdown = (text: string) => {
   const renderInline = (str: string): React.ReactNode[] => {
     return str.split(/(\*\*.*?\*\*|`.*?`)/).map((part, j) => {
       if (part.startsWith("**") && part.endsWith("**")) {
-        return <strong key={j} className="font-semibold text-foreground">{part.slice(2, -2)}</strong>;
+        return (
+          <strong key={j} className="font-semibold text-foreground">
+            {part.slice(2, -2)}
+          </strong>
+        );
       }
       if (part.startsWith("`") && part.endsWith("`")) {
-        return <code key={j} className="text-[11px] bg-muted px-1 py-0.5 rounded font-mono">{part.slice(1, -1)}</code>;
+        return (
+          <code
+            key={j}
+            className="text-[11px] bg-muted px-1 py-0.5 rounded font-mono"
+          >
+            {part.slice(1, -1)}
+          </code>
+        );
       }
       return part;
     });
@@ -153,7 +172,9 @@ const renderMarkdown = (text: string) => {
         elements.push(<div key={`br-${i}`} className="h-1.5" />);
       } else {
         elements.push(
-          <p key={`p-${i}`} className="my-0">{renderInline(trimmed)}</p>
+          <p key={`p-${i}`} className="my-0">
+            {renderInline(trimmed)}
+          </p>,
         );
       }
     }
@@ -210,7 +231,7 @@ const ChatBot = () => {
       tl.fromTo(
         chatRef.current,
         { opacity: 0, y: 30, scale: 0.92 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power4.out" }
+        { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "power4.out" },
       );
       // Focus input after open
       setTimeout(() => inputRef.current?.focus(), 400);
@@ -223,9 +244,10 @@ const ChatBot = () => {
     if (lastMsg && lastMsg.id !== "streaming") {
       const el = messageRefs.current.get(lastMsg.id);
       if (el) {
-        gsap.fromTo(el,
+        gsap.fromTo(
+          el,
           { opacity: 0, y: 12, scale: 0.96 },
-          { opacity: 1, y: 0, scale: 1, duration: 0.35, ease: "power3.out" }
+          { opacity: 1, y: 0, scale: 1, duration: 0.35, ease: "power3.out" },
         );
       }
     }
@@ -241,66 +263,77 @@ const ChatBot = () => {
         yoyo: true,
         ease: "sine.inOut",
       });
-      return () => { pulse.kill(); };
+      return () => {
+        pulse.kill();
+      };
     }
   }, [isOpen]);
 
-  const sendMessage = useCallback(async (text: string) => {
-    if (!text.trim() || isLoading) return;
-    setHasInteracted(true);
+  const sendMessage = useCallback(
+    async (text: string) => {
+      if (!text.trim() || isLoading) return;
+      setHasInteracted(true);
 
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: text.trim(),
-    };
+      const userMsg: Message = {
+        id: Date.now().toString(),
+        role: "user",
+        content: text.trim(),
+      };
 
-    const updatedMessages = [...messages, userMsg];
-    setMessages(updatedMessages);
-    setInput("");
-    setIsLoading(true);
+      const updatedMessages = [...messages, userMsg];
+      setMessages(updatedMessages);
+      setInput("");
+      setIsLoading(true);
 
-    let assistantSoFar = "";
-    const streamId = "streaming";
+      let assistantSoFar = "";
+      const streamId = "streaming";
 
-    const upsertAssistant = (chunk: string) => {
-      assistantSoFar += chunk;
-      const snapshot = assistantSoFar;
-      setMessages((prev) => {
-        const last = prev[prev.length - 1];
-        if (last?.id === streamId) {
-          return prev.map((m, i) =>
-            i === prev.length - 1 ? { ...m, content: snapshot } : m
+      const upsertAssistant = (chunk: string) => {
+        assistantSoFar += chunk;
+        const snapshot = assistantSoFar;
+        setMessages((prev) => {
+          const last = prev[prev.length - 1];
+          if (last?.id === streamId) {
+            return prev.map((m, i) =>
+              i === prev.length - 1 ? { ...m, content: snapshot } : m,
+            );
+          }
+          return [
+            ...prev,
+            { id: streamId, role: "assistant" as const, content: snapshot },
+          ];
+        });
+      };
+
+      await streamChat({
+        messages: updatedMessages.map((m) => ({
+          role: m.role,
+          content: m.content,
+        })),
+        onDelta: upsertAssistant,
+        onDone: () => {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === streamId ? { ...m, id: Date.now().toString() } : m,
+            ),
           );
-        }
-        return [...prev, { id: streamId, role: "assistant" as const, content: snapshot }];
+          setIsLoading(false);
+        },
+        onError: (err) => {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: Date.now().toString(),
+              role: "assistant" as const,
+              content: `Sorry, something went wrong: ${err}`,
+            },
+          ]);
+          setIsLoading(false);
+        },
       });
-    };
-
-    await streamChat({
-      messages: updatedMessages.map((m) => ({ role: m.role, content: m.content })),
-      onDelta: upsertAssistant,
-      onDone: () => {
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === streamId ? { ...m, id: Date.now().toString() } : m
-          )
-        );
-        setIsLoading(false);
-      },
-      onError: (err) => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: Date.now().toString(),
-            role: "assistant" as const,
-            content: `Sorry, something went wrong: ${err}`,
-          },
-        ]);
-        setIsLoading(false);
-      },
-    });
-  }, [messages, isLoading]);
+    },
+    [messages, isLoading],
+  );
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -373,7 +406,8 @@ const ChatBot = () => {
                   Hi, I'm Vera! 👋
                 </h3>
                 <p className="text-sm text-gray-500 leading-relaxed mb-5 max-w-[260px]">
-                  Your AI guide to everything {portalName}. What would you like to know?
+                  Your AI guide to everything {portalName}. What would you like
+                  to know?
                 </p>
                 <div className="grid grid-cols-2 gap-2 w-full">
                   {getQuickTopics(portalName).map((topic) => (
@@ -386,7 +420,9 @@ const ChatBot = () => {
                         {topic.label}
                       </span>
                       <span className="block text-[10px] text-gray-400 mt-0.5 leading-tight">
-                        {topic.query.length > 30 ? topic.query.slice(0, 30) + "…" : topic.query}
+                        {topic.query.length > 30
+                          ? topic.query.slice(0, 30) + "…"
+                          : topic.query}
                       </span>
                     </button>
                   ))}
@@ -416,7 +452,9 @@ const ChatBot = () => {
                   }`}
                 >
                   {msg.role === "assistant" ? (
-                    <div className="space-y-0.5">{renderMarkdown(msg.content)}</div>
+                    <div className="space-y-0.5">
+                      {renderMarkdown(msg.content)}
+                    </div>
                   ) : (
                     msg.content
                   )}
@@ -430,25 +468,26 @@ const ChatBot = () => {
             ))}
 
             {/* Typing Indicator */}
-            {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
-              <div className="flex gap-2.5 justify-start">
-                <div className="w-7 h-7 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0 border border-accent/15">
-                  <Bot size={13} className="text-accent" />
+            {isLoading &&
+              messages[messages.length - 1]?.role !== "assistant" && (
+                <div className="flex gap-2.5 justify-start">
+                  <div className="w-7 h-7 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0 border border-accent/15">
+                    <Bot size={13} className="text-accent" />
+                  </div>
+                  <div className="bg-secondary/60 rounded-2xl rounded-bl-lg px-4 py-3.5 flex gap-1 border border-border/30">
+                    {[0, 1, 2].map((i) => (
+                      <span
+                        key={i}
+                        className="w-1.5 h-1.5 rounded-full bg-accent/50"
+                        style={{
+                          animation: "bounce 1.2s infinite",
+                          animationDelay: `${i * 0.15}s`,
+                        }}
+                      />
+                    ))}
+                  </div>
                 </div>
-                <div className="bg-secondary/60 rounded-2xl rounded-bl-lg px-4 py-3.5 flex gap-1 border border-border/30">
-                  {[0, 1, 2].map((i) => (
-                    <span
-                      key={i}
-                      className="w-1.5 h-1.5 rounded-full bg-accent/50"
-                      style={{
-                        animation: "bounce 1.2s infinite",
-                        animationDelay: `${i * 0.15}s`,
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
+              )}
             <div ref={messagesEndRef} />
           </div>
 
