@@ -10,7 +10,9 @@ import {
   Heart,
   ArrowUpRight,
 } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
 import { toast } from "@/hooks/use-toast";
+import { db } from "@/integrations/firebase/config";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -42,6 +44,7 @@ const Footer = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState("");
+  const [portalName, setPortalName] = useState("Veritas Institute");
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -83,6 +86,29 @@ const Footer = () => {
     return () => ctx.revert();
   }, []);
 
+  useEffect(() => {
+    const fetchPortalName = async () => {
+      if (!db) return;
+
+      try {
+        const settingsRef = doc(db, "appSettings", "admin");
+        const settingsSnap = await getDoc(settingsRef);
+        const settingsData = settingsSnap.data() as
+          | { studentPortalName?: string }
+          | undefined;
+        const nextName = settingsData?.studentPortalName?.trim();
+
+        if (nextName) {
+          setPortalName(nextName);
+        }
+      } catch {
+        // Keep fallback name when settings are unavailable.
+      }
+    };
+
+    void fetchPortalName();
+  }, []);
+
   const handleNewsletterSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!email.trim()) return;
@@ -101,7 +127,7 @@ const Footer = () => {
           {/* Brand & Contact */}
           <div className="footer-col lg:col-span-1 opacity-0">
             <h3 className="font-heading text-2xl font-light tracking-[0.2em] uppercase mb-4">
-              Veritas Institute
+              {portalName}
             </h3>
             <p className="font-body text-sm text-primary-foreground/60 leading-relaxed mb-8">
               Empowering single mothers and vulnerable youth through practical
@@ -257,7 +283,7 @@ const Footer = () => {
         className="border-t border-primary-foreground/10 px-8 md:px-16 py-6 flex flex-col md:flex-row items-center justify-between gap-4 opacity-0"
       >
         <p className="font-body text-xs text-primary-foreground/30 tracking-wider">
-          © {new Date().getFullYear()} Veritas Institute. All rights reserved.
+          © {new Date().getFullYear()} {portalName}. All rights reserved.
         </p>
         <div className="flex items-center gap-8">
           {[
