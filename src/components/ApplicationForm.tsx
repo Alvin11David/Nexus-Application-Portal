@@ -170,6 +170,7 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const [portalName, setPortalName] = useState("Veritas Institute");
   const stepContentRef = useRef<HTMLDivElement>(null);
   const successRef = useRef<HTMLDivElement>(null);
 
