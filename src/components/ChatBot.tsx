@@ -373,10 +373,10 @@ const ChatBot = () => {
                   Hi, I'm Vera! 👋
                 </h3>
                 <p className="text-sm text-gray-500 leading-relaxed mb-5 max-w-[260px]">
-                  Your AI guide to everything Veritas Institute. What would you like to know?
+                  Your AI guide to everything {portalName}. What would you like to know?
                 </p>
                 <div className="grid grid-cols-2 gap-2 w-full">
-                  {QUICK_TOPICS.map((topic) => (
+                  {getQuickTopics(portalName).map((topic) => (
                     <button
                       key={topic.label}
                       onClick={() => sendMessage(topic.query)}
