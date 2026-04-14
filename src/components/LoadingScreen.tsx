@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/integrations/firebase/config";
 
 const SPLASH_KEY = "institute-splash-seen";
 
