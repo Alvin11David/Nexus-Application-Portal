@@ -167,7 +167,7 @@ const StudentStoriesPage = () => {
       } catch {
         // Keep fallback name
       }
-    }
+    };
     void fetchPortalName();
   }, []);
 

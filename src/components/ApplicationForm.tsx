@@ -21,9 +21,15 @@ const applicationSchema = z.object({
   previousInstitution: z.string().trim().min(1, "Required").max(200),
   highestQualification: z.string().min(1, "Required"),
   gpa: z.string().trim().min(1, "Required").max(10),
-  personalStatement: z.string().trim().min(50, "Minimum 50 characters").max(5000),
+  personalStatement: z
+    .string()
+    .trim()
+    .min(50, "Minimum 50 characters")
+    .max(5000),
   howDidYouHear: z.string().min(1, "Required"),
-  agreeTerms: z.literal(true, { errorMap: () => ({ message: "You must agree to the terms" }) }),
+  agreeTerms: z.literal(true, {
+    errorMap: () => ({ message: "You must agree to the terms" }),
+  }),
 });
 
 type ApplicationData = z.infer<typeof applicationSchema>;
@@ -60,9 +66,17 @@ interface ApplicationFormProps {
 
 // Animated floating-label input
 const FloatingInput = ({
-  label, value, onChange, error, type = "text",
+  label,
+  value,
+  onChange,
+  error,
+  type = "text",
 }: {
-  label: string; value: string; onChange: (v: string) => void; error?: string; type?: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+  type?: string;
 }) => {
   const [focused, setFocused] = useState(false);
   const lineRef = useRef<HTMLDivElement>(null);
@@ -98,9 +112,14 @@ const FloatingInput = ({
         className="w-full bg-transparent border-b border-border py-3 pt-4 font-body text-sm text-foreground focus:outline-none transition-colors duration-500"
       />
       {/* Animated accent line */}
-      <div ref={lineRef} className="absolute bottom-0 left-0 w-full h-[2px] bg-accent origin-left scale-x-0" />
+      <div
+        ref={lineRef}
+        className="absolute bottom-0 left-0 w-full h-[2px] bg-accent origin-left scale-x-0"
+      />
       {error && (
-        <p className="font-body text-xs text-destructive mt-1.5 animate-fade-in">{error}</p>
+        <p className="font-body text-xs text-destructive mt-1.5 animate-fade-in">
+          {error}
+        </p>
       )}
     </div>
   );
@@ -108,9 +127,17 @@ const FloatingInput = ({
 
 // Animated select
 const FloatingSelect = ({
-  label, value, onChange, options, error,
+  label,
+  value,
+  onChange,
+  options,
+  error,
 }: {
-  label: string; value: string; onChange: (v: string) => void; options: string[]; error?: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+  error?: string;
 }) => {
   const [focused, setFocused] = useState(false);
   const lineRef = useRef<HTMLDivElement>(null);
@@ -147,7 +174,9 @@ const FloatingSelect = ({
         >
           <option value=""></option>
           {options.map((o) => (
-            <option key={o} value={o}>{o}</option>
+            <option key={o} value={o}>
+              {o}
+            </option>
           ))}
         </select>
         <ChevronDown
@@ -157,9 +186,14 @@ const FloatingSelect = ({
           }`}
         />
       </div>
-      <div ref={lineRef} className="absolute bottom-0 left-0 w-full h-[2px] bg-accent origin-left scale-x-0" />
+      <div
+        ref={lineRef}
+        className="absolute bottom-0 left-0 w-full h-[2px] bg-accent origin-left scale-x-0"
+      />
       {error && (
-        <p className="font-body text-xs text-destructive mt-1.5 animate-fade-in">{error}</p>
+        <p className="font-body text-xs text-destructive mt-1.5 animate-fade-in">
+          {error}
+        </p>
       )}
     </div>
   );
@@ -174,16 +208,19 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
   const stepContentRef = useRef<HTMLDivElement>(null);
   const successRef = useRef<HTMLDivElement>(null);
 
-  const updateField = useCallback((field: string, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next[field];
-        return next;
-      });
-    }
-  }, [errors]);
+  const updateField = useCallback(
+    (field: string, value: string | boolean) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      if (errors[field]) {
+        setErrors((prev) => {
+          const next = { ...prev };
+          delete next[field];
+          return next;
+        });
+      }
+    },
+    [errors],
+  );
 
   useEffect(() => {
     const fetchPortalName = async () => {
@@ -201,15 +238,44 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
       } catch {
         // Keep fallback name
       }
-    }
+    };
     void fetchPortalName();
   }, []);
 
   const steps = [
-    { title: "Personal Information", subtitle: "Tell us about yourself", fields: ["firstName", "lastName", "email", "phone", "dateOfBirth", "nationality"] },
-    { title: "Your Address", subtitle: "Where should we reach you?", fields: ["address", "city", "postalCode", "country"] },
-    { title: "Academic Background", subtitle: "Your educational journey", fields: ["program", "startDate", "previousInstitution", "highestQualification", "gpa"] },
-    { title: "Personal Statement", subtitle: "Share your story", fields: ["personalStatement", "howDidYouHear", "agreeTerms"] },
+    {
+      title: "Personal Information",
+      subtitle: "Tell us about yourself",
+      fields: [
+        "firstName",
+        "lastName",
+        "email",
+        "phone",
+        "dateOfBirth",
+        "nationality",
+      ],
+    },
+    {
+      title: "Your Address",
+      subtitle: "Where should we reach you?",
+      fields: ["address", "city", "postalCode", "country"],
+    },
+    {
+      title: "Academic Background",
+      subtitle: "Your educational journey",
+      fields: [
+        "program",
+        "startDate",
+        "previousInstitution",
+        "highestQualification",
+        "gpa",
+      ],
+    },
+    {
+      title: "Personal Statement",
+      subtitle: "Share your story",
+      fields: ["personalStatement", "howDidYouHear", "agreeTerms"],
+    },
   ];
 
   const validateStep = () => {
@@ -217,11 +283,29 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
     const stepErrors: Record<string, string> = {};
 
     const result = applicationSchema.safeParse({
-      ...Object.fromEntries(currentFields.map((f) => [f, (formData as Record<string, unknown>)[f] ?? ""])),
+      ...Object.fromEntries(
+        currentFields.map((f) => [
+          f,
+          (formData as Record<string, unknown>)[f] ?? "",
+        ]),
+      ),
       ...Object.fromEntries(
         Object.keys(applicationSchema.shape)
           .filter((k) => !currentFields.includes(k))
-          .map((k) => [k, k === "agreeTerms" ? true : k === "personalStatement" ? "x".repeat(50) : k === "email" ? "a@b.c" : k === "phone" ? "1234567" : k === "dateOfBirth" ? "2000-01-01" : "placeholder"])
+          .map((k) => [
+            k,
+            k === "agreeTerms"
+              ? true
+              : k === "personalStatement"
+                ? "x".repeat(50)
+                : k === "email"
+                  ? "a@b.c"
+                  : k === "phone"
+                    ? "1234567"
+                    : k === "dateOfBirth"
+                      ? "2000-01-01"
+                      : "placeholder",
+          ]),
       ),
     });
 
@@ -242,9 +326,17 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
   const animateStepIn = useCallback(() => {
     if (stepContentRef.current) {
       const children = stepContentRef.current.children;
-      gsap.fromTo(children,
+      gsap.fromTo(
+        children,
         { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6, stagger: 0.06, ease: "power2.out", delay: 0.1 }
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          stagger: 0.06,
+          ease: "power2.out",
+          delay: 0.1,
+        },
       );
     }
   }, []);
@@ -256,25 +348,29 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
   useEffect(() => {
     if (submitted && successRef.current) {
       const tl = gsap.timeline();
-      tl.fromTo(successRef.current.querySelector(".success-icon"),
+      tl.fromTo(
+        successRef.current.querySelector(".success-icon"),
         { scale: 0, rotation: -180 },
-        { scale: 1, rotation: 0, duration: 0.8, ease: "back.out(1.7)" }
+        { scale: 1, rotation: 0, duration: 0.8, ease: "back.out(1.7)" },
       )
-      .fromTo(successRef.current.querySelector(".success-title"),
-        { y: 40, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
-        "-=0.3"
-      )
-      .fromTo(successRef.current.querySelector(".success-text"),
-        { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" },
-        "-=0.4"
-      )
-      .fromTo(successRef.current.querySelector(".success-btn"),
-        { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" },
-        "-=0.3"
-      );
+        .fromTo(
+          successRef.current.querySelector(".success-title"),
+          { y: 40, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
+          "-=0.3",
+        )
+        .fromTo(
+          successRef.current.querySelector(".success-text"),
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" },
+          "-=0.4",
+        )
+        .fromTo(
+          successRef.current.querySelector(".success-btn"),
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, ease: "power2.out" },
+          "-=0.3",
+        );
     }
   }, [submitted]);
 
@@ -282,7 +378,11 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
     if (validateStep()) {
       if (stepContentRef.current) {
         gsap.to(stepContentRef.current.children, {
-          y: -20, opacity: 0, duration: 0.3, stagger: 0.03, ease: "power2.in",
+          y: -20,
+          opacity: 0,
+          duration: 0.3,
+          stagger: 0.03,
+          ease: "power2.in",
           onComplete: () => {
             if (step < steps.length - 1) {
               setStep(step + 1);
@@ -302,7 +402,11 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
   const handlePrev = () => {
     if (stepContentRef.current) {
       gsap.to(stepContentRef.current.children, {
-        y: 20, opacity: 0, duration: 0.3, stagger: 0.03, ease: "power2.in",
+        y: 20,
+        opacity: 0,
+        duration: 0.3,
+        stagger: 0.03,
+        ease: "power2.in",
         onComplete: () => {
           if (step > 0) setStep(step - 1);
           else onClose();
@@ -314,11 +418,15 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
     }
   };
 
-  const val = (field: string) => ((formData as Record<string, string>)[field] ?? "");
+  const val = (field: string) =>
+    (formData as Record<string, string>)[field] ?? "";
 
   if (submitted) {
     return (
-      <div ref={successRef} className="min-h-screen flex flex-col items-center justify-center px-8 py-32">
+      <div
+        ref={successRef}
+        className="min-h-screen flex flex-col items-center justify-center px-8 py-32"
+      >
         <div className="success-icon w-20 h-20 rounded-full border-2 border-accent flex items-center justify-center mb-12">
           <Check size={32} className="text-accent" />
         </div>
@@ -327,8 +435,8 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
         </h2>
         <p className="success-text body-text text-muted-foreground text-center max-w-md mb-12 opacity-0">
           Thank you, {formData.firstName}. Your application to the{" "}
-          <span className="text-accent">{formData.program}</span> program
-          has been submitted. We will be in touch within 10 business days.
+          <span className="text-accent">{formData.program}</span> program has
+          been submitted. We will be in touch within 10 business days.
         </p>
         <button
           onClick={onClose}
@@ -356,11 +464,15 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
                   i < step
                     ? "border-accent bg-accent text-accent-foreground cursor-pointer"
                     : i === step
-                    ? "border-foreground text-foreground"
-                    : "border-border text-muted-foreground"
+                      ? "border-foreground text-foreground"
+                      : "border-border text-muted-foreground"
                 }`}
               >
-                {i < step ? <Check size={14} /> : String(i + 1).padStart(2, "0")}
+                {i < step ? (
+                  <Check size={14} />
+                ) : (
+                  String(i + 1).padStart(2, "0")
+                )}
               </button>
               {i < steps.length - 1 && (
                 <div className="flex-1 h-px relative overflow-hidden">
@@ -391,12 +503,45 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
         {step === 0 && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
-              <FloatingInput label="First Name" value={val("firstName")} onChange={(v) => updateField("firstName", v)} error={errors.firstName} />
-              <FloatingInput label="Last Name" value={val("lastName")} onChange={(v) => updateField("lastName", v)} error={errors.lastName} />
-              <FloatingInput label="Email Address" value={val("email")} onChange={(v) => updateField("email", v)} error={errors.email} type="email" />
-              <FloatingInput label="Phone Number" value={val("phone")} onChange={(v) => updateField("phone", v)} error={errors.phone} type="tel" />
-              <FloatingInput label="Date of Birth" value={val("dateOfBirth")} onChange={(v) => updateField("dateOfBirth", v)} error={errors.dateOfBirth} type="date" />
-              <FloatingInput label="Nationality" value={val("nationality")} onChange={(v) => updateField("nationality", v)} error={errors.nationality} />
+              <FloatingInput
+                label="First Name"
+                value={val("firstName")}
+                onChange={(v) => updateField("firstName", v)}
+                error={errors.firstName}
+              />
+              <FloatingInput
+                label="Last Name"
+                value={val("lastName")}
+                onChange={(v) => updateField("lastName", v)}
+                error={errors.lastName}
+              />
+              <FloatingInput
+                label="Email Address"
+                value={val("email")}
+                onChange={(v) => updateField("email", v)}
+                error={errors.email}
+                type="email"
+              />
+              <FloatingInput
+                label="Phone Number"
+                value={val("phone")}
+                onChange={(v) => updateField("phone", v)}
+                error={errors.phone}
+                type="tel"
+              />
+              <FloatingInput
+                label="Date of Birth"
+                value={val("dateOfBirth")}
+                onChange={(v) => updateField("dateOfBirth", v)}
+                error={errors.dateOfBirth}
+                type="date"
+              />
+              <FloatingInput
+                label="Nationality"
+                value={val("nationality")}
+                onChange={(v) => updateField("nationality", v)}
+                error={errors.nationality}
+              />
             </div>
           </>
         )}
@@ -405,12 +550,32 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
               <div className="md:col-span-2">
-                <FloatingInput label="Street Address" value={val("address")} onChange={(v) => updateField("address", v)} error={errors.address} />
+                <FloatingInput
+                  label="Street Address"
+                  value={val("address")}
+                  onChange={(v) => updateField("address", v)}
+                  error={errors.address}
+                />
               </div>
-              <FloatingInput label="City" value={val("city")} onChange={(v) => updateField("city", v)} error={errors.city} />
-              <FloatingInput label="Postal Code" value={val("postalCode")} onChange={(v) => updateField("postalCode", v)} error={errors.postalCode} />
+              <FloatingInput
+                label="City"
+                value={val("city")}
+                onChange={(v) => updateField("city", v)}
+                error={errors.city}
+              />
+              <FloatingInput
+                label="Postal Code"
+                value={val("postalCode")}
+                onChange={(v) => updateField("postalCode", v)}
+                error={errors.postalCode}
+              />
               <div className="md:col-span-2">
-                <FloatingInput label="Country" value={val("country")} onChange={(v) => updateField("country", v)} error={errors.country} />
+                <FloatingInput
+                  label="Country"
+                  value={val("country")}
+                  onChange={(v) => updateField("country", v)}
+                  error={errors.country}
+                />
               </div>
             </div>
           </>
@@ -420,12 +585,40 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
               <div className="md:col-span-2">
-                <FloatingSelect label="Program of Interest" value={val("program")} onChange={(v) => updateField("program", v)} options={programs} error={errors.program} />
+                <FloatingSelect
+                  label="Program of Interest"
+                  value={val("program")}
+                  onChange={(v) => updateField("program", v)}
+                  options={programs}
+                  error={errors.program}
+                />
               </div>
-              <FloatingSelect label="Preferred Start Date" value={val("startDate")} onChange={(v) => updateField("startDate", v)} options={["Fall 2026", "Spring 2027", "Fall 2027"]} error={errors.startDate} />
-              <FloatingInput label="GPA / Score" value={val("gpa")} onChange={(v) => updateField("gpa", v)} error={errors.gpa} />
-              <FloatingInput label="Previous Institution" value={val("previousInstitution")} onChange={(v) => updateField("previousInstitution", v)} error={errors.previousInstitution} />
-              <FloatingSelect label="Highest Qualification" value={val("highestQualification")} onChange={(v) => updateField("highestQualification", v)} options={qualifications} error={errors.highestQualification} />
+              <FloatingSelect
+                label="Preferred Start Date"
+                value={val("startDate")}
+                onChange={(v) => updateField("startDate", v)}
+                options={["Fall 2026", "Spring 2027", "Fall 2027"]}
+                error={errors.startDate}
+              />
+              <FloatingInput
+                label="GPA / Score"
+                value={val("gpa")}
+                onChange={(v) => updateField("gpa", v)}
+                error={errors.gpa}
+              />
+              <FloatingInput
+                label="Previous Institution"
+                value={val("previousInstitution")}
+                onChange={(v) => updateField("previousInstitution", v)}
+                error={errors.previousInstitution}
+              />
+              <FloatingSelect
+                label="Highest Qualification"
+                value={val("highestQualification")}
+                onChange={(v) => updateField("highestQualification", v)}
+                options={qualifications}
+                error={errors.highestQualification}
+              />
             </div>
           </>
         )}
@@ -438,14 +631,17 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
                   Personal Statement
                 </label>
                 <p className="font-body text-xs text-muted-foreground mb-4">
-                  In no more than 5,000 characters, tell us why you wish to study at Veritas
-                  and what question drives your intellectual curiosity.
+                  In no more than 5,000 characters, tell us why you wish to
+                  study at Veritas and what question drives your intellectual
+                  curiosity.
                 </p>
                 <div className="relative group">
                   <textarea
                     className="w-full bg-transparent border border-border py-4 px-4 font-body text-sm text-foreground min-h-[220px] resize-y focus:outline-none focus:border-accent transition-colors duration-500"
                     value={val("personalStatement")}
-                    onChange={(e) => updateField("personalStatement", e.target.value)}
+                    onChange={(e) =>
+                      updateField("personalStatement", e.target.value)
+                    }
                     placeholder="Begin writing here..."
                   />
                   <div className="flex justify-between mt-2">
@@ -459,17 +655,27 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
                     )}
                   </div>
                   {errors.personalStatement && (
-                    <p className="font-body text-xs text-destructive mt-1 animate-fade-in">{errors.personalStatement}</p>
+                    <p className="font-body text-xs text-destructive mt-1 animate-fade-in">
+                      {errors.personalStatement}
+                    </p>
                   )}
                 </div>
               </div>
 
-              <FloatingSelect label="How did you hear about us?" value={val("howDidYouHear")} onChange={(v) => updateField("howDidYouHear", v)} options={hearAbout} error={errors.howDidYouHear} />
+              <FloatingSelect
+                label="How did you hear about us?"
+                value={val("howDidYouHear")}
+                onChange={(v) => updateField("howDidYouHear", v)}
+                options={hearAbout}
+                error={errors.howDidYouHear}
+              />
 
               <div className="flex items-start gap-4 pt-4">
                 <button
                   type="button"
-                  onClick={() => updateField("agreeTerms", !formData.agreeTerms)}
+                  onClick={() =>
+                    updateField("agreeTerms", !formData.agreeTerms)
+                  }
                   className={`mt-0.5 w-5 h-5 border-2 flex items-center justify-center shrink-0 transition-all duration-500 ${
                     formData.agreeTerms
                       ? "border-accent bg-accent"
@@ -477,19 +683,27 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
                   }`}
                 >
                   {formData.agreeTerms && (
-                    <Check size={12} className="text-accent-foreground animate-scale-in" />
+                    <Check
+                      size={12}
+                      className="text-accent-foreground animate-scale-in"
+                    />
                   )}
                 </button>
                 <label
-                  onClick={() => updateField("agreeTerms", !formData.agreeTerms)}
+                  onClick={() =>
+                    updateField("agreeTerms", !formData.agreeTerms)
+                  }
                   className="font-body text-sm text-foreground/80 leading-relaxed cursor-pointer select-none hover:text-foreground transition-colors duration-500"
                 >
-                  I confirm that all information provided is accurate and I agree to the terms
-                  and conditions of the {portalName} application process.
+                  I confirm that all information provided is accurate and I
+                  agree to the terms and conditions of the {portalName}{" "}
+                  application process.
                 </label>
               </div>
               {errors.agreeTerms && (
-                <p className="font-body text-xs text-destructive animate-fade-in">{errors.agreeTerms}</p>
+                <p className="font-body text-xs text-destructive animate-fade-in">
+                  {errors.agreeTerms}
+                </p>
               )}
             </div>
           </>
@@ -502,7 +716,10 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
           onClick={handlePrev}
           className="group flex items-center gap-3 font-body text-sm tracking-[0.2em] uppercase text-muted-foreground transition-all duration-500 hover:text-foreground"
         >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform duration-500" />
+          <ArrowLeft
+            size={16}
+            className="group-hover:-translate-x-1 transition-transform duration-500"
+          />
           {step > 0 ? "Previous" : "Cancel"}
         </button>
         <button
@@ -512,7 +729,10 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
           <span className="relative z-10 transition-colors duration-500 group-hover:text-accent-foreground">
             {step < steps.length - 1 ? "Continue" : "Submit"}
           </span>
-          <ArrowRight size={16} className="relative z-10 group-hover:translate-x-1 transition-transform duration-500" />
+          <ArrowRight
+            size={16}
+            className="relative z-10 group-hover:translate-x-1 transition-transform duration-500"
+          />
           <div className="absolute inset-0 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
         </button>
       </div>

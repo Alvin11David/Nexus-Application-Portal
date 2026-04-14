@@ -32,7 +32,7 @@ const LoadingScreen = ({ onComplete }: { onComplete: () => void }) => {
       } catch {
         // Keep fallback name
       }
-    }
+    };
     void fetchPortalName();
   }, []);
 
