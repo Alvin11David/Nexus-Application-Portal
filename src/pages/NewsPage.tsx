@@ -75,20 +75,45 @@ const toSlug = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-const fallbackNews: NewsItem[] = newsArticles.map((article) => ({
-  id: article.slug,
-  slug: article.slug,
-  title: article.title,
-  excerpt: article.excerpt,
-  category: article.category,
-  date: article.date,
-  featured: article.slug === featuredNewsSlug,
-}));
+const makeFallbackNews = (portalName: string): NewsItem[] =>
+  newsArticles.map((article) => ({
+    id: article.slug,
+    slug: article.slug,
+    title: article.title.replace(/Veritas Institute/g, portalName),
+    excerpt: article.excerpt.replace(/Veritas Institute/g, portalName),
+    category: article.category,
+    date: article.date,
+    featured: article.slug === featuredNewsSlug,
+  }));
 
 const NewsPage = () => {
   const imageRef = useRef<HTMLImageElement>(null);
   const newsRef = useRef<HTMLDivElement>(null);
   const eventsRef = useRef<HTMLDivElement>(null);
+  const [portalName, setPortalName] = useState("Veritas Institute");
+
+  useEffect(() => {
+    const fetchPortalName = async () => {
+      if (!db) return;
+
+      try {
+        const settingsRef = doc(db, "appSettings", "admin");
+        const settingsSnap = await getDoc(settingsRef);
+        const settingsData = settingsSnap.data() as
+          | { studentPortalName?: string }
+          | undefined;
+        const nextName = settingsData?.studentPortalName?.trim();
+
+        if (nextName) {
+          setPortalName(nextName);
+        }
+      } catch {
+        // Keep fallback name when settings are unavailable.
+      }
+    };
+
+    void fetchPortalName();
+  }, []);
 
   const { data: rawNewsData } = useFirestoreCollection<FirestoreNewsArticle>(
     "NewsArticles",
@@ -138,7 +163,7 @@ const NewsPage = () => {
               featured: Boolean(item.featured),
             };
           })
-      : fallbackNews;
+      : makeFallbackNews(portalName);
 
   const featuredNews =
     newsData.find((article) => article.featured) ??
