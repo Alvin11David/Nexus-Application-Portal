@@ -273,13 +273,15 @@ const ContactPage = () => {
                   value: "info@instituteuganda.org",
                 },
                 {
-                  href: "tel:+256700000000",
+                  href: `tel:${organizationPhone.replace(/\s+/g, "")}`,
                   icon: Phone,
                   label: "Phone",
-                  value: "+256 700 000 000",
+                  value: organizationPhone,
                 },
                 {
-                  href: "https://wa.me/256700000000",
+                  href: phoneDigits
+                    ? `https://wa.me/${phoneDigits}`
+                    : "https://wa.me/256700000000",
                   icon: MessageCircle,
                   label: "WhatsApp",
                   value: "Chat with us on WhatsApp",
