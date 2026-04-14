@@ -174,8 +174,9 @@ const StudentStoriesPage = () => {
   const dynamicStories: Story[] =
     storyDocs.length > 0
       ? storyDocs.map((doc, index) => {
-          const content =
-            doc.content || "Story details will be published soon.";
+          const content = (
+            doc.content || "Story details will be published soon."
+          ).replace(/Veritas Institute/g, portalName);
           return {
             name: doc.student_name,
             age: 0,
@@ -200,7 +201,10 @@ const StudentStoriesPage = () => {
             fullStory: content,
           };
         })
-      : stories;
+      : stories.map((story) => ({
+          ...story,
+          fullStory: story.fullStory.replace(/Veritas Institute/g, portalName),
+        }));
 
   useEffect(() => {
     window.scrollTo(0, 0);
