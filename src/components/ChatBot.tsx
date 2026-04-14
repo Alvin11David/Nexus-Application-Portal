@@ -177,6 +177,30 @@ const ChatBot = () => {
   const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   useEffect(() => {
+    const fetchPortalName = async () => {
+      if (!db) return;
+
+      try {
+        const settingsRef = doc(db, "appSettings", "admin");
+        const settingsSnap = await getDoc(settingsRef);
+        const settingsData = settingsSnap.data() as
+          | { studentPortalName?: string }
+          | undefined;
+        const nextName = settingsData?.studentPortalName?.trim();
+
+        if (nextName) {
+          const shortName = nextName.split(" ")[0];
+          setPortalName(shortName);
+        }
+      } catch {
+        // Keep fallback name when settings are unavailable.
+      }
+    };
+
+    void fetchPortalName();
+  }, []);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
