@@ -46,6 +46,9 @@ const Footer = () => {
   const [email, setEmail] = useState("");
   const [portalName, setPortalName] = useState("Veritas Institute");
   const [organizationEmail, setOrganizationEmail] = useState("");
+  const [organizationWhatsappCta, setOrganizationWhatsappCta] = useState(
+    "WhatsApp Us",
+  );
   const [organizationPhone, setOrganizationPhone] =
     useState("+256 700 000 000");
 
@@ -101,11 +104,13 @@ const Footer = () => {
               studentPortalName?: string;
               organizationEmail?: string;
               organizationPhone?: string;
+              organizationWhatsappCta?: string;
             }
           | undefined;
         const nextName = settingsData?.studentPortalName?.trim();
         const nextEmail = settingsData?.organizationEmail?.trim();
         const nextPhone = settingsData?.organizationPhone?.trim();
+        const nextWhatsappCta = settingsData?.organizationWhatsappCta?.trim();
 
         if (nextName) {
           setPortalName(nextName);
@@ -115,6 +120,9 @@ const Footer = () => {
         }
         if (nextPhone) {
           setOrganizationPhone(nextPhone);
+        }
+        if (nextWhatsappCta) {
+          setOrganizationWhatsappCta(nextWhatsappCta);
         }
       } catch {
         // Keep fallback name when settings are unavailable.
@@ -193,7 +201,7 @@ const Footer = () => {
                   className="text-primary-foreground/40 group-hover:text-accent transition-colors duration-500"
                 />
                 <span className="relative">
-                  WhatsApp Us
+                  {organizationWhatsappCta}
                   <span className="absolute -bottom-0.5 left-0 w-full h-px bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                 </span>
               </a>
