@@ -61,6 +61,9 @@ const ContactPage = () => {
     message: "",
   });
   const [sending, setSending] = useState(false);
+  const [organizationEmail, setOrganizationEmail] = useState(
+    "info@instituteuganda.org",
+  );
   const [organizationPhone, setOrganizationPhone] = useState("+256 700 000 000");
   const partnersRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
@@ -78,10 +81,14 @@ const ContactPage = () => {
         const settingsRef = doc(db, "appSettings", "admin");
         const settingsSnap = await getDoc(settingsRef);
         const settingsData = settingsSnap.data() as
-          | { organizationPhone?: string }
+          | { organizationEmail?: string; organizationPhone?: string }
           | undefined;
+        const nextEmail = settingsData?.organizationEmail?.trim();
         const nextPhone = settingsData?.organizationPhone?.trim();
 
+        if (nextEmail) {
+          setOrganizationEmail(nextEmail);
+        }
         if (nextPhone) {
           setOrganizationPhone(nextPhone);
         }
@@ -267,10 +274,10 @@ const ContactPage = () => {
             <div className="space-y-8">
               {[
                 {
-                  href: "mailto:info@instituteuganda.org",
+                  href: `mailto:${organizationEmail}`,
                   icon: Mail,
                   label: "Email",
-                  value: "info@instituteuganda.org",
+                  value: organizationEmail,
                 },
                 {
                   href: `tel:${organizationPhone.replace(/\s+/g, "")}`,

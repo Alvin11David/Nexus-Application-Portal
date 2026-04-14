@@ -45,6 +45,9 @@ const Footer = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState("");
   const [portalName, setPortalName] = useState("Veritas Institute");
+  const [organizationEmail, setOrganizationEmail] = useState(
+    "info@instituteuganda.org",
+  );
   const [organizationPhone, setOrganizationPhone] =
     useState("+256 700 000 000");
 
@@ -96,13 +99,21 @@ const Footer = () => {
         const settingsRef = doc(db, "appSettings", "admin");
         const settingsSnap = await getDoc(settingsRef);
         const settingsData = settingsSnap.data() as
-          | { studentPortalName?: string; organizationPhone?: string }
+          | {
+              studentPortalName?: string;
+              organizationEmail?: string;
+              organizationPhone?: string;
+            }
           | undefined;
         const nextName = settingsData?.studentPortalName?.trim();
+        const nextEmail = settingsData?.organizationEmail?.trim();
         const nextPhone = settingsData?.organizationPhone?.trim();
 
         if (nextName) {
           setPortalName(nextName);
+        }
+        if (nextEmail) {
+          setOrganizationEmail(nextEmail);
         }
         if (nextPhone) {
           setOrganizationPhone(nextPhone);
@@ -144,7 +155,7 @@ const Footer = () => {
             </p>
             <div className="space-y-4">
               <a
-                href="mailto:info@instituteuganda.org"
+                href={`mailto:${organizationEmail}`}
                 className="group flex items-center gap-3 font-body text-sm text-primary-foreground/70 transition-colors duration-500 hover:text-primary-foreground"
               >
                 <Mail
@@ -152,7 +163,7 @@ const Footer = () => {
                   className="text-primary-foreground/40 group-hover:text-accent transition-colors duration-500"
                 />
                 <span className="relative">
-                  info@instituteuganda.org
+                  {organizationEmail}
                   <span className="absolute -bottom-0.5 left-0 w-full h-px bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
                 </span>
               </a>
