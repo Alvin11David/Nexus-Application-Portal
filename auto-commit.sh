@@ -8,7 +8,7 @@ do
   # Check if there is anything to commit
   if ! git diff --cached --quiet
   then
-    git commit -m "Auto commit at $(date)"
+    git commit -m "Made optimal changes"
     git push
   else
     echo "No changes to commit"
