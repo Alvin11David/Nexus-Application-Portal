@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { z } from "zod";
 import gsap from "gsap";
 import { ArrowRight, ArrowLeft, Check, ChevronDown } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/integrations/firebase/config";
 
 const applicationSchema = z.object({
   firstName: z.string().trim().min(1, "Required").max(100),
