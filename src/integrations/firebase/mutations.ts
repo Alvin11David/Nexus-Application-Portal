@@ -8,6 +8,14 @@ export type ContactPayload = {
   message: string;
 };
 
+export type PartnershipSubmissionPayload = {
+  name: string;
+  email: string;
+  organization?: string;
+  partnershipGoal: string;
+  message: string;
+};
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() || "/api";
 
 type SubjectGradeEntry = {
@@ -222,6 +230,24 @@ export const submitApplicationSubmission = async (
     email_verified: payload.emailVerified,
     status: "submitted",
     review_status: "pending",
+    submitted_at: serverTimestamp(),
+  });
+};
+
+export const submitPartnershipSubmission = async (
+  payload: PartnershipSubmissionPayload,
+) => {
+  if (!db) {
+    throw new Error("Firestore is not configured.");
+  }
+
+  return addDoc(collection(db, "partnershipSubmissions"), {
+    name: payload.name,
+    email: payload.email,
+    organization: payload.organization?.trim() || "",
+    partnership_goal: payload.partnershipGoal,
+    message: payload.message,
+    status: "new",
     submitted_at: serverTimestamp(),
   });
 };
