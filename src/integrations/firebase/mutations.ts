@@ -1,12 +1,14 @@
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "@/integrations/firebase/config";
 
-type ContactSubmissionInput = {
+export type ContactPayload = {
   name: string;
   email: string;
   subject?: string;
   message: string;
 };
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() || "/api";
 
 type SubjectGradeEntry = {
   subject: string;
@@ -91,22 +93,47 @@ export type ApplicationSubmissionInput = {
   emailVerified: boolean;
 };
 
-export const submitContactSubmission = async (
-  payload: ContactSubmissionInput,
-) => {
-  if (!db) {
-    throw new Error("Firestore is not configured.");
+export const submitContactSubmission = async (payload: ContactPayload) => {
+  const contactEndpoint = API_BASE_URL.endsWith("/")
+    ? `${API_BASE_URL}contact/`
+    : `${API_BASE_URL}/contact/`;
+
+  let response: Response;
+  try {
+    response = await fetch(contactEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: payload.name,
+        email: payload.email,
+        subject: payload.subject ?? "",
+        message: payload.message,
+      }),
+    });
+  } catch {
+    throw new Error(
+      "Could not reach the contact API. Confirm Django is running and restart Vite after env changes.",
+    );
   }
 
-  return addDoc(collection(db, "contact_submissions"), {
-    name: payload.name,
-    email: payload.email,
-    subject: payload.subject || "General Inquiry",
-    message: payload.message,
-    submitted_at: serverTimestamp(),
-    read: false,
-    responded: false,
-  });
+  let data: unknown = null;
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok) {
+    const parsed =
+      data && typeof data === "object"
+        ? (data as { detail?: string; message?: string })
+        : {};
+    throw new Error(
+      parsed.detail ?? parsed.message ?? "Could not submit contact message.",
+    );
+  }
+
+  return data;
 };
 
 export const submitApplicationSubmission = async (

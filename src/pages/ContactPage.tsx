@@ -231,6 +231,8 @@ const ContactPage = () => {
       toast({
         title: "Message Sent",
         description: "Thank you! We'll get back to you within 24 hours.",
+        className:
+          "data-[state=open]:slide-in-from-right-full data-[state=closed]:slide-out-to-right-full",
       });
     } catch (error) {
       setSending(false);
