@@ -1,6 +1,13 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Building2, Globe, HeartHandshake, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  Globe,
+  HeartHandshake,
+  Users,
+} from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "@/hooks/use-toast";
@@ -90,7 +97,8 @@ const PartnershipDiscussionPage = () => {
 
       toast({
         title: "Request Sent",
-        description: "Thanks for reaching out. Our partnerships team will contact you shortly.",
+        description:
+          "Thanks for reaching out. Our partnerships team will contact you shortly.",
         className:
           "data-[state=open]:slide-in-from-right-full data-[state=closed]:slide-out-to-right-full",
       });
@@ -132,8 +140,8 @@ const PartnershipDiscussionPage = () => {
             Partnership
           </h1>
           <p className="mt-6 max-w-2xl font-body text-base text-muted-foreground leading-relaxed">
-            Let us know your organization goals and we will shape a partnership model
-            that creates measurable impact for learners and communities.
+            Let us know your organization goals and we will shape a partnership
+            model that creates measurable impact for learners and communities.
           </p>
         </div>
       </section>
@@ -186,7 +194,10 @@ const PartnershipDiscussionPage = () => {
                 type="email"
                 value={formData.email}
                 onChange={(event) =>
-                  setFormData((prev) => ({ ...prev, email: event.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    email: event.target.value,
+                  }))
                 }
                 placeholder="Email address *"
                 className="w-full px-5 py-3 rounded-xl border border-border bg-transparent font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
@@ -197,7 +208,10 @@ const PartnershipDiscussionPage = () => {
                 type="text"
                 value={formData.organization}
                 onChange={(event) =>
-                  setFormData((prev) => ({ ...prev, organization: event.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    organization: event.target.value,
+                  }))
                 }
                 placeholder="Organization (optional)"
                 className="w-full px-5 py-3 rounded-xl border border-border bg-transparent font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
@@ -207,7 +221,10 @@ const PartnershipDiscussionPage = () => {
                 type="text"
                 value={formData.partnershipGoal}
                 onChange={(event) =>
-                  setFormData((prev) => ({ ...prev, partnershipGoal: event.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    partnershipGoal: event.target.value,
+                  }))
                 }
                 placeholder="Partnership goal *"
                 className="w-full px-5 py-3 rounded-xl border border-border bg-transparent font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent"
@@ -217,7 +234,10 @@ const PartnershipDiscussionPage = () => {
               <textarea
                 value={formData.message}
                 onChange={(event) =>
-                  setFormData((prev) => ({ ...prev, message: event.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    message: event.target.value,
+                  }))
                 }
                 placeholder="Tell us what you want to achieve together *"
                 rows={6}
