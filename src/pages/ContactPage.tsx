@@ -469,16 +469,7 @@ const ContactPage = () => {
         </div>
         <div className="mt-12">
           <button
-            onClick={() => {
-              const msg = encodeURIComponent(
-                "Hello, I'm interested in partnering with your institute. Please tell me more about partnership opportunities.",
-              );
-              window.open(
-                `https://wa.me/256700000000?text=${msg}`,
-                "_blank",
-                "noopener,noreferrer",
-              );
-            }}
+            onClick={() => navigate("/partnership-discussion")}
             className="group flex items-center gap-2 px-10 py-4 bg-accent text-accent-foreground font-body text-sm tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:bg-accent/90 btn-lift"
           >
             Discuss a Partnership
