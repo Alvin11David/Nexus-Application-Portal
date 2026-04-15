@@ -108,10 +108,10 @@ const Navbar = () => {
             <button
               key={item.label}
               onClick={() => handleNavClick(item.href)}
-              className={`font-body text-xs tracking-[0.2em] uppercase transition-all duration-500 relative group ${
+              className={`group relative rounded-full border px-4 py-2 font-body text-xs tracking-[0.2em] uppercase transition-all duration-500 ${
                 solidNavbar
-                  ? "text-muted-foreground hover:text-foreground"
-                  : "text-primary-foreground/70 hover:text-primary-foreground"
+                  ? "border-transparent bg-transparent text-muted-foreground hover:border-border hover:bg-background hover:text-foreground"
+                  : "border-primary-foreground/15 bg-background/85 text-foreground shadow-sm backdrop-blur-md hover:border-accent/40 hover:text-accent"
               } ${isActive(item.href) ? "!text-accent" : ""}`}
             >
               {item.label}
@@ -137,7 +137,7 @@ const Navbar = () => {
               className={`flex items-center gap-2 px-5 py-2.5 font-body text-xs tracking-[0.2em] uppercase rounded-[20px] transition-all duration-500 hover:scale-105 ${
                 solidNavbar
                   ? "bg-foreground/10 text-foreground hover:bg-foreground/20"
-                  : "bg-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/30"
+                  : "bg-background/85 text-foreground border border-border shadow-sm hover:bg-background"
               }`}
             >
               <Heart size={12} className="fill-current" />
