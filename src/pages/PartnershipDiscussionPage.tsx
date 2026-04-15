@@ -11,7 +11,7 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "@/hooks/use-toast";
-import { submitContactSubmission } from "@/integrations/firebase/mutations";
+import { submitPartnershipSubmission } from "@/integrations/firebase/mutations";
 
 const tracks = [
   {
@@ -75,16 +75,12 @@ const PartnershipDiscussionPage = () => {
     setSending(true);
 
     try {
-      await submitContactSubmission({
+      await submitPartnershipSubmission({
         name: formData.name.trim(),
         email: formData.email.trim(),
-        subject: `Partnership Inquiry: ${formData.partnershipGoal.trim()}`,
-        message: [
-          `Organization: ${formData.organization.trim() || "Not provided"}`,
-          `Partnership goal: ${formData.partnershipGoal.trim()}`,
-          "",
-          formData.message.trim(),
-        ].join("\n"),
+        organization: formData.organization.trim(),
+        partnershipGoal: formData.partnershipGoal.trim(),
+        message: formData.message.trim(),
       });
 
       setFormData({
