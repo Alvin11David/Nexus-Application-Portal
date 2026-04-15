@@ -235,7 +235,9 @@ export const submitApplicationSubmission = async (
 };
 
 export async function submitPartnershipSubmission(data: PartnershipPayload) {
-  const baseUrl = (import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
+  const baseUrl = (
+    import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000"
+  ).replace(/\/$/, "");
   const partnershipEndpoint = baseUrl.endsWith("/api")
     ? `${baseUrl}/partnership-discussions/`
     : `${baseUrl}/api/partnership-discussions/`;
@@ -263,7 +265,10 @@ export async function submitPartnershipSubmission(data: PartnershipPayload) {
 
   if (!response.ok) {
     const errorMessage =
-      result?.detail || result?.message || result?.error || "Could not submit partnership request.";
+      result?.detail ||
+      result?.message ||
+      result?.error ||
+      "Could not submit partnership request.";
     throw new Error(errorMessage);
   }
 
