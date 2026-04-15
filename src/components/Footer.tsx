@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { toast } from "@/hooks/use-toast";
+import { useFirestoreCollection } from "@/hooks/useFirestore";
 import { db } from "@/integrations/firebase/config";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -28,16 +29,21 @@ const quickLinks = [
   { label: "Contact", href: "/contact" },
 ];
 
-const programLinks = [
-  { label: "Tailoring & Design", href: "/programs" },
-  { label: "Plumbing", href: "/programs" },
-  { label: "Electrical Installation", href: "/programs" },
-  { label: "Welding & Fabrication", href: "/programs" },
-  { label: "Hairdressing", href: "/programs" },
-  { label: "Beauty Therapy", href: "/programs" },
-  { label: "Auto Mechanics", href: "/programs" },
-  { label: "Soap Making", href: "/programs" },
+const fallbackProgramNames = [
+  "Tailoring & Design",
+  "Plumbing",
+  "Electrical Installation",
+  "Welding & Fabrication",
+  "Hairdressing",
+  "Beauty Therapy",
+  "Auto Mechanics",
+  "Soap Making",
 ];
+
+type CourseDoc = {
+  id: string;
+  name?: string;
+};
 
 const Footer = () => {
   const footerRef = useRef<HTMLElement>(null);
@@ -56,6 +62,19 @@ const Footer = () => {
   const [organizationAddress, setOrganizationAddress] = useState(
     "Plot 7, Nakawa Road, Kampala, Uganda",
   );
+  const { data: courseDocs } = useFirestoreCollection<CourseDoc>(
+    "courses",
+    fallbackProgramNames.map((name, index) => ({
+      id: `fallback-course-${index}`,
+      name,
+    })),
+    { orderBy: { field: "name", direction: "asc" } },
+  );
+
+  const programLinks = courseDocs
+    .map((course) => course.name?.trim())
+    .filter((name): name is string => Boolean(name))
+    .map((name) => ({ label: name, href: "/admissions/courses" }));
 
   useEffect(() => {
     const ctx = gsap.context(() => {
