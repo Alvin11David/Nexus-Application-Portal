@@ -238,17 +238,17 @@ export async function submitPartnershipSubmission(data: PartnershipPayload) {
   const response = await fetch(
     "http://127.0.0.1:8000/api/partnership-discussions/",
     {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      full_name: data.name,
-      email: data.email,
-      organization: data.organization || "",
-      partnership_goal: data.partnershipGoal,
-      message: data.message,
-    }),
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        full_name: data.name,
+        email: data.email,
+        organization: data.organization || "",
+        partnership_goal: data.partnershipGoal,
+        message: data.message,
+      }),
     },
   );
 
