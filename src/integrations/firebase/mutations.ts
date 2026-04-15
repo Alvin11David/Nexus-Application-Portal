@@ -8,6 +8,12 @@ export type ContactPayload = {
   message: string;
 };
 
+type ContactSubmissionResult = {
+  queued?: boolean;
+  source?: "api" | "firestore-fallback";
+  message?: string;
+};
+
 export type PartnershipPayload = {
   name: string;
   email: string;
@@ -17,6 +23,32 @@ export type PartnershipPayload = {
 };
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() || "/api";
+
+const queueContactSubmissionFallback = async (
+  payload: ContactPayload,
+  failureReason: string,
+): Promise<ContactSubmissionResult | null> => {
+  if (!db) {
+    return null;
+  }
+
+  await addDoc(collection(db, "ContactSubmissions"), {
+    name: payload.name,
+    email: payload.email,
+    subject: payload.subject ?? "",
+    message: payload.message,
+    source: "contact-page",
+    delivery_status: "pending_api_delivery",
+    failure_reason: failureReason,
+    submitted_at: serverTimestamp(),
+  });
+
+  return {
+    queued: true,
+    source: "firestore-fallback",
+    message: "Contact message queued. API unavailable.",
+  };
+};
 
 type SubjectGradeEntry = {
   subject: string;
@@ -101,7 +133,9 @@ export type ApplicationSubmissionInput = {
   emailVerified: boolean;
 };
 
-export const submitContactSubmission = async (payload: ContactPayload) => {
+export const submitContactSubmission = async (
+  payload: ContactPayload,
+): Promise<unknown | ContactSubmissionResult> => {
   const contactEndpoint = API_BASE_URL.endsWith("/")
     ? `${API_BASE_URL}contact/`
     : `${API_BASE_URL}/contact/`;
@@ -119,6 +153,14 @@ export const submitContactSubmission = async (payload: ContactPayload) => {
       }),
     });
   } catch {
+    const fallback = await queueContactSubmissionFallback(
+      payload,
+      "network_error",
+    );
+    if (fallback) {
+      return fallback;
+    }
+
     throw new Error(
       "Could not reach the contact API. Confirm Django is running and restart Vite after env changes.",
     );
@@ -136,12 +178,28 @@ export const submitContactSubmission = async (payload: ContactPayload) => {
       data && typeof data === "object"
         ? (data as { detail?: string; message?: string })
         : {};
+
+    const isLikelyBackendDown =
+      response.status >= 500 && !parsed.detail && !parsed.message;
+    if (isLikelyBackendDown) {
+      const fallback = await queueContactSubmissionFallback(
+        payload,
+        `api_status_${response.status}`,
+      );
+      if (fallback) {
+        return fallback;
+      }
+    }
+
     throw new Error(
       parsed.detail ?? parsed.message ?? "Could not submit contact message.",
     );
   }
 
-  return data;
+  return {
+    source: "api",
+    ...(data && typeof data === "object" ? (data as object) : {}),
+  };
 };
 
 export const submitApplicationSubmission = async (

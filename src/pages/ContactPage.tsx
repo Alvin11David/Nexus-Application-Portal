@@ -219,18 +219,20 @@ const ContactPage = () => {
     setSending(true);
 
     try {
-      await submitContactSubmission({
+      const result = (await submitContactSubmission({
         name: formData.name.trim(),
         email: formData.email.trim(),
         subject: formData.subject.trim(),
         message: formData.message.trim(),
-      });
+      })) as { queued?: boolean };
 
       setSending(false);
       setFormData({ name: "", email: "", subject: "", message: "" });
       toast({
-        title: "Message Sent",
-        description: "Thank you! We'll get back to you within 24 hours.",
+        title: result?.queued ? "Message Saved" : "Message Sent",
+        description: result?.queued
+          ? "Your message was saved successfully and will be delivered when the API is back online."
+          : "Thank you! We'll get back to you within 24 hours.",
         className:
           "data-[state=open]:slide-in-from-right-full data-[state=closed]:slide-out-to-right-full",
       });
