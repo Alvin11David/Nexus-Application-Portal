@@ -8,7 +8,7 @@ export type ContactPayload = {
   message: string;
 };
 
-export type PartnershipSubmissionPayload = {
+export type PartnershipPayload = {
   name: string;
   email: string;
   organization?: string;
@@ -234,20 +234,35 @@ export const submitApplicationSubmission = async (
   });
 };
 
-export const submitPartnershipSubmission = async (
-  payload: PartnershipSubmissionPayload,
-) => {
-  if (!db) {
-    throw new Error("Firestore is not configured.");
+export async function submitPartnershipSubmission(data: PartnershipPayload) {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+
+  const response = await fetch(`${baseUrl}/api/partnership-discussions/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      full_name: data.name,
+      email: data.email,
+      organization: data.organization || "",
+      partnership_goal: data.partnershipGoal,
+      message: data.message,
+    }),
+  });
+
+  let result: any = null;
+  try {
+    result = await response.json();
+  } catch {
+    result = null;
   }
 
-  return addDoc(collection(db, "partnershipSubmissions"), {
-    name: payload.name,
-    email: payload.email,
-    organization: payload.organization?.trim() || "",
-    partnership_goal: payload.partnershipGoal,
-    message: payload.message,
-    status: "new",
-    submitted_at: serverTimestamp(),
-  });
-};
+  if (!response.ok) {
+    const errorMessage =
+      result?.detail || "Could not submit partnership request.";
+    throw new Error(errorMessage);
+  }
+
+  return result;
+}
