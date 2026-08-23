@@ -2,8 +2,6 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { z } from "zod";
 import gsap from "gsap";
 import { ArrowRight, ArrowLeft, Check, ChevronDown } from "lucide-react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/integrations/firebase/config";
 
 const currentYear = new Date().getFullYear();
 
@@ -206,7 +204,7 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
-  const [portalName, setPortalName] = useState("Veritas Institute");
+  const [portalName] = useState("Veritas Institute");
   const stepContentRef = useRef<HTMLDivElement>(null);
   const successRef = useRef<HTMLDivElement>(null);
 
@@ -223,26 +221,6 @@ const ApplicationForm = ({ onClose }: ApplicationFormProps) => {
     },
     [errors],
   );
-
-  useEffect(() => {
-    const fetchPortalName = async () => {
-      if (!db) return;
-      try {
-        const settingsRef = doc(db, "appSettings", "admin");
-        const settingsSnap = await getDoc(settingsRef);
-        const settingsData = settingsSnap.data() as
-          | { studentPortalName?: string }
-          | undefined;
-        const nextName = settingsData?.studentPortalName?.trim();
-        if (nextName) {
-          setPortalName(nextName);
-        }
-      } catch {
-        // Keep fallback name
-      }
-    };
-    void fetchPortalName();
-  }, []);
 
   const steps = [
     {

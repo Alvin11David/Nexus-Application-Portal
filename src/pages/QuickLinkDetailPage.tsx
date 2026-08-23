@@ -2,7 +2,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useFirestoreCollection } from "@/hooks/useFirestore";
+import { useContentCollection } from "@/hooks/useContentCollection";
 import { getResourceGuideBySlug, quickLinkGroups } from "@/lib/resourceContent";
 
 type QuickLinkDoc = {
@@ -17,7 +17,7 @@ type QuickLinkDoc = {
 const QuickLinkDetailPage = () => {
   const { slug } = useParams();
   const staticGuide = slug ? getResourceGuideBySlug(slug) : undefined;
-  const { data: quickLinks } = useFirestoreCollection<QuickLinkDoc>(
+  const { data: quickLinks } = useContentCollection<QuickLinkDoc>(
     "quick_links",
     [],
     {
@@ -26,25 +26,25 @@ const QuickLinkDetailPage = () => {
     },
   );
 
-  const firestoreLink = slug
+  const remoteLink = slug
     ? quickLinks.find((item) => item.slug === slug)
     : undefined;
 
   const guide =
     staticGuide ??
-    (firestoreLink
+    (remoteLink
       ? {
-          slug: firestoreLink.slug,
-          title: firestoreLink.title,
-          category: firestoreLink.category,
+          slug: remoteLink.slug,
+          title: remoteLink.title,
+          category: remoteLink.category,
           excerpt:
-            firestoreLink.description ??
+            remoteLink.description ??
             "Resource detail and access information.",
           overview:
-            firestoreLink.description ??
+            remoteLink.description ??
             "This resource is maintained in the institute portal and can be accessed from the link below.",
           highlights: [
-            "Sourced from the live Firestore quick links collection.",
+            "Sourced from the platform quick links collection.",
             "Use this as the fastest path to the intended service.",
             "Contact support if the destination is unavailable.",
           ],
@@ -54,8 +54,8 @@ const QuickLinkDetailPage = () => {
               body: "Open the primary action below to access the target resource. If you need additional support, use Contact Us from the quick links directory.",
             },
           ],
-          primaryAction: firestoreLink.link_url
-            ? { label: "Open Resource", href: firestoreLink.link_url }
+          primaryAction: remoteLink.link_url
+            ? { label: "Open Resource", href: remoteLink.link_url }
             : undefined,
           secondaryAction: {
             label: "Back to Quick Links",

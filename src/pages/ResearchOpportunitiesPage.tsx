@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowRight } from "lucide-react";
-import { useFirestoreCollection } from "@/hooks/useFirestore";
+import { useContentCollection } from "@/hooks/useContentCollection";
 
 const opportunityTracks = [
   {
@@ -30,7 +30,7 @@ type ResearchOpportunityDoc = {
 
 const ResearchOpportunitiesPage = () => {
   const { data: opportunities } =
-    useFirestoreCollection<ResearchOpportunityDoc>(
+    useContentCollection<ResearchOpportunityDoc>(
       "research_opportunities",
       opportunityTracks.map((track) => ({
         id: track.title,

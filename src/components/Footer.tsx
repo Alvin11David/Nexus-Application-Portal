@@ -10,10 +10,8 @@ import {
   Heart,
   ArrowUpRight,
 } from "lucide-react";
-import { doc, getDoc } from "firebase/firestore";
 import { toast } from "@/hooks/use-toast";
-import { useFirestoreCollection } from "@/hooks/useFirestore";
-import { db } from "@/integrations/firebase/config";
+import { useContentCollection } from "@/hooks/useContentCollection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -50,19 +48,17 @@ const Footer = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const [email, setEmail] = useState("");
-  const [portalName, setPortalName] = useState("Veritas Institute");
-  const [organizationEmail, setOrganizationEmail] = useState("");
-  const [organizationMission, setOrganizationMission] = useState(
+  const [portalName] = useState("Veritas Institute");
+  const [organizationEmail] = useState("");
+  const [organizationMission] = useState(
     "Empowering single mothers and vulnerable youth through practical vocational skills — building dignified livelihoods one graduate at a time.",
   );
-  const [organizationWhatsappCta, setOrganizationWhatsappCta] =
-    useState("WhatsApp Us");
-  const [organizationPhone, setOrganizationPhone] =
-    useState("+256 700 000 000");
-  const [organizationAddress, setOrganizationAddress] = useState(
+  const [organizationWhatsappCta] = useState("WhatsApp Us");
+  const [organizationPhone] = useState("+256 700 000 000");
+  const [organizationAddress] = useState(
     "Plot 7, Nakawa Road, Kampala, Uganda",
   );
-  const { data: courseDocs } = useFirestoreCollection<CourseDoc>(
+  const { data: courseDocs } = useContentCollection<CourseDoc>(
     "courses",
     fallbackProgramNames.map((name, index) => ({
       id: `fallback-course-${index}`,
@@ -114,56 +110,6 @@ const Footer = () => {
       );
     }, footerRef);
     return () => ctx.revert();
-  }, []);
-
-  useEffect(() => {
-    const fetchPortalName = async () => {
-      if (!db) return;
-
-      try {
-        const settingsRef = doc(db, "appSettings", "admin");
-        const settingsSnap = await getDoc(settingsRef);
-        const settingsData = settingsSnap.data() as
-          | {
-              studentPortalName?: string;
-              organizationEmail?: string;
-              organizationPhone?: string;
-              organizationWhatsappCta?: string;
-              organizationAddress?: string;
-              organizationMission?: string;
-            }
-          | undefined;
-        const nextName = settingsData?.studentPortalName?.trim();
-        const nextEmail = settingsData?.organizationEmail?.trim();
-        const nextPhone = settingsData?.organizationPhone?.trim();
-        const nextWhatsappCta = settingsData?.organizationWhatsappCta?.trim();
-        const nextAddress = settingsData?.organizationAddress?.trim();
-        const nextMission = settingsData?.organizationMission?.trim();
-
-        if (nextName) {
-          setPortalName(nextName);
-        }
-        if (nextEmail) {
-          setOrganizationEmail(nextEmail);
-        }
-        if (nextPhone) {
-          setOrganizationPhone(nextPhone);
-        }
-        if (nextWhatsappCta) {
-          setOrganizationWhatsappCta(nextWhatsappCta);
-        }
-        if (nextAddress) {
-          setOrganizationAddress(nextAddress);
-        }
-        if (nextMission) {
-          setOrganizationMission(nextMission);
-        }
-      } catch {
-        // Keep fallback name when settings are unavailable.
-      }
-    };
-
-    void fetchPortalName();
   }, []);
 
   const handleNewsletterSubmit = (event: FormEvent<HTMLFormElement>) => {

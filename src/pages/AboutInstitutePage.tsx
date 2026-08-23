@@ -4,8 +4,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { CheckCircle2 } from "lucide-react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/integrations/firebase/config";
 import aboutHero from "@/assets/about-hero.jpg";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -31,31 +29,11 @@ const AboutInstitutePage = () => {
   const heroTextRef = useRef<HTMLDivElement>(null);
   const highlightsRef = useRef<HTMLDivElement>(null);
   const missionRef = useRef<HTMLDivElement>(null);
-  const [portalName, setPortalName] = useState("Veritas Institute");
+  const [portalName] = useState("Veritas Institute");
 
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    const fetchPortalName = async () => {
-      if (!db) return;
-
-      try {
-        const settingsRef = doc(db, "appSettings", "admin");
-        const settingsSnap = await getDoc(settingsRef);
-        const settingsData = settingsSnap.data() as
-          | { studentPortalName?: string }
-          | undefined;
-        const nextName = settingsData?.studentPortalName?.trim();
-
-        if (nextName) {
-          setPortalName(nextName);
-        }
-      } catch {
-        // Keep fallback name when settings are unavailable.
-      }
-    };
-
-    void fetchPortalName();
     const ctx = gsap.context(() => {
       // Hero text animation
       if (heroTextRef.current) {

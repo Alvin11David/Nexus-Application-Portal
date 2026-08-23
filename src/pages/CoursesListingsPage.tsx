@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { BookOpen } from "lucide-react";
 import aboutHero from "@/assets/about-hero.jpg";
-import { useFirestoreCollection } from "@/hooks/useFirestore";
+import { useContentCollection } from "@/hooks/useContentCollection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -72,7 +72,7 @@ const CoursesListingsPage = () => {
   const imageRef = useRef<HTMLImageElement>(null);
   const heroTextRef = useRef<HTMLDivElement>(null);
   const collegesRef = useRef<HTMLDivElement>(null);
-  const { data: courseDocs } = useFirestoreCollection<CourseDoc>(
+  const { data: courseDocs } = useContentCollection<CourseDoc>(
     "courses",
     [],
     {

@@ -17,7 +17,7 @@ import partnersHero from "@/assets/partners-hero.jpg";
 import communityOutreach from "@/assets/gallery/community-outreach.jpg";
 import graduatesGroup from "@/assets/gallery/graduates-group.jpg";
 import { useSpotlightCards } from "@/hooks/useScrollReveal";
-import { useFirestoreCollection } from "@/hooks/useFirestore";
+import { useContentCollection } from "@/hooks/useContentCollection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -103,7 +103,7 @@ const PartnersPage = () => {
   const cardsRef = useRef<HTMLDivElement>(null);
   const partnersGridRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
-  const { data: partnerDocs } = useFirestoreCollection<PartnerDoc>(
+  const { data: partnerDocs } = useContentCollection<PartnerDoc>(
     "partners",
     currentPartners.map((partner) => ({
       id: partner.name,

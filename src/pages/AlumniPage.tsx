@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Award, Users, Briefcase } from "lucide-react";
 import aboutHero from "@/assets/about-hero.jpg";
-import { useFirestoreCollection } from "@/hooks/useFirestore";
+import { useContentCollection } from "@/hooks/useContentCollection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -66,7 +66,7 @@ const AlumniPage = () => {
   const heroTextRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const spotlightsRef = useRef<HTMLDivElement>(null);
-  const { data: alumniDocs } = useFirestoreCollection<AlumniDoc>("alumni", [], {
+  const { data: alumniDocs } = useContentCollection<AlumniDoc>("alumni", [], {
     orderBy: { field: "graduation_year", direction: "desc" },
   });
 

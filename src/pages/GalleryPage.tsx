@@ -4,7 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useFirestoreCollection } from "@/hooks/useFirestore";
+import { useContentCollection } from "@/hooks/useContentCollection";
 
 import tailoringClass from "@/assets/gallery/tailoring-class.jpg";
 import graduationCeremony from "@/assets/gallery/graduation-ceremony.jpg";
@@ -145,7 +145,7 @@ const GalleryPage = () => {
   const gridRef = useRef<HTMLDivElement>(null);
   const lightboxRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
-  const { data: galleryItems } = useFirestoreCollection<GalleryItem>(
+  const { data: galleryItems } = useContentCollection<GalleryItem>(
     "gallery",
     fallbackGalleryItems,
     { orderBy: { field: "created_at", direction: "desc" } },

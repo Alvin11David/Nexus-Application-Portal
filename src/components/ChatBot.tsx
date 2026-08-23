@@ -9,8 +9,6 @@ import {
   RotateCcw,
 } from "lucide-react";
 import gsap from "gsap";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/integrations/firebase/config";
 
 interface Message {
   id: string;
@@ -18,7 +16,9 @@ interface Message {
   content: string;
 }
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+// Chat backend was removed with the legacy stack.
+// Point this at the future Spring Boot chat endpoint when available.
+const CHAT_URL = "";
 
 const getQuickTopics = (instituteName: string) => [
   { label: "Admissions", query: `How do I apply to ${instituteName}?` },
@@ -39,11 +39,15 @@ async function streamChat({
   onError: (err: string) => void;
 }) {
   try {
+    if (!CHAT_URL) {
+      onError("Chat is temporarily unavailable.");
+      return;
+    }
+
     const resp = await fetch(CHAT_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
       },
       body: JSON.stringify({ messages }),
     });
@@ -190,35 +194,12 @@ const ChatBot = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [portalName, setPortalName] = useState("Veritas Institute");
+  const [portalName] = useState("Veritas Institute");
   const chatRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const messageRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-
-  useEffect(() => {
-    const fetchPortalName = async () => {
-      if (!db) return;
-
-      try {
-        const settingsRef = doc(db, "appSettings", "admin");
-        const settingsSnap = await getDoc(settingsRef);
-        const settingsData = settingsSnap.data() as
-          | { studentPortalName?: string }
-          | undefined;
-        const nextName = settingsData?.studentPortalName?.trim();
-
-        if (nextName) {
-          setPortalName(nextName);
-        }
-      } catch {
-        // Keep fallback name when settings are unavailable.
-      }
-    };
-
-    void fetchPortalName();
-  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

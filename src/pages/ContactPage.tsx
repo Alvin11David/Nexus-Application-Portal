@@ -16,12 +16,10 @@ import {
   Building,
   Globe,
 } from "lucide-react";
-import { doc, getDoc } from "firebase/firestore";
 import { toast } from "@/hooks/use-toast";
-import { db } from "@/integrations/firebase/config";
 import heroCampus from "@/assets/hero-campus.jpg";
 import { useSpotlightCards } from "@/hooks/useScrollReveal";
-import { submitContactSubmission } from "@/integrations/firebase/mutations";
+import { submitContactSubmission } from "@/lib/submissions";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -61,12 +59,10 @@ const ContactPage = () => {
     message: "",
   });
   const [sending, setSending] = useState(false);
-  const [organizationEmail, setOrganizationEmail] = useState("");
-  const [organizationPhone, setOrganizationPhone] =
-    useState("+256 700 000 000");
-  const [organizationWhatsappCta, setOrganizationWhatsappCta] =
-    useState("WhatsApp Us");
-  const [organizationAddress, setOrganizationAddress] = useState(
+  const [organizationEmail] = useState("");
+  const [organizationPhone] = useState("+256 700 000 000");
+  const [organizationWhatsappCta] = useState("WhatsApp Us");
+  const [organizationAddress] = useState(
     "Plot 7, Nakawa Road, Kampala, Uganda",
   );
   const partnersRef = useRef<HTMLDivElement>(null);
@@ -78,44 +74,6 @@ const ContactPage = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const fetchOrganizationPhone = async () => {
-      if (!db) return;
-
-      try {
-        const settingsRef = doc(db, "appSettings", "admin");
-        const settingsSnap = await getDoc(settingsRef);
-        const settingsData = settingsSnap.data() as
-          | {
-              organizationEmail?: string;
-              organizationPhone?: string;
-              organizationWhatsappCta?: string;
-              organizationAddress?: string;
-            }
-          | undefined;
-        const nextEmail = settingsData?.organizationEmail?.trim();
-        const nextPhone = settingsData?.organizationPhone?.trim();
-        const nextWhatsappCta = settingsData?.organizationWhatsappCta?.trim();
-        const nextAddress = settingsData?.organizationAddress?.trim();
-
-        if (nextEmail) {
-          setOrganizationEmail(nextEmail);
-        }
-        if (nextPhone) {
-          setOrganizationPhone(nextPhone);
-        }
-        if (nextWhatsappCta) {
-          setOrganizationWhatsappCta(nextWhatsappCta);
-        }
-        if (nextAddress) {
-          setOrganizationAddress(nextAddress);
-        }
-      } catch {
-        // Keep fallback phone when settings are unavailable.
-      }
-    };
-
-    void fetchOrganizationPhone();
-
     const ctx = gsap.context(() => {
       // Hero text — cinematic clip reveal
       gsap.fromTo(

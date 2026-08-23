@@ -11,7 +11,7 @@ import {
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "@/hooks/use-toast";
-import { submitPartnershipSubmission } from "@/integrations/firebase/mutations";
+import { submitPartnershipSubmission } from "@/lib/submissions";
 
 const tracks = [
   {

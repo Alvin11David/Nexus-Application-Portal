@@ -19,7 +19,7 @@ import {
   Users,
 } from "lucide-react";
 import { quickLinkGroups } from "@/lib/resourceContent";
-import { useFirestoreCollection } from "@/hooks/useFirestore";
+import { useContentCollection } from "@/hooks/useContentCollection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -70,7 +70,7 @@ const fallbackQuickLinks: QuickLinkDoc[] = quickLinkGroups.flatMap((group) =>
 
 const QuickLinksPage = () => {
   const gridRef = useRef<HTMLDivElement>(null);
-  const { data: quickLinks } = useFirestoreCollection<QuickLinkDoc>(
+  const { data: quickLinks } = useContentCollection<QuickLinkDoc>(
     "quick_links",
     fallbackQuickLinks,
     { orderBy: { field: "order", direction: "asc" } },

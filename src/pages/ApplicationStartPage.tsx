@@ -3,17 +3,11 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowLeft, ArrowRight, Check, Lock } from "lucide-react";
-import {
-  getDownloadURL,
-  getStorage,
-  ref as storageRef,
-  uploadBytes,
-} from "firebase/storage";
+import { uploadFile } from "@/lib/storage";
 import {
   submitApplicationSubmission,
   type ApplicationSubmissionInput,
-} from "@/integrations/firebase/mutations";
-import { firebaseApp } from "@/integrations/firebase/config";
+} from "@/lib/submissions";
 
 const currentYear = new Date().getFullYear();
 
@@ -618,9 +612,9 @@ const nationalityOptions = [
   "Zimbabwe",
 ];
 
+// Email verification moves to the platform API (Spring Boot identity module).
 const OTP_API_BASE =
-  import.meta.env.VITE_OTP_API_BASE ??
-  (import.meta.env.DEV ? "http://127.0.0.1:5055" : window.location.origin);
+  import.meta.env.VITE_API_BASE_URL?.trim() || "/api";
 
 const APPLICATION_DRAFT_STORAGE_KEY = "application_start_draft_v1";
 
@@ -757,7 +751,6 @@ const ApplicationStartPage = () => {
   const isUaceSelected = formData.academicCredentialLevel.includes("UACE");
   const isDirectEntry = formData.applicationType === "Direct Entry (A-Level)";
   const shouldCaptureUceAndUace = isDirectEntry || isUaceSelected;
-  const storage = firebaseApp ? getStorage(firebaseApp) : null;
   const academicStepLabels = [
     "Application Setup",
     "Qualification Record",
@@ -786,14 +779,6 @@ const ApplicationStartPage = () => {
     config: DocumentUploadConfig,
     file: File,
   ) => {
-    if (!storage) {
-      setDocumentUploadErrors((prev) => ({
-        ...prev,
-        [config.field]: "Firebase Storage is not configured.",
-      }));
-      return;
-    }
-
     if (file.size > config.maxBytes) {
       setDocumentUploadErrors((prev) => ({
         ...prev,
@@ -823,17 +808,7 @@ const ApplicationStartPage = () => {
     try {
       const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
       const uploadPath = `applications/${config.field}/${Date.now()}-${safeName}`;
-      const fileRef = storageRef(storage, uploadPath);
-      setUploadingDocuments((prev) => ({
-        ...prev,
-        [config.field]: {
-          uploading: true,
-          fileName: file.name,
-          fileSize: file.size,
-        },
-      }));
-      await uploadBytes(fileRef, file);
-      const downloadUrl = await getDownloadURL(fileRef);
+      const { url: downloadUrl } = await uploadFile(uploadPath, file);
       updateUploadField(config.field, downloadUrl);
 
       if (config.field === "passportPhotoUrl") {
@@ -1706,7 +1681,7 @@ const ApplicationStartPage = () => {
       setApplicationId(submission.id);
       setSubmitted(true);
       setSubmissionStatus(
-        "Your application has been saved to Firestore and submitted successfully.",
+        "Your application has been submitted successfully.",
       );
     } catch (error) {
       const message =
@@ -1731,7 +1706,7 @@ const ApplicationStartPage = () => {
     setOtpVerified(false);
 
     try {
-      const res = await fetch(`${OTP_API_BASE}/api/otp/send`, {
+      const res = await fetch(`${OTP_API_BASE}/auth/otp/send`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -1771,7 +1746,7 @@ const ApplicationStartPage = () => {
     setOtpStatus("");
 
     try {
-      const res = await fetch(`${OTP_API_BASE}/api/otp/verify`, {
+      const res = await fetch(`${OTP_API_BASE}/auth/otp/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp: code }),

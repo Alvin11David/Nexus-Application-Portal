@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Quote, ArrowRight, Heart, ChevronDown } from "lucide-react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/integrations/firebase/config";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import storiesHero from "@/assets/stories-hero.jpg";
@@ -14,7 +12,7 @@ import storyEsther from "@/assets/story-esther.jpg";
 import tailoringBusiness from "@/assets/gallery/tailoring-business.jpg";
 import soapProducts from "@/assets/gallery/soap-products.jpg";
 import communityMarket from "@/assets/gallery/community-market.jpg";
-import { useFirestoreCollection } from "@/hooks/useFirestore";
+import { useContentCollection } from "@/hooks/useContentCollection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -143,33 +141,13 @@ type StudentStoryDoc = {
 const StudentStoriesPage = () => {
   const navigate = useNavigate();
   const [expandedStory, setExpandedStory] = useState<number | null>(null);
-  const [portalName, setPortalName] = useState("Veritas Institute");
+  const [portalName] = useState("Veritas Institute");
   const storiesRef = useRef<HTMLDivElement>(null);
-  const { data: storyDocs } = useFirestoreCollection<StudentStoryDoc>(
+  const { data: storyDocs } = useContentCollection<StudentStoryDoc>(
     "student_stories",
     [],
     { orderBy: { field: "published_date", direction: "desc" } },
   );
-
-  useEffect(() => {
-    const fetchPortalName = async () => {
-      if (!db) return;
-      try {
-        const settingsRef = doc(db, "appSettings", "admin");
-        const settingsSnap = await getDoc(settingsRef);
-        const settingsData = settingsSnap.data() as
-          | { studentPortalName?: string }
-          | undefined;
-        const nextName = settingsData?.studentPortalName?.trim();
-        if (nextName) {
-          setPortalName(nextName);
-        }
-      } catch {
-        // Keep fallback name
-      }
-    };
-    void fetchPortalName();
-  }, []);
 
   const dynamicStories: Story[] =
     storyDocs.length > 0

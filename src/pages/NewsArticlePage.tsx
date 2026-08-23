@@ -3,9 +3,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/integrations/firebase/config";
-import { useFirestoreCollection } from "@/hooks/useFirestore";
+import { useContentCollection } from "@/hooks/useContentCollection";
 import { getNewsArticleBySlug, newsArticles } from "@/lib/newsContent";
 
 type Article = {
@@ -22,7 +20,7 @@ type Article = {
   highlights?: string[];
 };
 
-type FirestoreNewsArticle = Record<string, unknown> & {
+type RemoteNewsArticle = Record<string, unknown> & {
   id: string;
   title?: string;
   slug?: string;
@@ -76,38 +74,15 @@ const toSlug = (value: string) =>
 
 const NewsArticlePage = () => {
   const { slug } = useParams();
-  const [portalName, setPortalName] = useState("Veritas Institute");
-  const { data: firestoreArticles } =
-    useFirestoreCollection<FirestoreNewsArticle>("NewsArticles", [], {
+  const [portalName] = useState("Veritas Institute");
+  const { data: remoteArticles } =
+    useContentCollection<RemoteNewsArticle>("NewsArticles", [], {
       orderBy: { field: "createdAt", direction: "desc" },
     });
 
-  useEffect(() => {
-    const fetchPortalName = async () => {
-      if (!db) return;
-
-      try {
-        const settingsRef = doc(db, "appSettings", "admin");
-        const settingsSnap = await getDoc(settingsRef);
-        const settingsData = settingsSnap.data() as
-          | { studentPortalName?: string }
-          | undefined;
-        const nextName = settingsData?.studentPortalName?.trim();
-
-        if (nextName) {
-          setPortalName(nextName);
-        }
-      } catch {
-        // Keep fallback name when settings are unavailable.
-      }
-    };
-
-    void fetchPortalName();
-  }, []);
-
   const allArticles: Article[] =
-    firestoreArticles.length > 0
-      ? firestoreArticles
+    remoteArticles.length > 0
+      ? remoteArticles
           .filter((item) => item.published !== false)
           .map((item) => {
             const title =

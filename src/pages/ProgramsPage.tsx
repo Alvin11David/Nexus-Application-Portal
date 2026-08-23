@@ -28,7 +28,7 @@ import researchImage from "@/assets/research.jpg";
 import studentsHeroImage from "@/assets/students-hero.jpg";
 import heroCampusImage from "@/assets/hero-campus.jpg";
 import newsHeroImage from "@/assets/news-hero.jpg";
-import { useFirestoreCollection } from "@/hooks/useFirestore";
+import { useContentCollection } from "@/hooks/useContentCollection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -207,7 +207,7 @@ type ProgramCard = {
   image: string;
 };
 
-type FirestoreProgram = Record<string, unknown> & {
+type RemoteProgram = Record<string, unknown> & {
   id: string;
   programName?: string;
   programCode?: string;
@@ -248,14 +248,14 @@ const ProgramsPage = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
   const {
-    data: firestorePrograms,
-    error: firestoreProgramsError,
+    data: remotePrograms,
+    error: remoteProgramsError,
     isUsingFallback,
-  } = useFirestoreCollection<FirestoreProgram>("AcademicPrograms", []);
+  } = useContentCollection<RemoteProgram>("AcademicPrograms", []);
 
   const programs: ProgramCard[] =
-    firestorePrograms.length > 0
-      ? firestorePrograms
+    remotePrograms.length > 0
+      ? remotePrograms
           .filter(
             (program) =>
               !program.status ||
@@ -317,18 +317,18 @@ const ProgramsPage = () => {
       : fallbackPrograms;
 
   useEffect(() => {
-    if (firestoreProgramsError) {
+    if (remoteProgramsError) {
       console.error(
         "Failed to fetch AcademicPrograms:",
-        firestoreProgramsError,
+        remoteProgramsError,
       );
     }
-    if (isUsingFallback && firestorePrograms.length === 0) {
+    if (isUsingFallback && remotePrograms.length === 0) {
       console.warn(
-        "Programs page is using fallback data. Check Firestore rules, collection name, and project config.",
+        "Programs page is using bundled fallback data. Remote programs are unavailable.",
       );
     }
-  }, [firestoreProgramsError, isUsingFallback, firestorePrograms.length]);
+  }, [remoteProgramsError, isUsingFallback, remotePrograms.length]);
 
   useEffect(() => {
     window.scrollTo(0, 0);

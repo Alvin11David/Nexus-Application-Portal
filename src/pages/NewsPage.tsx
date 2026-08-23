@@ -2,13 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/integrations/firebase/config";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowRight, Calendar } from "lucide-react";
 import newsHero from "@/assets/news-hero.jpg";
-import { useFirestoreCollection } from "@/hooks/useFirestore";
+import { useContentCollection } from "@/hooks/useContentCollection";
 import {
   featuredNewsSlug,
   getNewsArticleBySlug,
@@ -52,7 +50,7 @@ type NewsItem = {
   featured?: boolean;
 };
 
-type FirestoreNewsArticle = Record<string, unknown> & {
+type RemoteNewsArticle = Record<string, unknown> & {
   id: string;
   title?: string;
   slug?: string;
@@ -104,39 +102,16 @@ const NewsPage = () => {
   const imageRef = useRef<HTMLImageElement>(null);
   const newsRef = useRef<HTMLDivElement>(null);
   const eventsRef = useRef<HTMLDivElement>(null);
-  const [portalName, setPortalName] = useState("Veritas Institute");
+  const [portalName] = useState("Veritas Institute");
 
-  useEffect(() => {
-    const fetchPortalName = async () => {
-      if (!db) return;
-
-      try {
-        const settingsRef = doc(db, "appSettings", "admin");
-        const settingsSnap = await getDoc(settingsRef);
-        const settingsData = settingsSnap.data() as
-          | { studentPortalName?: string }
-          | undefined;
-        const nextName = settingsData?.studentPortalName?.trim();
-
-        if (nextName) {
-          setPortalName(nextName);
-        }
-      } catch {
-        // Keep fallback name when settings are unavailable.
-      }
-    };
-
-    void fetchPortalName();
-  }, []);
-
-  const { data: rawNewsData } = useFirestoreCollection<FirestoreNewsArticle>(
+  const { data: rawNewsData } = useContentCollection<RemoteNewsArticle>(
     "NewsArticles",
     [],
     {
       orderBy: { field: "createdAt", direction: "desc" },
     },
   );
-  const { data: eventsData } = useFirestoreCollection<EventItem>(
+  const { data: eventsData } = useContentCollection<EventItem>(
     "events",
     fallbackEvents.map((item) => ({ ...item, id: item.title })),
     { orderBy: { field: "date", direction: "asc" } },

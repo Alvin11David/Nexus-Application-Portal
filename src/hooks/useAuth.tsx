@@ -1,58 +1,25 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { User, Session } from "@supabase/supabase-js";
+import { useState } from "react";
 
+export type AuthUser = {
+  id: string;
+  email: string;
+};
+
+/**
+ * Placeholder auth hook.
+ *
+ * The legacy auth provider was removed along with the rest of the old stack.
+ * This keeps the previous call signature until the Spring Boot identity module
+ * (/api/v1/auth/**) provides JWT-based authentication.
+ */
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          // Check admin role
-          const { data } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", session.user.id)
-            .eq("role", "admin")
-            .maybeSingle();
-          setIsAdmin(!!data);
-        } else {
-          setIsAdmin(false);
-        }
-        setLoading(false);
-      }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", session.user.id)
-          .eq("role", "admin")
-          .maybeSingle()
-          .then(({ data }) => {
-            setIsAdmin(!!data);
-            setLoading(false);
-          });
-      } else {
-        setLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const [user] = useState<AuthUser | null>(null);
+  const [session] = useState<null>(null);
+  const [loading] = useState(false);
+  const [isAdmin] = useState(false);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    // No-op until the new backend's logout endpoint exists.
   };
 
   return { user, session, loading, isAdmin, signOut };

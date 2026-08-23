@@ -4,10 +4,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ChevronDown, HelpCircle } from "lucide-react";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/integrations/firebase/config";
 import aboutHero from "@/assets/about-hero.jpg";
-import { useFirestoreCollection } from "@/hooks/useFirestore";
+import { useContentCollection } from "@/hooks/useContentCollection";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -124,7 +122,7 @@ const faqCategories = [
   },
 ];
 
-type FirestoreFaq = {
+type RemoteFaq = {
   id: string;
   category: string;
   question: string;
@@ -132,7 +130,7 @@ type FirestoreFaq = {
   order?: number;
 };
 
-const fallbackFaqs: FirestoreFaq[] = faqCategories.flatMap((category) =>
+const fallbackFaqs: RemoteFaq[] = faqCategories.flatMap((category) =>
   category.questions.map((question, index) => ({
     id: `${category.category}-${index}`,
     category: category.category,
@@ -147,7 +145,7 @@ const FAQPage = () => {
   const heroTextRef = useRef<HTMLDivElement>(null);
   const faqRef = useRef<HTMLDivElement>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const { data: faqs } = useFirestoreCollection<FirestoreFaq>(
+  const { data: faqs } = useContentCollection<RemoteFaq>(
     "faqs",
     fallbackFaqs,
     {
@@ -155,7 +153,7 @@ const FAQPage = () => {
     },
   );
 
-  const groupedFaqs = faqs.reduce<Record<string, FirestoreFaq[]>>(
+  const groupedFaqs = faqs.reduce<Record<string, RemoteFaq[]>>(
     (acc, item) => {
       if (!acc[item.category]) {
         acc[item.category] = [];
